@@ -57,6 +57,7 @@ import { useRightPanelStore } from "../rightPanelStore";
 import { useTerminalUiStateStore } from "../terminalUiStateStore";
 import { buildThreadRouteParams, resolveThreadRouteRef } from "../threadRoutes";
 import { formatWorktreePathForDisplay, getOrphanedWorktreePathForThread } from "../worktreeCleanup";
+import { worktreeDeleteWarning } from "../worktreeDeleteWarning";
 import { stackedThreadToast, toastManager } from "../components/ui/toast";
 import { useClientSettings } from "./useSettings";
 import * as ThreadUndo from "@t3tools/client-runtime/state/thread-undo";
@@ -583,13 +584,26 @@ export function useThreadActions() {
     const automaticWorktreeCleanup = environmentSettings
       ? resolveWorktreeCleanup(environmentSettings, thread.projectId).worktreeOnDelete
       : false;
-    if (canDeleteWorktree && localApi && !automaticWorktreeCleanup) {
+    if (
+      canDeleteWorktree &&
+      orphanedWorktreePath !== null &&
+      localApi &&
+      !automaticWorktreeCleanup
+    ) {
+      const worktreeStatus = await refreshVcsStatus({
+        environmentId: threadRef.environmentId,
+        input: { cwd: orphanedWorktreePath, localOnly: true },
+      });
+      const warning = worktreeDeleteWarning(
+        worktreeStatus._tag === "Success" ? worktreeStatus.value : null,
+      );
       const confirmationResult = await settlePromise(() =>
         localApi.dialogs.confirm(
           [
             m(msg("This thread is the only one linked to this worktree:")),
             displayWorktreePath ?? orphanedWorktreePath,
             "",
+            ...(warning === null ? [] : [warning, ""]),
             m(msg("Delete the worktree too?")),
           ].join("\n"),
           { variant: "destructive" },

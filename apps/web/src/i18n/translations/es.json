@@ -12776,5 +12776,9 @@
   "99d51127f573296b": "Otra cuenta",
   "8ec2c57414669b79": "Conecta un segundo espacio de trabajo o usuario de {tracker}.",
   "99963c0142e17f00": "Para la nueva cuenta de {tracker}.",
-  "6d8e4ebc889bace9": "Añadir cuenta"
+  "6d8e4ebc889bace9": "Añadir cuenta",
+  "1a93bab6da356294": "T3 Code no pudo comprobar si este worktree tiene cambios sin commit. Al eliminarlo podrías perder trabajo.",
+  "b3cc4dfd8c1c2d25": "Tiene cambios sin commit. Al eliminar el worktree se perderán.",
+  "1aa396f5c19b226f": "{count, plural, one {Tiene cambios sin commit en {count} archivo. Al eliminar el worktree se perderán:} other {Tiene cambios sin commit en {count} archivos. Al eliminar el worktree se perderán:}}",
+  "e8d0653cf49cd57e": "y {count} más"
 }
