@@ -33,6 +33,7 @@ import {
   SettingsSection,
 } from "./settingsLayout";
 import { useSearchableSetting } from "./settingsSearch";
+import { TranslucentSidebarRow } from "./SidebarLayoutSettings";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { PanelAnimationsPreview } from "./PanelAnimationsPreview";
 import { TypographySection } from "./TypographySettings";
@@ -215,6 +216,8 @@ export function AppearanceSettingsPanel() {
             </div>
           }
         />
+
+        <TranslucentSidebarRow />
 
         <SettingsRow
           {...searchableSetting("setting-glass-opacity")}

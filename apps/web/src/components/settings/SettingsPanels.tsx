@@ -117,6 +117,7 @@ import {
   SettingsRow,
   SettingsSection,
 } from "./settingsLayout";
+import { SidebarLayoutRow } from "./SidebarLayoutSettings";
 import { useSearchableSetting } from "./settingsSearch";
 import { nativeLanguageName, SYSTEM_LANGUAGE } from "@t3tools/client-runtime/locales";
 import { SUPPORTED_LOCALES } from "../../i18n/locales";
@@ -875,6 +876,7 @@ export function GeneralSettingsPanel() {
       </SettingsSection>
 
       <SettingsSection id="sidebar" title={gt("Sidebar")}>
+        <SidebarLayoutRow />
         <SettingsRow
           {...setting("project-grouping")}
           description={<T>Combine matching repositories across environments.</T>}
@@ -955,7 +957,7 @@ export function GeneralSettingsPanel() {
           description={
             <T>
               Fold working and monitoring threads into a Working section. They return to the top of
-              the inbox when they need you. The boring sidebar in Labs has no Working section.
+              the inbox when they need you. The Projects layout has no Working section.
             </T>
           }
           resetAction={

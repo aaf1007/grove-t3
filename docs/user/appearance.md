@@ -21,6 +21,12 @@ Android uses **Material You Layout** by default unless you have turned it off in
 It changes shapes, spacing, and controls independently
 of the selected theme.
 
+## Translucent sidebar
+
+On desktop for macOS and Windows 11, turn on **Translucent sidebar** in **Settings → Appearance** to
+let the desktop behind the window show through the sidebar. The chat area stays solid. **Glass opacity**
+sets how much shows through; at 100% the sidebar is solid.
+
 ## Composer context
 
 Git-backed projects show branch and worktree controls below the composer while you create a thread.

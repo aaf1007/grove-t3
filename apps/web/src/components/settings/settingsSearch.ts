@@ -452,6 +452,12 @@ export const SETTINGS_SEARCH_ITEMS = [
     macOnly: true,
   },
   {
+    id: "translucent-sidebar",
+    title: msg("Translucent sidebar"),
+    to: "/settings/appearance",
+    searchTerms: [msg("vibrancy acrylic transparent blur window desktop")],
+  },
+  {
     id: "word-wrap",
     title: msg("Word wrap"),
     to: "/settings/appearance",
@@ -461,6 +467,12 @@ export const SETTINGS_SEARCH_ITEMS = [
     id: "composer-context",
     title: msg("Composer context"),
     to: "/settings/appearance",
+  },
+  {
+    id: "sidebar-layout",
+    title: msg("Sidebar layout"),
+    to: "/settings/general",
+    searchTerms: [msg("inbox projects group by project folders tree boring sidebar")],
   },
   {
     id: "project-grouping",
@@ -500,21 +512,6 @@ export const SETTINGS_SEARCH_ITEMS = [
     to: "/settings/general",
     searchTerms: [msg("hide fold running monitoring threads inbox sidebar shelf")],
   },
-  {
-    id: "boring-sidebar",
-    title: msg("Boring sidebar (group by project)"),
-    to: "/settings/labs",
-    searchTerms: [msg("beta folders project tree classic sidebar")],
-  },
-  {
-    id: "boring-sidebar-multiline",
-    title: msg("Two-line folder rows"),
-    to: "/settings/labs",
-    // Shown inside the boring sidebar row only while it is on, so search lands on the parent.
-    targetId: "boring-sidebar",
-    searchTerms: [msg("beta boring sidebar folder rows multiline branch pull request details")],
-  },
-
   {
     id: "tool-call-visibility",
     title: msg("Tool calls in chat"),

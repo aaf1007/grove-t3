@@ -73,6 +73,8 @@ const SidebarDraftRow = memo(function SidebarDraftRow(props: {
   projectDisplayName: string | null;
   isActive: boolean;
   jumpLabel: string | null;
+  /** A one-line row inside its project, in the Projects layout. */
+  nested: boolean;
   onNavigate: (draftId: DraftId) => void;
   onDiscard: (draftId: DraftId) => void;
   onContextMenu: (
@@ -138,6 +140,67 @@ const SidebarDraftRow = memo(function SidebarDraftRow(props: {
     event.stopPropagation();
     onDiscard(draftId);
   };
+  const discardButton = (
+    <Tooltip>
+      <TooltipTrigger
+        render={
+          <button
+            type="button"
+            aria-label={gt("Discard draft")}
+            onClick={handleDiscard}
+            className="pointer-events-none inline-flex cursor-pointer items-center rounded-md bg-transparent px-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/sidebar-row:pointer-events-auto group-hover/sidebar-row:opacity-100"
+          >
+            <XIcon className="size-3" />
+          </button>
+        }
+      />
+      <TooltipPopup side="top">
+        <T>Discard draft</T>
+      </TooltipPopup>
+    </Tooltip>
+  );
+  if (props.nested) {
+    return (
+      <li className="relative list-none ps-5.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-sidebar-border">
+        <div
+          role="button"
+          tabIndex={0}
+          data-sidebar-row={`draft:${draftId}`}
+          aria-label={accessibility.label}
+          aria-current={accessibility.current}
+          data-testid="sidebar-draft-row"
+          className={cn(
+            "group/sidebar-row relative flex h-8 w-full cursor-pointer items-center gap-2.5 overflow-hidden rounded-md px-2.5 text-left text-sm text-sidebar-foreground outline-none select-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring",
+            props.isActive ? "bg-sidebar-row-active" : "hover:bg-sidebar-row-hover",
+          )}
+          onClick={handleActivate}
+          onContextMenu={handleContextMenu}
+          onKeyDown={handleKeyDown}
+        >
+          <span
+            className={cn(
+              "min-w-0 flex-1 truncate",
+              !props.isActive && "text-sidebar-muted-foreground",
+            )}
+          >
+            {preview}
+          </span>
+          <span
+            className={cn(
+              "relative ml-auto flex h-6 min-w-6 shrink-0 items-center justify-end",
+              props.jumpLabel && JUMP_HINT_SLOT_CLASS_NAME,
+            )}
+          >
+            <span className="text-xs text-secondary-label group-hover/sidebar-row:opacity-0">
+              <T context="sidebar row: an unsent new thread">Draft</T>
+            </span>
+            <span className="absolute inset-y-0 right-0 flex items-center">{discardButton}</span>
+            {props.jumpLabel ? <JumpHintBadge label={props.jumpLabel} /> : null}
+          </span>
+        </div>
+      </li>
+    );
+  }
   return (
     <li className="list-none py-0.5">
       <div
@@ -170,23 +233,7 @@ const SidebarDraftRow = memo(function SidebarDraftRow(props: {
                 props.jumpLabel && JUMP_HINT_SLOT_CLASS_NAME,
               )}
             >
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <button
-                      type="button"
-                      aria-label={gt("Discard draft")}
-                      onClick={handleDiscard}
-                      className="pointer-events-none inline-flex cursor-pointer items-center rounded-md bg-transparent px-1 text-muted-foreground opacity-0 transition-opacity hover:text-foreground focus-visible:pointer-events-auto focus-visible:opacity-100 group-hover/sidebar-row:pointer-events-auto group-hover/sidebar-row:opacity-100"
-                    >
-                      <XIcon className="size-3" />
-                    </button>
-                  }
-                />
-                <TooltipPopup side="top">
-                  <T>Discard draft</T>
-                </TooltipPopup>
-              </Tooltip>
+              {discardButton}
               {props.jumpLabel ? <JumpHintBadge label={props.jumpLabel} /> : null}
             </span>
           </div>
@@ -259,6 +306,8 @@ export const SidebarDraftBlock = memo(function SidebarDraftBlock(props: {
   projectByKey: ReadonlyMap<string, EnvironmentProject>;
   projectDisplayNameByKey: ReadonlyMap<string, string>;
   routeDraftId: string | null;
+  /** Rows inside a project in the Projects layout: one line each and no divider. */
+  nested?: boolean;
   onNavigateToDraft: (draftId: DraftId) => void;
   onDraftContextMenu: (
     draftId: DraftId,
@@ -299,17 +348,20 @@ export const SidebarDraftBlock = memo(function SidebarDraftBlock(props: {
             projectDisplayName={props.projectDisplayNameByKey.get(projectKey) ?? null}
             isActive={draftId === props.routeDraftId}
             jumpLabel={props.jumpLabelByDraftId?.get(draftId) ?? null}
+            nested={props.nested === true}
             onNavigate={props.onNavigateToDraft}
             onDiscard={discardComposerDraft}
             onContextMenu={props.onDraftContextMenu}
           />
         );
       })}
-      <li
-        aria-hidden
-        data-testid="sidebar-draft-divider"
-        className="mx-2.5 my-1.5 h-px list-none bg-sidebar-border/60"
-      />
+      {props.nested ? null : (
+        <li
+          aria-hidden
+          data-testid="sidebar-draft-divider"
+          className="mx-2.5 my-1.5 h-px list-none bg-sidebar-border/60"
+        />
+      )}
     </>
   );
 });

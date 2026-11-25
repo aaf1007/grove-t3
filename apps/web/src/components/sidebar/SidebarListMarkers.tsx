@@ -118,6 +118,8 @@ export function SidebarSectionHeader(props: {
   className?: string;
   dragging?: boolean;
   isDropTarget?: boolean;
+  /** The Projects layout's small-caps section label. */
+  caps?: boolean;
   toggle: { expanded: boolean; onToggle: () => void };
 }) {
   const shelf =
@@ -140,7 +142,11 @@ export function SidebarSectionHeader(props: {
         data-testid={`sidebar-${shelf}-shelf-toggle`}
         accessory={<span className="font-normal tabular-nums">{props.count}</span>}
       >
-        {props.label}
+        {props.caps ? (
+          <span className="text-2xs font-semibold tracking-wider uppercase">{props.label}</span>
+        ) : (
+          props.label
+        )}
       </CollapsibleSectionHeader>
     </SortableSidebarMarker>
   );

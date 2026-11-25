@@ -16,16 +16,18 @@ import * as Option from "effect/Option";
 import { Atom } from "effect/reactivity";
 import * as Schema from "effect/Schema";
 import {
+  closestCenter,
   DndContext,
   useSensor,
   useSensors,
   type AutoScrollOptions,
+  type CollisionDetection,
   type DragEndEvent,
   type DragOverEvent,
   type DragStartEvent,
   type Modifier,
 } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { restrictToFirstScrollableAncestor, restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   canSnooze,
@@ -73,6 +75,7 @@ import {
   ChevronDownIcon,
   FolderIcon,
   FolderPlusIcon,
+  ListFilterIcon,
   PlusIcon,
   SettingsIcon,
 } from "lucide-react";
@@ -85,9 +88,12 @@ import {
   useSyncExternalStore,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from "react";
 import { type AnyRouter, useRouter } from "@tanstack/react-router";
+import { useShallow } from "zustand/react/shallow";
+import { openSideThread } from "../lib/sideChatPane";
 
 import {
   isAtomCommandInterrupted,
@@ -137,7 +143,7 @@ import { useSidebarProjectGroups } from "../hooks/useSidebarProjectGroups";
 import { isCommandPaletteOpen, openCommandPalette } from "../commandPaletteBus";
 import { registerSettleAndAdvance } from "../settleAndAdvance";
 import { resolveThreadActionProjectRef, startNewThreadFromContext } from "../lib/chatThreadActions";
-import { useClientSettings } from "../hooks/useSettings";
+import { updateClientSettings, useClientSettings } from "../hooks/useSettings";
 import { useCopyToClipboard } from "../hooks/useCopyToClipboard";
 import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useNowMinute } from "../hooks/useNowMinute";
@@ -207,6 +213,7 @@ import {
   resolveScopedNewThreadProjectRef,
   shouldNavigateAfterThreadPark,
   sidebarListItemId,
+  sidebarMarkerId,
   sidebarThreadKeyAtY,
   sortInboxThreadsByReturn,
   sortPinnedThreadsForSidebar,
@@ -280,9 +287,23 @@ import {
   useSidebarDrafts,
 } from "./sidebar/SidebarDraftBlock";
 import {
-  SidebarProjectFolderHeader,
+  ProjectsHeadingIconButton,
+  PROJECTS_HEADING_ID,
+  projectGroupMarkerId,
+  PROJECTS_LAYOUT_LABEL_CLASS_NAME,
+  SidebarProjectGroupHeader,
+  SidebarProjectsHeading,
+  SidebarSubagentSummary,
   sidebarFolderRowId,
-} from "./sidebar/SidebarProjectFolderHeader";
+  useProjectGroupDrag,
+} from "./sidebar/SidebarProjectsLayout";
+import {
+  orderProjectsLayoutGroups,
+  projectDropTarget,
+  resolveProjectsLayoutDrop,
+  summarizeSubagentsByParent,
+  type ProjectsLayoutItem,
+} from "./sidebar/projectsLayout.logic";
 import {
   SidebarDragBoundary,
   SidebarSectionHeader,
@@ -370,8 +391,6 @@ interface SidebarThreadPartitionInput {
   readonly connectedEnvironmentIds: readonly EnvironmentId[];
   readonly optimisticDrop: SidebarOptimisticDrop | null;
   readonly workingShelfEnabled: boolean;
-  /** Boring mode: folders list active threads by the user's latest message. */
-  readonly sortActiveBySend: boolean;
   // Snooze wakes, the queued-turn grace and the Working shelf's exit grace depend
   // on the clock, so the minute tick, the precise snooze-wake tick and the inbox
   // tracker's expiry version are inputs: a new key repartitions.
@@ -442,6 +461,8 @@ function useSidebarThreads(input: {
   readonly folderGroups: readonly SidebarProjectSnapshot[] | null;
   // Keeps folders with no active threads, so a project the user filtered to or pinned can start one.
   readonly keepEmptyFolders: (group: SidebarProjectSnapshot) => boolean;
+  // While a project is dragged every folder folds to its header.
+  readonly foldAllFolders: boolean;
 }) {
   const {
     projectScopeKey,
@@ -455,6 +476,7 @@ function useSidebarThreads(input: {
     departingThreadKey,
     folderGroups,
     keepEmptyFolders: keepEmpty,
+    foldAllFolders,
   } = input;
   const shelfRouteThreadKey = routeRowThreadKey === departingThreadKey ? null : routeRowThreadKey;
   // Folders already separate the work, so boring mode has no Working shelf.
@@ -503,7 +525,6 @@ function useSidebarThreads(input: {
     connectedEnvironmentIds,
     optimisticDrop,
     workingShelfEnabled,
-    sortActiveBySend: folderGroups !== null,
     clockKey: `${nowMinute}:${snoozeWakeClock}:${inboxReturnsVersion}`,
   });
 
@@ -545,20 +566,24 @@ function useSidebarThreads(input: {
     folderGroups === null
       ? null
       : groupSidebarThreadsByProject(folderGroups, activeThreads, keepEmpty).map((folder) => {
-          const collapsed = !resolveProjectExpanded(
-            projectExpandedById,
-            sidebarFolderExpansionKeys(folder.group),
-          );
+          const collapsed =
+            foldAllFolders ||
+            !resolveProjectExpanded(projectExpandedById, sidebarFolderExpansionKeys(folder.group));
           return {
             group: folder.group,
             collapsed,
+            allThreads: folder.threads,
             // A closed folder still shows the open thread, and hints at the rest.
-            threads: collapsed
-              ? routeThreadOnly(folder.threads, routeRowThreadKey)
-              : folder.threads,
-            hiddenThreads: collapsed
-              ? folder.threads.filter((thread) => threadShellKey(thread) !== routeRowThreadKey)
-              : EMPTY_THREADS,
+            threads: foldAllFolders
+              ? EMPTY_THREADS
+              : collapsed
+                ? routeThreadOnly(folder.threads, routeRowThreadKey)
+                : folder.threads,
+            hiddenThreads: foldAllFolders
+              ? folder.threads
+              : collapsed
+                ? folder.threads.filter((thread) => threadShellKey(thread) !== routeRowThreadKey)
+                : EMPTY_THREADS,
           };
         });
   const orderedThreads = [
@@ -638,7 +663,6 @@ function partitionSidebarThreads(input: SidebarThreadPartitionInput) {
     serverConfigs,
     optimisticDrop,
     workingShelfEnabled,
-    sortActiveBySend,
   } = input;
   const preciseNow = new Date().toISOString();
   const visible = filterSidebarV2VisibleThreads(threads, scopedProjectKeys, delegatedUnderParent);
@@ -696,11 +720,9 @@ function partitionSidebarThreads(input: SidebarThreadPartitionInput) {
   }
   // Availability gates dragging only; sorting must stay consistent across clients.
   const sortedPinned = sortPinnedThreadsForSidebar(pinned);
-  const sortedActive = sortActiveBySend
-    ? sortWorkingThreadsBySend(active)
-    : workingShelfEnabled
-      ? sortInboxThreadsByReturn(active, inboxObservation.returnedAt)
-      : sortThreadsForSidebar(active);
+  const sortedActive = workingShelfEnabled
+    ? sortInboxThreadsByReturn(active, inboxObservation.returnedAt)
+    : sortThreadsForSidebar(active);
   return {
     pinnedThreads:
       optimisticDrop?.section !== "pinned" || optimisticDrop.order === null
@@ -1001,7 +1023,8 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     },
   });
   const boringSidebarEnabled = useClientSettings((settings) => settings.boringSidebarEnabled);
-  const folderRowsMultiline = useClientSettings((settings) => settings.boringSidebarMultilineRows);
+  const projectSortOrder = useClientSettings((settings) => settings.sidebarProjectSortOrder);
+  const reorderProjectOrder = useUiStateStore((store) => store.reorderProjects);
   const newThreadContext = useHandleNewThread();
   // Row callbacks capture only the handler; the rest of the context changes with the route.
   const { handleNewThread } = newThreadContext;
@@ -1325,6 +1348,37 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     },
   );
 
+  // The Projects layout's groups in display order: open projects, archived ones with active
+  // threads, then No project. A filter shows just the chosen projects.
+  const projectsLayoutGroups = boringSidebarEnabled
+    ? scopedProjectGroups.length === 0
+      ? orderProjectsLayoutGroups(
+          scopeGroups,
+          projectGroups.filter((project) => project.archived),
+        )
+      : scopedProjectGroups
+    : null;
+  const dropProjectGroup = useStableCallback(
+    (before: readonly string[], after: readonly string[], dragged: string) => {
+      const target = projectDropTarget(before, after, dragged);
+      if (target === null) return;
+      const shown = projectsLayoutGroups ?? [];
+      const memberKeys = (key: string) =>
+        projectGroups
+          .find((group) => group.projectKey === key)
+          ?.memberProjects.map((member) => member.physicalProjectKey) ?? [];
+      // Placement reads the order on screen, so the unlisted projects follow the shown ones.
+      const currentOrder = [
+        ...shown,
+        ...projectGroups.filter((group) => !shown.includes(group)),
+      ].flatMap((group) => memberKeys(group.projectKey));
+      reorderProjectOrder(currentOrder, memberKeys(dragged), memberKeys(target));
+      if (projectSortOrder !== "manual") {
+        void updateClientSettings({ sidebarProjectSortOrder: "manual" });
+      }
+    },
+  );
+  const projectDrag = useProjectGroupDrag(dropProjectGroup);
   const {
     workingShelfEnabled,
     pinnedThreads,
@@ -1371,15 +1425,26 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     delegatedUnderParent,
     routeRowThreadKey,
     departingThreadKey,
-    folderGroups: boringSidebarEnabled
-      ? scopedProjectGroups.length === 0
-        ? // An archived project keeps a folder for its active threads, below the rest.
-          [...scopeGroups, ...projectGroups.filter((project) => project.archived)]
-        : scopedProjectGroups
-      : null,
+    folderGroups:
+      projectsLayoutGroups === null || projectDrag.drag === null
+        ? projectsLayoutGroups
+        : orderItemsByPreferredIds({
+            items: projectsLayoutGroups,
+            preferredIds: projectDrag.drag.order,
+            getId: (group) => group.projectKey,
+          }),
     keepEmptyFolders: (group) =>
       scopedProjectGroups.length > 0 || (group.pinned && !group.archived),
+    foldAllFolders: projectDrag.drag !== null,
   });
+  const startProjectDrag = useStableCallback(
+    (group: SidebarProjectSnapshot, event: ReactPointerEvent) =>
+      projectDrag.start(
+        group.projectKey,
+        (projectFolders ?? []).map((folder) => folder.group.projectKey),
+        event,
+      ),
+  );
 
   // Ranked across environments as the palette ranks them, so one
   // environment's list does not sit above another's better matches; rows
@@ -1469,7 +1534,49 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
   // Search hides them, so they drop out while it is open.
   const listedDraftIds = isSearchingThreads ? EMPTY_DRAFT_IDS : draftIds;
   const draftIdByRowKey = new Map<string, DraftId>(listedDraftIds.map((id) => [`draft:${id}`, id]));
-  const orderedRowKeys = [...draftIdByRowKey.keys(), ...orderedThreadKeys];
+  // The Projects layout lists a draft in its project, under a closed one only while it is open.
+  const draftProjectRefById = useComposerDraftStore(
+    useShallow((store) =>
+      Object.fromEntries(
+        listedDraftIds.map((id) => {
+          const session = store.draftThreadsByThreadKey[id];
+          return [id, session ? `${session.environmentId}:${session.projectId}` : ""] as const;
+        }),
+      ),
+    ),
+  );
+  const folderKeyByProjectRef = new Map<string, string>(
+    (projectFolders ?? []).flatMap((folder) =>
+      folder.group.memberProjectRefs.map(
+        (ref) => [`${ref.environmentId}:${ref.projectId}`, folder.group.projectKey] as const,
+      ),
+    ),
+  );
+  const collapsedFolderKeys = new Set(
+    (projectFolders ?? []).flatMap((folder) => (folder.collapsed ? [folder.group.projectKey] : [])),
+  );
+  const topDraftIds: DraftId[] = [];
+  const draftIdsByFolderKey = new Map<string, DraftId[]>();
+  for (const id of listedDraftIds) {
+    const folderKey = folderKeyByProjectRef.get(draftProjectRefById[id] ?? "");
+    if (folderKey === undefined) topDraftIds.push(id);
+    else if (!collapsedFolderKeys.has(folderKey) || id === routeDraftIdForRows) {
+      draftIdsByFolderKey.set(folderKey, [...(draftIdsByFolderKey.get(folderKey) ?? []), id]);
+    }
+  }
+  const orderedRowKeys =
+    projectFolders === null
+      ? [...draftIdByRowKey.keys(), ...orderedThreadKeys]
+      : [
+          ...topDraftIds.map((id) => `draft:${id}`),
+          ...pinnedThreads.map(threadShellKey),
+          ...projectFolders.flatMap((folder) => [
+            ...(draftIdsByFolderKey.get(folder.group.projectKey) ?? []).map((id) => `draft:${id}`),
+            ...folder.threads.map(threadShellKey),
+          ]),
+          ...visibleSnoozedThreads.map(threadShellKey),
+          ...renderedSettledThreads.map(threadShellKey),
+        ];
   const routeDraftRowKey = `draft:${routeDraftIdForRows}`;
   const routeRowKey = draftIdByRowKey.has(routeDraftRowKey) ? routeDraftRowKey : routeRowThreadKey;
 
@@ -1497,6 +1604,20 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
       params: buildThreadRouteParams(threadRef),
     });
   };
+  // A subagent summary opens the subagent beside its parent, or in its place, as a click in
+  // the parent's Agents list does.
+  const subagentSummaries = projectFolders === null ? null : summarizeSubagentsByParent(threads);
+  const openSubagentBeside = useStableCallback(
+    (parentRef: ScopedThreadRef, subagentId: ThreadId) => {
+      const place = openSideThread({
+        threadRef: scopeThreadRef(parentRef.environmentId, subagentId),
+        panelRef: parentRef,
+        intent: "primary",
+        navigate: (threadRef) => void navigateToThread(threadRef),
+      });
+      if (place === "panel") void navigateToThread(parentRef);
+    },
+  );
 
   const handleThreadFileDrop = async (threadRef: ScopedThreadRef, files: File[]) => {
     const dropId = queuePendingFileDrop({ threadRef, files });
@@ -1770,11 +1891,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     };
   };
 
-  // Folder rows only drag out to the composer; folders own their order, so nothing drops in the list.
-  const isContextDrag =
-    projectFolders !== null ||
-    dragState?.contextDrag === true ||
-    dragState?.activeSection === "working";
+  const isContextDrag = dragState?.contextDrag === true || dragState?.activeSection === "working";
   const dragTargetSection = isContextDrag ? null : (dragState?.targetSection ?? null);
   const finishThreadDrag = (started: boolean) => {
     dragSensorRef.current = null;
@@ -2071,9 +2188,90 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     previousShelfExpansionKeyRef.current = shelfExpansionKey;
     listMotionRef.current?.update(listMotionPass.animate && shelvesUnchanged);
   }, [listMotionPass, shelfExpansionKey]);
+  // The Projects layout drags a row within its project, or to Pinned or Settled. Its rows are
+  // one line high, so dnd-kit's vertical strategy places them.
+  const projectsLayoutItems: readonly ProjectsLayoutItem[] | null =
+    projectFolders === null
+      ? null
+      : [
+          ...pinnedThreads.map((thread) => ({
+            kind: "thread" as const,
+            id: threadShellKey(thread),
+            section: "pinned" as const,
+            projectKey:
+              folderKeyByProjectRef.get(`${thread.environmentId}:${thread.projectId}`) ?? null,
+          })),
+          { kind: "marker", id: PROJECTS_HEADING_ID, marker: "projects" },
+          ...projectFolders.flatMap((folder): ProjectsLayoutItem[] => [
+            {
+              kind: "marker",
+              id: projectGroupMarkerId(folder.group.projectKey),
+              marker: "project",
+              projectKey: folder.group.projectKey,
+              closedKeys: folder.collapsed ? folder.allThreads.map(threadShellKey) : null,
+            },
+            ...folder.threads.map((thread) => ({
+              kind: "thread" as const,
+              id: threadShellKey(thread),
+              section: "active" as const,
+              projectKey: folder.group.projectKey,
+            })),
+          ]),
+          ...[
+            ...(snoozedThreads.length === 0
+              ? []
+              : [{ marker: "snoozed" as const, threads: visibleSnoozedThreads }]),
+            { marker: "settled" as const, threads: renderedSettledThreads },
+          ].flatMap((shelf): ProjectsLayoutItem[] => [
+            { kind: "marker", id: sidebarMarkerId(`${shelf.marker}-header`), marker: shelf.marker },
+            ...shelf.threads.map((thread) => ({
+              kind: "thread" as const,
+              id: threadShellKey(thread),
+              section: shelf.marker,
+              projectKey:
+                folderKeyByProjectRef.get(`${thread.environmentId}:${thread.projectId}`) ?? null,
+            })),
+          ]),
+        ];
+  const planProjectsLayoutDrop = useStableCallback((activeKey: string, overId: string) => {
+    if (projectsLayoutItems === null || projectFolders === null) return null;
+    const drop = resolveProjectsLayoutDrop(projectsLayoutItems, activeKey, overId);
+    const activeSection = sectionByThreadKey.get(activeKey);
+    const source = threadByKey.get(activeKey);
+    if (drop === null || activeSection === undefined || source === undefined) return null;
+    // Keys are placed among the project's own threads; other projects never share its rows.
+    const projectOrder =
+      drop.section === "active"
+        ? (projectFolders
+            .find((folder) => folder.group.projectKey === drop.projectKey)
+            ?.allThreads.map(threadShellKey) ?? [])
+        : activeKeys;
+    const target = {
+      section: drop.section,
+      pinnedOrder: drop.section === "pinned" ? drop.order : pinnedKeys,
+      activeOrder: drop.section === "active" ? drop.order : projectOrder,
+    };
+    const plan = planSidebarThreadDrop({
+      activeKey,
+      activeSection,
+      activePinned: source.pinnedAt != null,
+      activeSettled: source.settledOverride === "settled",
+      supportsSettlement: serverConfigs.has(source.environmentId),
+      target,
+      pinnedOrder: pinnedKeys,
+      pinnedKeysById,
+      reorderableKeys: draggableThreadKeys,
+      activeOrder: projectOrder,
+      activeKeysById,
+      activeReorderableKeys: activeReorderableThreadKeys,
+    });
+    return { target, plan };
+  });
   const handleThreadDragOver = (event: DragOverEvent) => {
     const target = event.over
-      ? resolveSidebarDropTarget(sidebarListItems, String(event.active.id), String(event.over.id))
+      ? projectsLayoutItems !== null
+        ? (planProjectsLayoutDrop(String(event.active.id), String(event.over.id))?.target ?? null)
+        : resolveSidebarDropTarget(sidebarListItems, String(event.active.id), String(event.over.id))
       : null;
     setDragState((current) =>
       current === null || current.activeKey !== String(event.active.id)
@@ -2081,7 +2279,8 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
         : { ...current, targetSection: target?.section ?? null },
     );
   };
-  const sortableIds = sidebarListItems.map(sidebarListItemId);
+  const sortableIds =
+    projectsLayoutItems?.map((item) => item.id) ?? sidebarListItems.map(sidebarListItemId);
   // Keep non-drag orders constant to preserve sorting strategy and row identity during streaming.
   const { settledOrder: draggedSettledOrder, activeOrder: draggedActiveOrder } =
     dragState === null
@@ -2093,21 +2292,45 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           activeThreads,
           workingShelfEnabled,
         });
-  const sidebarSortingStrategy = createSidebarSortingStrategy({
-    items: sidebarListItems,
-    enabled: !isContextDrag,
-    boundaryLabelHeight: SIDEBAR_DRAG_LABEL_HEIGHT,
-    settledOrder: draggedSettledOrder,
-    ...(draggedActiveOrder === undefined ? {} : { activeOrder: draggedActiveOrder }),
-    settledExpanded: settledShelfExpanded,
-    settledVisibleCount,
-    routeThreadKey: routeRowThreadKey,
-    snoozedThreadCount: snoozedThreads.length,
-  });
+  const sidebarSortingStrategy =
+    projectsLayoutItems !== null
+      ? isContextDrag
+        ? () => null
+        : verticalListSortingStrategy
+      : createSidebarSortingStrategy({
+          items: sidebarListItems,
+          enabled: !isContextDrag,
+          boundaryLabelHeight: SIDEBAR_DRAG_LABEL_HEIGHT,
+          settledOrder: draggedSettledOrder,
+          ...(draggedActiveOrder === undefined ? {} : { activeOrder: draggedActiveOrder }),
+          settledExpanded: settledShelfExpanded,
+          settledVisibleCount,
+          routeThreadKey: routeRowThreadKey,
+          snoozedThreadCount: snoozedThreads.length,
+        });
   const draggedThreadKey = dragState?.activeKey;
+  const projectsLayoutIds = new Set(sortableIds);
+  const projectsLayoutValidity = new Map<string, boolean>();
+  const projectsLayoutCollision: CollisionDetection = (args) => {
+    const collisions = closestCenter({
+      ...args,
+      droppableContainers: args.droppableContainers.filter((container) =>
+        projectsLayoutIds.has(String(container.id)),
+      ),
+    });
+    const nearest = collisions[0];
+    if (!nearest || nearest.id === args.active.id) return collisions;
+    const id = String(nearest.id);
+    const valid =
+      projectsLayoutValidity.get(id) ??
+      (planProjectsLayoutDrop(String(args.active.id), id)?.plan.kind ?? "none") !== "none";
+    projectsLayoutValidity.set(id, valid);
+    return valid ? collisions : collisions.filter((collision) => collision.id === args.active.id);
+  };
   const draggedFromSection = dragState?.activeSection;
   const dragActivationY = dragState?.activationY;
   const dndCollisionDetection = (() => {
+    if (projectsLayoutItems !== null) return projectsLayoutCollision;
     if (draggedThreadKey === undefined || draggedFromSection === undefined)
       return createSidebarCollisionDetection(() => true);
     const source = threadByKey.get(draggedThreadKey);
@@ -2141,31 +2364,36 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     );
   })();
   const handleThreadDragEnd = (event: DragEndEvent) => {
-    if (projectFolders !== null) return;
     const activeKey = String(event.active.id);
     const activeSection = sectionByThreadKey.get(activeKey);
+    const projectsLayoutDrop =
+      event.over === null ? null : planProjectsLayoutDrop(activeKey, String(event.over.id));
     const target =
       event.over === null
         ? null
-        : resolveSidebarDropTarget(sidebarListItems, activeKey, String(event.over.id));
+        : projectsLayoutItems !== null
+          ? (projectsLayoutDrop?.target ?? null)
+          : resolveSidebarDropTarget(sidebarListItems, activeKey, String(event.over.id));
     const activeThread = threadByKey.get(activeKey);
     if (activeSection === undefined || target === null || activeThread === undefined) return;
     const threadRef = scopeThreadRef(activeThread.environmentId, activeThread.id);
-    const plan = planSidebarThreadDrop({
-      activeKey,
-      activeSection,
-      activePinned: activeThread.pinnedAt != null,
-      activeSettled: activeThread.settledOverride === "settled",
-      supportsSettlement: serverConfigs.has(activeThread.environmentId),
-      target,
-      pinnedOrder: pinnedKeys,
-      pinnedKeysById,
-      reorderableKeys: draggableThreadKeys,
-      activeOrder: activeKeys,
-      activeKeysById,
-      activeReorderableKeys: activeReorderableThreadKeys,
-      activeTimeOrdered: workingShelfEnabled,
-    });
+    const plan =
+      projectsLayoutDrop?.plan ??
+      planSidebarThreadDrop({
+        activeKey,
+        activeSection,
+        activePinned: activeThread.pinnedAt != null,
+        activeSettled: activeThread.settledOverride === "settled",
+        supportsSettlement: serverConfigs.has(activeThread.environmentId),
+        target,
+        pinnedOrder: pinnedKeys,
+        pinnedKeysById,
+        reorderableKeys: draggableThreadKeys,
+        activeOrder: activeKeys,
+        activeKeysById,
+        activeReorderableKeys: activeReorderableThreadKeys,
+        activeTimeOrdered: workingShelfEnabled,
+      });
     if (plan.kind === "none") return;
     if (plan.kind === "settle" && settlingThreadKeysRef.current.has(activeKey)) return;
     const assignments =
@@ -3061,6 +3289,233 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
       ? shortcutLabelForCommand(keybindings, "chat.newLocal")
       : undefined);
   const newThreadInProjectShortcutLabel = shortcutLabelForCommand(keybindings, "chat.newLocal");
+  const projectScopeMenu = (
+    <Combobox
+      items={projectScopeItems}
+      filteredItems={filteredProjectScopeItems}
+      autoHighlight
+      itemToStringLabel={(item) => item.label}
+      isItemEqualToValue={(a, b) => a.value === b.value}
+      open={projectScopeMenuState.open}
+      onOpenChange={(open, eventDetails) => {
+        if (eventDetails.isCanceled) return;
+        if (open) suppressNextScopeChangeRef.current = false;
+        dispatchProjectScopeMenu({ type: "open-changed", open });
+      }}
+      onItemHighlighted={(item) => {
+        highlightedProjectScopeKeyRef.current = item?.value ?? null;
+      }}
+      value={selectedProjectScopeItem}
+      onValueChange={(item, eventDetails) => {
+        if (suppressNextScopeChangeRef.current) {
+          suppressNextScopeChangeRef.current = false;
+          return;
+        }
+        if (!item) return;
+        if (item.value === ADD_PROJECT_SCOPE_ITEM_VALUE) {
+          dispatchProjectScopeMenu({ type: "open-changed", open: false });
+          openAddProjectCommandPalette();
+        } else if (item.value === "all") {
+          setProjectScopeKeys([]);
+        } else if (eventDetails.event instanceof MouseEvent && eventDetails.event.shiftKey) {
+          // Canceling skips Base UI's commit, which would freeze the search query, and its close.
+          eventDetails.cancel();
+          toggleProjectScopeKey(item.value);
+        } else {
+          setProjectScopeKeys([item.value]);
+        }
+      }}
+    >
+      <ComboboxTrigger
+        render={
+          projectFolders !== null ? (
+            <ProjectsHeadingIconButton
+              label={
+                scopedProjectGroups.length > 0
+                  ? gt("Projects: {projects}", {
+                      projects: scopedProjectGroups
+                        .map((project) => project.displayName)
+                        .join(", "),
+                    })
+                  : gt("Filter projects")
+              }
+            />
+          ) : (
+            <SidebarHeaderIconButton
+              label={
+                scopedProjectGroups.length > 0
+                  ? gt("Projects: {projects}", {
+                      projects: scopedProjectGroups
+                        .map((project) => project.displayName)
+                        .join(", "),
+                    })
+                  : gt("Projects")
+              }
+            />
+          )
+        }
+      >
+        {projectFolders !== null ? (
+          <>
+            <ListFilterIcon aria-hidden />
+            {scopedProjectGroups.length > 0 ? (
+              <span
+                aria-hidden
+                className="absolute top-0.5 right-0.5 size-1.5 rounded-full bg-primary"
+              />
+            ) : null}
+          </>
+        ) : scopedProjectGroups.length > 1 ? (
+          <span className="flex shrink-0">
+            {scopedProjectGroups.slice(0, 2).map((project, index) => (
+              <span
+                key={project.projectKey}
+                className={
+                  index === 0 ? "flex" : "-ml-1 flex rounded-[25%] bg-sidebar ring-2 ring-sidebar"
+                }
+              >
+                <ProjectFavicon project={project} className="size-3.5" />
+              </span>
+            ))}
+          </span>
+        ) : scopedProjectGroups[0] ? (
+          <span className="flex shrink-0">
+            <ProjectFavicon project={scopedProjectGroups[0]} className="size-4" />
+          </span>
+        ) : (
+          <FolderIcon className="size-4" />
+        )}
+      </ComboboxTrigger>
+      {/* Refocusing the trigger after a pointer close shows its focus ring and opens its tooltip. */}
+      <ComboboxPopup
+        align="start"
+        collisionAvoidance={{ side: "flip", align: "shift" }}
+        className="w-[min(18rem,var(--available-width))] overflow-hidden"
+        finalFocus={(closeType) => closeType === "keyboard"}
+      >
+        <ComboboxSearchInput
+          aria-label={gt("Search projects")}
+          placeholder={gt("Search projects...")}
+          value={projectScopeMenuState.query}
+          onKeyDown={(event) => {
+            if (event.defaultPrevented || event.nativeEvent.isComposing || event.keyCode === 229) {
+              return;
+            }
+            const scopeKey = highlightedProjectScopeKeyRef.current;
+            const project = scopeKey ? projectGroupByScopeKey.get(scopeKey) : null;
+            // The thread pin shortcut pins the highlighted project here.
+            if (project && canPinProject(project) && isProjectPinShortcut(event, keybindings)) {
+              event.preventDefault();
+              event.stopPropagation();
+              toggleProjectGroupPin(project);
+              return;
+            }
+            if (event.ctrlKey || event.altKey || event.metaKey) return;
+            if (event.shiftKey && event.key === "Enter") {
+              if (!project) return;
+              event.preventDefault();
+              toggleProjectScopeKey(project.projectKey);
+              return;
+            }
+            if (event.key !== "ContextMenu" && !(event.shiftKey && event.key === "F10")) {
+              return;
+            }
+            if (project) handleProjectSettings(event, project);
+          }}
+          onChange={(event) =>
+            dispatchProjectScopeMenu({
+              type: "query-changed",
+              query: event.target.value,
+            })
+          }
+        />
+        <ComboboxEmpty>
+          <T>No matching projects.</T>
+        </ComboboxEmpty>
+        <ComboboxList aria-multiselectable>
+          {(item: (typeof projectScopeItems)[number]) => {
+            if (item.value === ADD_PROJECT_SCOPE_ITEM_VALUE) {
+              return (
+                <ComboboxItem key={item.value} hideIndicator value={item}>
+                  <FolderPlusIcon className="size-4 shrink-0" />
+                  <span className="min-w-0 truncate text-sm">{item.label}</span>
+                  {/* Keeps "Add project" as tall as the project rows. */}
+                  <span className="ml-auto size-7 shrink-0 sm:size-6" />
+                </ComboboxItem>
+              );
+            }
+            const project = projectGroupByScopeKey.get(item.value) ?? null;
+            const isSelected = project
+              ? projectScopeKeys.includes(item.value)
+              : projectScopeKeys.length === 0;
+            return (
+              <ComboboxItem
+                key={item.value}
+                hideIndicator
+                value={item}
+                aria-selected={isSelected}
+                // The icon badge marks selection; Base UI's single value would shade one row.
+                data-selected={undefined}
+                onContextMenu={(event) => {
+                  if (project) handleProjectSettings(event, project);
+                }}
+              >
+                <ProjectScopeRowIcon isSelected={isSelected}>
+                  {project ? (
+                    <ProjectFavicon project={project} className="size-4 shrink-0" />
+                  ) : (
+                    <FolderIcon className="size-4 shrink-0" />
+                  )}
+                </ProjectScopeRowIcon>
+                <span className="min-w-0 truncate text-sm">{item.label}</span>
+                {project && showProjectEnvironments ? (
+                  <ProjectEnvironmentBadge
+                    group={project}
+                    primaryEnvironmentId={primaryEnvironmentId}
+                    machineByEnvironmentId={environmentMachineById}
+                  />
+                ) : null}
+                {project ? (
+                  <ProjectRowActions
+                    pin={
+                      canPinProject(project) ? (
+                        <ProjectPinButton
+                          name={project.displayName}
+                          pinned={project.pinned}
+                          shortcutLabel={shortcutLabelForCommand(keybindings, "thread.pin")}
+                          onToggle={() => toggleProjectGroupPin(project)}
+                        />
+                      ) : null
+                    }
+                    settings={
+                      <Button
+                        size="icon-xs"
+                        variant="ghost-muted"
+                        tabIndex={-1}
+                        aria-hidden="true"
+                        title={gt("Project settings for {project}", {
+                          project: project.displayName,
+                        })}
+                        onPointerDown={(event) => event.stopPropagation()}
+                        onClick={(event) => {
+                          void handleProjectSettings(event, project);
+                        }}
+                      >
+                        <SettingsIcon className="size-3.5" />
+                      </Button>
+                    }
+                  />
+                ) : (
+                  // Keeps "All projects" as tall as the project rows.
+                  <span className="ml-auto size-7 shrink-0 sm:size-6" />
+                )}
+              </ComboboxItem>
+            );
+          }}
+        </ComboboxList>
+      </ComboboxPopup>
+    </Combobox>
+  );
   return (
     <SidebarFolderDrop>
       <SidebarChromeHeader isElectron={isElectron} />
@@ -3071,228 +3526,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           <SidebarGroup className="z-[1]">
             <SidebarThreadHeader
               hasProjects={projectGroups.length > 0}
-              projectScope={
-                <Combobox
-                  items={projectScopeItems}
-                  filteredItems={filteredProjectScopeItems}
-                  autoHighlight
-                  itemToStringLabel={(item) => item.label}
-                  isItemEqualToValue={(a, b) => a.value === b.value}
-                  open={projectScopeMenuState.open}
-                  onOpenChange={(open, eventDetails) => {
-                    if (eventDetails.isCanceled) return;
-                    if (open) suppressNextScopeChangeRef.current = false;
-                    dispatchProjectScopeMenu({ type: "open-changed", open });
-                  }}
-                  onItemHighlighted={(item) => {
-                    highlightedProjectScopeKeyRef.current = item?.value ?? null;
-                  }}
-                  value={selectedProjectScopeItem}
-                  onValueChange={(item, eventDetails) => {
-                    if (suppressNextScopeChangeRef.current) {
-                      suppressNextScopeChangeRef.current = false;
-                      return;
-                    }
-                    if (!item) return;
-                    if (item.value === ADD_PROJECT_SCOPE_ITEM_VALUE) {
-                      dispatchProjectScopeMenu({ type: "open-changed", open: false });
-                      openAddProjectCommandPalette();
-                    } else if (item.value === "all") {
-                      setProjectScopeKeys([]);
-                    } else if (
-                      eventDetails.event instanceof MouseEvent &&
-                      eventDetails.event.shiftKey
-                    ) {
-                      // Canceling skips Base UI's commit, which would freeze the search query, and its close.
-                      eventDetails.cancel();
-                      toggleProjectScopeKey(item.value);
-                    } else {
-                      setProjectScopeKeys([item.value]);
-                    }
-                  }}
-                >
-                  <ComboboxTrigger
-                    render={
-                      <SidebarHeaderIconButton
-                        label={
-                          scopedProjectGroups.length > 0
-                            ? gt("Projects: {projects}", {
-                                projects: scopedProjectGroups
-                                  .map((project) => project.displayName)
-                                  .join(", "),
-                              })
-                            : gt("Projects")
-                        }
-                      />
-                    }
-                  >
-                    {scopedProjectGroups.length > 1 ? (
-                      <span className="flex shrink-0">
-                        {scopedProjectGroups.slice(0, 2).map((project, index) => (
-                          <span
-                            key={project.projectKey}
-                            className={
-                              index === 0
-                                ? "flex"
-                                : "-ml-1 flex rounded-[25%] bg-sidebar ring-2 ring-sidebar"
-                            }
-                          >
-                            <ProjectFavicon project={project} className="size-3.5" />
-                          </span>
-                        ))}
-                      </span>
-                    ) : scopedProjectGroups[0] ? (
-                      <span className="flex shrink-0">
-                        <ProjectFavicon project={scopedProjectGroups[0]} className="size-4" />
-                      </span>
-                    ) : (
-                      <FolderIcon className="size-4" />
-                    )}
-                  </ComboboxTrigger>
-                  {/* Refocusing the trigger after a pointer close shows its focus ring and opens its tooltip. */}
-                  <ComboboxPopup
-                    align="start"
-                    collisionAvoidance={{ side: "flip", align: "shift" }}
-                    className="w-[min(18rem,var(--available-width))] overflow-hidden"
-                    finalFocus={(closeType) => closeType === "keyboard"}
-                  >
-                    <ComboboxSearchInput
-                      aria-label={gt("Search projects")}
-                      placeholder={gt("Search projects...")}
-                      value={projectScopeMenuState.query}
-                      onKeyDown={(event) => {
-                        if (
-                          event.defaultPrevented ||
-                          event.nativeEvent.isComposing ||
-                          event.keyCode === 229
-                        ) {
-                          return;
-                        }
-                        const scopeKey = highlightedProjectScopeKeyRef.current;
-                        const project = scopeKey ? projectGroupByScopeKey.get(scopeKey) : null;
-                        // The thread pin shortcut pins the highlighted project here.
-                        if (
-                          project &&
-                          canPinProject(project) &&
-                          isProjectPinShortcut(event, keybindings)
-                        ) {
-                          event.preventDefault();
-                          event.stopPropagation();
-                          toggleProjectGroupPin(project);
-                          return;
-                        }
-                        if (event.ctrlKey || event.altKey || event.metaKey) return;
-                        if (event.shiftKey && event.key === "Enter") {
-                          if (!project) return;
-                          event.preventDefault();
-                          toggleProjectScopeKey(project.projectKey);
-                          return;
-                        }
-                        if (
-                          event.key !== "ContextMenu" &&
-                          !(event.shiftKey && event.key === "F10")
-                        ) {
-                          return;
-                        }
-                        if (project) handleProjectSettings(event, project);
-                      }}
-                      onChange={(event) =>
-                        dispatchProjectScopeMenu({
-                          type: "query-changed",
-                          query: event.target.value,
-                        })
-                      }
-                    />
-                    <ComboboxEmpty>
-                      <T>No matching projects.</T>
-                    </ComboboxEmpty>
-                    <ComboboxList aria-multiselectable>
-                      {(item: (typeof projectScopeItems)[number]) => {
-                        if (item.value === ADD_PROJECT_SCOPE_ITEM_VALUE) {
-                          return (
-                            <ComboboxItem key={item.value} hideIndicator value={item}>
-                              <FolderPlusIcon className="size-4 shrink-0" />
-                              <span className="min-w-0 truncate text-sm">{item.label}</span>
-                              {/* Keeps "Add project" as tall as the project rows. */}
-                              <span className="ml-auto size-7 shrink-0 sm:size-6" />
-                            </ComboboxItem>
-                          );
-                        }
-                        const project = projectGroupByScopeKey.get(item.value) ?? null;
-                        const isSelected = project
-                          ? projectScopeKeys.includes(item.value)
-                          : projectScopeKeys.length === 0;
-                        return (
-                          <ComboboxItem
-                            key={item.value}
-                            hideIndicator
-                            value={item}
-                            aria-selected={isSelected}
-                            // The icon badge marks selection; Base UI's single value would shade one row.
-                            data-selected={undefined}
-                            onContextMenu={(event) => {
-                              if (project) handleProjectSettings(event, project);
-                            }}
-                          >
-                            <ProjectScopeRowIcon isSelected={isSelected}>
-                              {project ? (
-                                <ProjectFavicon project={project} className="size-4 shrink-0" />
-                              ) : (
-                                <FolderIcon className="size-4 shrink-0" />
-                              )}
-                            </ProjectScopeRowIcon>
-                            <span className="min-w-0 truncate text-sm">{item.label}</span>
-                            {project && showProjectEnvironments ? (
-                              <ProjectEnvironmentBadge
-                                group={project}
-                                primaryEnvironmentId={primaryEnvironmentId}
-                                machineByEnvironmentId={environmentMachineById}
-                              />
-                            ) : null}
-                            {project ? (
-                              <ProjectRowActions
-                                pin={
-                                  canPinProject(project) ? (
-                                    <ProjectPinButton
-                                      name={project.displayName}
-                                      pinned={project.pinned}
-                                      shortcutLabel={shortcutLabelForCommand(
-                                        keybindings,
-                                        "thread.pin",
-                                      )}
-                                      onToggle={() => toggleProjectGroupPin(project)}
-                                    />
-                                  ) : null
-                                }
-                                settings={
-                                  <Button
-                                    size="icon-xs"
-                                    variant="ghost-muted"
-                                    tabIndex={-1}
-                                    aria-hidden="true"
-                                    title={gt("Project settings for {project}", {
-                                      project: project.displayName,
-                                    })}
-                                    onPointerDown={(event) => event.stopPropagation()}
-                                    onClick={(event) => {
-                                      void handleProjectSettings(event, project);
-                                    }}
-                                  >
-                                    <SettingsIcon className="size-3.5" />
-                                  </Button>
-                                }
-                              />
-                            ) : (
-                              // Keeps "All projects" as tall as the project rows.
-                              <span className="ml-auto size-7 shrink-0 sm:size-6" />
-                            )}
-                          </ComboboxItem>
-                        );
-                      }}
-                    </ComboboxList>
-                  </ComboboxPopup>
-                </Combobox>
-              }
+              projectScope={projectFolders === null ? projectScopeMenu : null}
               onNewThread={handleNewThreadClick}
               newThreadDisabled={projects.length === 0}
               newThreadShortcutLabel={newThreadShortcutLabel}
@@ -3501,12 +3735,13 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                         const isCard =
                           section === "active" || section === "pinned" || section === "working";
                         const rowVariant = folderRow
-                          ? folderRowsMultiline
-                            ? "folder-multiline"
-                            : "folder"
-                          : isCard
-                            ? "card"
-                            : "slim";
+                          ? "folder"
+                          : projectFolders !== null
+                            ? "line"
+                            : isCard
+                              ? "card"
+                              : "slim";
+                        const subagents = folderRow ? subagentSummaries?.get(threadKey) : undefined;
                         return (
                           <SortableThreadRow
                             key={threadKey}
@@ -3519,6 +3754,19 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             }
                             thread={thread}
                             variant={rowVariant}
+                            below={
+                              subagents === undefined ? undefined : (
+                                <SidebarSubagentSummary
+                                  summary={subagents}
+                                  onOpen={() =>
+                                    openSubagentBeside(
+                                      scopeThreadRef(thread.environmentId, thread.id),
+                                      subagents.openThreadId,
+                                    )
+                                  }
+                                />
+                              )
+                            }
                             navigationParent={
                               folderRow ??
                               (section === "working" ||
@@ -3612,7 +3860,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                       const items: ReactNode[] = [
                         <SidebarDraftBlock
                           key="draft-sessions"
-                          draftIds={draftIds}
+                          draftIds={projectFolders === null ? draftIds : topDraftIds}
                           routeDraftComposer={routeDraftComposer}
                           terminalLabels={draftTerminalLabels}
                           jumpLabelByDraftId={draftJumpLabelById}
@@ -3630,19 +3878,65 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                           items.push(renderThreadRow(threadByKey.get(item.key)!, item.section));
                           continue;
                         }
+                        if (projectFolders !== null && item.marker === "pinned-header") {
+                          if (pinnedThreads.length > 0) {
+                            items.push(
+                              <li
+                                key="pinned-label"
+                                className={cn(
+                                  "flex h-7 list-none items-center ps-(--sidebar-row-content-inset)",
+                                  PROJECTS_LAYOUT_LABEL_CLASS_NAME,
+                                )}
+                              >
+                                {gt("Pinned", { $context: "sidebar section" })}
+                              </li>,
+                            );
+                          }
+                          continue;
+                        }
+                        if (projectFolders !== null && item.marker === "pinned-divider") continue;
                         if (projectFolders !== null && item.marker === "active-placeholder") {
+                          items.push(
+                            <SidebarProjectsHeading
+                              key="projects-heading"
+                              filter={projectGroups.length > 0 ? projectScopeMenu : null}
+                              filterActive={scopedProjectGroups.length > 0}
+                              onAddProject={openAddProjectCommandPalette}
+                            />,
+                          );
                           for (const folder of projectFolders) {
                             items.push(
-                              <SidebarProjectFolderHeader
+                              <SidebarProjectGroupHeader
                                 key={`project-folder:${folder.group.projectKey}`}
                                 group={folder.group}
                                 collapsed={folder.collapsed}
                                 hiddenThreads={folder.hiddenThreads}
+                                lifted={projectDrag.drag?.key === folder.group.projectKey}
                                 onToggle={toggleProjectFolder}
                                 onNewThread={startThreadInProjectFolder}
+                                onDragStart={startProjectDrag}
+                                consumeDragClick={projectDrag.consumeDragClick}
                                 onContextMenu={handleProjectFolderContextMenu}
                               />,
                             );
+                            const folderDraftIds = draftIdsByFolderKey.get(folder.group.projectKey);
+                            if (folderDraftIds !== undefined && projectDrag.drag === null) {
+                              items.push(
+                                <SidebarDraftBlock
+                                  key={`project-drafts:${folder.group.projectKey}`}
+                                  nested
+                                  draftIds={folderDraftIds}
+                                  routeDraftComposer={routeDraftComposer}
+                                  terminalLabels={draftTerminalLabels}
+                                  jumpLabelByDraftId={draftJumpLabelById}
+                                  projectByKey={projectByKey}
+                                  projectDisplayNameByKey={projectDisplayNameByKey}
+                                  routeDraftId={routeDraftIdForRows}
+                                  onNavigateToDraft={navigateToDraft}
+                                  onDraftContextMenu={handleDraftContextMenu}
+                                />,
+                              );
+                            }
                             for (const thread of folder.threads) {
                               items.push(
                                 renderThreadRow(
@@ -3715,6 +4009,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             items.push(
                               <SidebarSectionHeader
                                 key="snoozed-shelf-header"
+                                caps={projectFolders !== null}
                                 marker="snoozed-header"
                                 className={cn(workingThreads.length === 0 && "mt-auto")}
                                 label={gt("Snoozed", { $context: "sidebar section" })}
@@ -3730,6 +4025,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             items.push(
                               <SidebarSectionHeader
                                 key="settled-shelf-header"
+                                caps={projectFolders !== null}
                                 marker="settled-header"
                                 className={cn(
                                   workingThreads.length + snoozedThreads.length === 0 && "mt-auto",
