@@ -52,6 +52,8 @@ const state = vi.hoisted(() => ({
   toasts: [] as string[],
   afterRequest: undefined as ((action: string) => void) | undefined,
   sessionLookupFails: false,
+  worktreeChanges: [] as string[],
+  worktreeStatusFails: false,
 }));
 
 vi.mock("react", () => ({
@@ -81,8 +83,22 @@ vi.mock("../state/use-atom-command", () => ({
       if (!state.scopes.get(request.environmentId)?.has(scope)) {
         return AsyncResult.failure(Cause.fail(new Error("Server denied the request")));
       }
+      if (action === "refreshStatus" && state.worktreeStatusFails) {
+        return AsyncResult.failure(Cause.fail(new Error("git status failed")));
+      }
       state.afterRequest?.(action);
-      return AsyncResult.success(undefined);
+      return AsyncResult.success(
+        action === "refreshStatus"
+          ? {
+              hasWorkingTreeChanges: state.worktreeChanges.length > 0,
+              workingTree: {
+                files: state.worktreeChanges.map((path) => ({ path, insertions: 1, deletions: 0 })),
+                insertions: state.worktreeChanges.length,
+                deletions: 0,
+              },
+            }
+          : undefined,
+      );
     },
 }));
 vi.mock("../state/use-atom-query-runner", () => ({
@@ -286,6 +302,8 @@ beforeEach(() => {
   state.toasts = [];
   state.afterRequest = undefined;
   state.sessionLookupFails = false;
+  state.worktreeChanges = [];
+  state.worktreeStatusFails = false;
   useRightPanelStore.setState(useRightPanelStore.getInitialState(), true);
   useDiffPanelStore.setState(useDiffPanelStore.getInitialState(), true);
   usePreviewMiniPlayerStore.setState(usePreviewMiniPlayerStore.getInitialState(), true);
@@ -448,12 +466,46 @@ describe("thread action permissions", () => {
     });
     expect((await useThreadActions().deleteThread(target))._tag).toBe("Success");
     expect(state.confirm).toHaveBeenCalledOnce();
+    expect(state.confirm.mock.calls[0]?.[0]).not.toContain("uncommitted");
     expect(state.requests.map((request) => request.action)).toEqual([
+      "refreshStatus",
       "stopSession",
       "delete",
       "removeWorktree",
       "refreshStatus",
     ]);
+  });
+
+  it("lists a worktree's uncommitted files before offering to delete it", async () => {
+    state.scopes
+      .get(secondary)!
+      .add(AuthOrchestrationOperateScope)
+      .add(AuthSourceControlWriteScope);
+    state.threads[0]!.worktreePath = "/worktrees/thread";
+    state.worktreeChanges = ["src/app.ts"];
+    state.confirm.mockResolvedValue(false);
+    expect((await useThreadActions().deleteThread(target))._tag).toBe("Success");
+    expect(state.confirm.mock.calls[0]?.[0]).toContain(
+      "It has uncommitted changes in 1 file. Deleting the worktree loses them:\n  src/app.ts",
+    );
+    expect(state.requests.map((request) => request.action)).toEqual([
+      "refreshStatus",
+      "stopSession",
+      "delete",
+    ]);
+  });
+
+  it("warns that a worktree it could not check may hold work", async () => {
+    state.scopes
+      .get(secondary)!
+      .add(AuthOrchestrationOperateScope)
+      .add(AuthSourceControlWriteScope);
+    state.threads[0]!.worktreePath = "/worktrees/thread";
+    state.worktreeStatusFails = true;
+    expect((await useThreadActions().deleteThread(target))._tag).toBe("Success");
+    expect(state.confirm.mock.calls[0]?.[0]).toContain(
+      "T3 Code couldn't check this worktree for uncommitted changes.",
+    );
   });
 
   it("clears the drafts of the side chats deleted with it", async () => {
@@ -484,12 +536,18 @@ describe("thread action permissions", () => {
       .add(AuthOrchestrationOperateScope)
       .add(AuthSourceControlWriteScope);
     state.threads[0]!.worktreePath = "/worktrees/thread";
-    state.afterRequest = () => state.scopes.get(secondary)!.delete(AuthSourceControlWriteScope);
+    state.afterRequest = (action) => {
+      if (action === "delete") state.scopes.get(secondary)!.delete(AuthSourceControlWriteScope);
+    };
     const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
     try {
       const result = await useThreadActions().deleteThread(target);
       expect(result._tag).toBe("Success");
-      expect(state.requests.map((request) => request.action)).toEqual(["stopSession", "delete"]);
+      expect(state.requests.map((request) => request.action)).toEqual([
+        "refreshStatus",
+        "stopSession",
+        "delete",
+      ]);
       expect(state.toasts).toContain("Failed to delete worktree");
       expect(state.localEffects).toContain("clear-terminal-ui");
     } finally {

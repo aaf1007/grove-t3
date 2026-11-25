@@ -12790,5 +12790,9 @@
   "99d51127f573296b": "Another account",
   "8ec2c57414669b79": "Connect a second {tracker} workspace or user.",
   "99963c0142e17f00": "For the new {tracker} account.",
-  "6d8e4ebc889bace9": "Add account"
+  "6d8e4ebc889bace9": "Add account",
+  "1a93bab6da356294": "T3 Code couldn't check this worktree for uncommitted changes. Deleting it may lose work.",
+  "b3cc4dfd8c1c2d25": "It has uncommitted changes. Deleting the worktree loses them.",
+  "1aa396f5c19b226f": "{count, plural, one {It has uncommitted changes in {count} file. Deleting the worktree loses them:} other {It has uncommitted changes in {count} files. Deleting the worktree loses them:}}",
+  "e8d0653cf49cd57e": "and {count} more"
 }

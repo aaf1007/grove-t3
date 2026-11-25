@@ -12788,5 +12788,9 @@
   "99d51127f573296b": "Ett konto till",
   "8ec2c57414669b79": "Anslut en andra {tracker}-arbetsyta eller användare.",
   "99963c0142e17f00": "För det nya {tracker}-kontot.",
-  "6d8e4ebc889bace9": "Lägg till konto"
+  "6d8e4ebc889bace9": "Lägg till konto",
+  "1a93bab6da356294": "T3 Code kunde inte kontrollera om den här worktree:n har ej committade ändringar. Om du tar bort den kan arbete gå förlorat.",
+  "b3cc4dfd8c1c2d25": "Den har ej committade ändringar. De går förlorade om du tar bort worktree:n.",
+  "1aa396f5c19b226f": "{count, plural, one {Den har ej committade ändringar i {count} fil. De går förlorade om du tar bort worktree:n:} other {Den har ej committade ändringar i {count} filer. De går förlorade om du tar bort worktree:n:}}",
+  "e8d0653cf49cd57e": "och {count} till"
 }
