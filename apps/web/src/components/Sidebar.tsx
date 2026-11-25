@@ -3536,9 +3536,11 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           <SidebarGroup className="z-[1]">
             <SidebarThreadHeader
               hasProjects={projectGroups.length > 0}
-              // Until the Projects heading shows, the filter stays here.
+              // While the Projects heading is not shown, the filter stays here.
               projectScope={
-                projectFolders === null || sidebarListItems.length === 0 ? projectScopeMenu : null
+                projectFolders === null || sidebarListItems.length === 0 || isSearchingThreads
+                  ? projectScopeMenu
+                  : null
               }
               onNewThread={handleNewThreadClick}
               newThreadDisabled={projects.length === 0}
