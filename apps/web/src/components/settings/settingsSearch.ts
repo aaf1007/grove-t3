@@ -14,6 +14,7 @@ import { decodeMsg, msg, useMessages } from "gt-react";
 import { TYPOGRAPHY_ADVANCED_STORAGE_KEY } from "../../appearanceFonts";
 import { writeLocalStorageValue } from "../../hooks/useLocalStorage";
 import type { MessageResolver } from "../../i18n/messages";
+import { canUseTranslucentSidebar } from "../sidebar/useSidebarTranslucency";
 import { commandLabel } from "./KeybindingsSettings.logic";
 import type { ResolvedSettingsScope } from "./settingsScope";
 
@@ -60,6 +61,7 @@ export interface SettingsSearchItem {
   readonly desktopOnly?: boolean;
   readonly macOnly?: boolean;
   readonly windowsOnly?: boolean;
+  readonly translucentSidebarOnly?: boolean;
   readonly releaseChannelOnly?: boolean;
   readonly secretProvidersOnly?: boolean;
   readonly cloudOnly?: boolean;
@@ -456,6 +458,7 @@ export const SETTINGS_SEARCH_ITEMS = [
     title: msg("Translucent sidebar"),
     to: "/settings/appearance",
     searchTerms: [msg("vibrancy acrylic transparent blur window desktop")],
+    translucentSidebarOnly: true,
   },
   {
     id: "word-wrap",
@@ -1689,7 +1692,8 @@ export function settingsForThisPlatform(
       (isElectron || item.desktopOnly !== true) &&
       (!item.releaseChannelOnly || isElectron || HOSTED_APP_CHANNEL !== null) &&
       (!item.macOnly || isMacPlatform(platform)) &&
-      (!item.windowsOnly || isWindowsPlatform(platform)),
+      (!item.windowsOnly || isWindowsPlatform(platform)) &&
+      (!item.translucentSidebarOnly || canUseTranslucentSidebar()),
   );
 }
 

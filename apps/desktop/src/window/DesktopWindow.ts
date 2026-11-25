@@ -1,3 +1,5 @@
+import * as NodeOS from "node:os";
+
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -38,6 +40,7 @@ import {
 } from "../preview/GuestProtocol.ts";
 import * as PreviewManager from "../preview/Manager.ts";
 import * as PreviewPasskeys from "../preview/Passkeys.ts";
+import { supportsSidebarTranslucency } from "./sidebarTranslucency.ts";
 import * as DesktopAppSettings from "../settings/DesktopAppSettings.ts";
 import * as DesktopClientSettings from "../settings/DesktopClientSettings.ts";
 import * as ElectronApp from "../electron/ElectronApp.ts";
@@ -186,10 +189,9 @@ function applyWindowTranslucency(
   platform: NodeJS.Platform,
 ): Effect.Effect<void> {
   return Effect.sync(() => {
-    if (window.isDestroyed()) return;
+    if (window.isDestroyed() || !supportsSidebarTranslucency(platform, NodeOS.release())) return;
     if (platform === "darwin") window.setVibrancy(translucent ? "sidebar" : null);
-    else if (platform === "win32") window.setBackgroundMaterial(translucent ? "acrylic" : "none");
-    else return;
+    else window.setBackgroundMaterial(translucent ? "acrylic" : "none");
     if (translucent) translucentWindows.add(window);
     else translucentWindows.delete(window);
     window.setBackgroundColor(getWindowBackgroundColor(window, shouldUseDarkColors));

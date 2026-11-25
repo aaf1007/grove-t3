@@ -13,6 +13,7 @@ import { contextBridge, ipcRenderer, webFrame, webUtils } from "electron";
 
 import * as IpcChannels from "./ipc/channels.ts";
 import { mergeLegacyLocalStorage } from "./legacyLocalStorageMerge.ts";
+import { supportsSidebarTranslucency } from "./window/sidebarTranslucency.ts";
 
 const SNAP_SHOT_EVENT_TYPES = new Set([
   "requested",
@@ -45,6 +46,10 @@ try {
 
 // oxlint-disable-next-line t3code/no-global-process-runtime -- Electron exposes the client platform in its sandboxed preload process.
 const clientPlatform = process.platform;
+const sidebarTranslucencySupported = supportsSidebarTranslucency(
+  clientPlatform,
+  process.getSystemVersion(),
+);
 
 if (clientPlatform === "darwin") {
   // Native buttons ignore Chromium zoom; reserve native points even after reload.
@@ -247,8 +252,12 @@ contextBridge.exposeInMainWorld("desktopBridge", {
     ipcRenderer.invoke(IpcChannels.PICK_PROJECT_FAVICON_CHANNEL, initialPath),
   pickThemeFiles: () => ipcRenderer.invoke(IpcChannels.PICK_THEME_FILES_CHANNEL, undefined),
   setTheme: (theme) => ipcRenderer.invoke(IpcChannels.SET_THEME_CHANNEL, theme),
-  setSidebarTranslucent: (translucent) =>
-    ipcRenderer.invoke(IpcChannels.SET_SIDEBAR_TRANSLUCENT_CHANNEL, translucent),
+  ...(sidebarTranslucencySupported
+    ? {
+        setSidebarTranslucent: (translucent: boolean) =>
+          ipcRenderer.invoke(IpcChannels.SET_SIDEBAR_TRANSLUCENT_CHANNEL, translucent),
+      }
+    : {}),
   showContextMenu: (items, position, source) =>
     ipcRenderer.invoke(IpcChannels.CONTEXT_MENU_CHANNEL, {
       items,

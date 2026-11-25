@@ -2405,15 +2405,22 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
         : plan.kind === "reorder-pinned" || plan.kind === "move-active"
           ? plan.assignments
           : [];
+    // A closed project's hidden rows can get keys too, and threadByKey only has shown rows.
+    const threadByKeyIncludingHidden = new Map(
+      threads.map((thread) => [threadShellKey(thread), thread] as const),
+    );
+    const assignedThreads = assignments.flatMap(({ id }) => {
+      const thread = threadByKeyIncludingHidden.get(id);
+      return thread ? [thread] : [];
+    });
     if (
-      !checkThreadOperations(
-        [activeKey, ...assignments.map(({ id }) => id)].flatMap((key) => {
-          const thread = threadByKey.get(key);
-          return thread ? [thread] : [];
-        }),
-      )
+      assignedThreads.length !== assignments.length ||
+      !checkThreadOperations([activeThread, ...assignedThreads])
     )
       return;
+    const plannedOrder = plan.kind === "settle" ? null : plan.order;
+    // The Projects layout plans one project's order; hold the other active rows where they are.
+    const plannedKeys = new Set(plannedOrder);
     const drop = {
       key: activeKey,
       sourceSection: activeSection,
@@ -2423,7 +2430,10 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
         plan.kind === "pin" ||
         plan.kind === "settle" ||
         (plan.kind === "move-active" && plan.unsnooze),
-      order: plan.kind === "settle" ? null : plan.order,
+      order:
+        plannedOrder !== null && plan.kind === "move-active"
+          ? [...activeKeys.filter((key) => !plannedKeys.has(key)), ...plannedOrder]
+          : plannedOrder,
       keysAtDrop: target.section === "active" ? activeKeysById : pinnedKeysById,
       assignedKeys: new Map(assignments.map(({ id, orderKey }) => [id, orderKey])),
     };
@@ -2495,7 +2505,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
       }
       const keyWrites = plan.kind === "pin" ? plan.extraAssignments : plan.assignments;
       for (const assignment of keyWrites) {
-        const thread = threadByKey.get(assignment.id);
+        const thread = threadByKeyIncludingHidden.get(assignment.id);
         if (thread === undefined) continue;
         if (
           !(await run(
@@ -3526,7 +3536,10 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           <SidebarGroup className="z-[1]">
             <SidebarThreadHeader
               hasProjects={projectGroups.length > 0}
-              projectScope={projectFolders === null ? projectScopeMenu : null}
+              // Until the Projects heading shows, the filter stays here.
+              projectScope={
+                projectFolders === null || sidebarListItems.length === 0 ? projectScopeMenu : null
+              }
               onNewThread={handleNewThreadClick}
               newThreadDisabled={projects.length === 0}
               newThreadShortcutLabel={newThreadShortcutLabel}

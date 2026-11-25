@@ -1,12 +1,10 @@
 import { useEffect } from "react";
 
-import { isElectron } from "../../env";
 import { useClientSettings } from "../../hooks/useSettings";
-import { isMacPlatform, isWindowsPlatform } from "../../lib/utils";
 
-/** Only the desktop app on macOS and Windows can draw a translucent window background. */
+/** The desktop app offers the bridge call only where the OS can draw the material. */
 export function canUseTranslucentSidebar() {
-  return isElectron && (isMacPlatform(navigator.platform) || isWindowsPlatform(navigator.platform));
+  return typeof window !== "undefined" && window.desktopBridge?.setSidebarTranslucent !== undefined;
 }
 
 /**
@@ -21,10 +19,10 @@ export function useSidebarTranslucency() {
   useEffect(() => {
     const root = document.documentElement;
     if (!translucent) delete root.dataset.sidebarTranslucent;
-    const bridge = window.desktopBridge;
-    if (!canUseTranslucentSidebar() || typeof bridge?.setSidebarTranslucent !== "function") return;
+    const setSidebarTranslucent = window.desktopBridge?.setSidebarTranslucent;
+    if (setSidebarTranslucent === undefined) return;
     let cancelled = false;
-    bridge.setSidebarTranslucent(translucent).then(
+    setSidebarTranslucent(translucent).then(
       () => {
         if (translucent && !cancelled) root.dataset.sidebarTranslucent = "true";
       },

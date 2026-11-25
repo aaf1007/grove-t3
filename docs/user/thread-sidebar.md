@@ -156,7 +156,7 @@ cannot drag or move threads within it. Your saved order returns when you turn it
 On web and desktop, choose **Settings → General → Sidebar layout → Projects** to group active
 threads under their project. Each device keeps its own choice. Pinned threads stay on top, Snoozed
 and Settled stay below the projects, and there is no Working section. Unsent drafts sit in their
-project, marked **Draft**.
+project, marked **Draft**, or at the top when their project isn't in the list.
 
 A row shows a dot instead of its age while the thread has something to tell you: amber when it
 needs you, red when it failed, blue for an unread reply, and a hollow ring while it works. Hover a
