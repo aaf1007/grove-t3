@@ -1178,15 +1178,6 @@ export class MissingMacPasskeyProvisioningProfileError extends Schema.TaggedErro
   }
 }
 
-export class MissingMacPasskeyDomainConfigurationError extends Schema.TaggedError<MissingMacPasskeyDomainConfigurationError>()(
-  "MissingMacPasskeyDomainConfigurationError",
-  {},
-) {
-  override get message(): string {
-    return "T3CODE_CLERK_PUBLISHABLE_KEY or T3CODE_CLERK_PASSKEY_RP_DOMAINS is required for signed macOS passkey builds.";
-  }
-}
-
 export class InvalidMacPasskeyPublishableKeyError extends Schema.TaggedError<InvalidMacPasskeyPublishableKeyError>()(
   "InvalidMacPasskeyPublishableKeyError",
   {
@@ -1211,7 +1202,6 @@ export const MacPasskeySigningConfigurationError = Schema.Union([
   InvalidMacPasskeyRpDomainError,
   InvalidAppleTeamIdError,
   MissingMacPasskeyProvisioningProfileError,
-  MissingMacPasskeyDomainConfigurationError,
   InvalidMacPasskeyPublishableKeyError,
   MissingMacPasskeyRpDomainError,
 ]);
@@ -1259,9 +1249,16 @@ function normalizePasskeyRpDomain(value: string): string {
   return parsed.hostname;
 }
 
+/** Without Clerk there is nothing to entitle, so a signed build is plain Developer ID. */
 export function resolveMacPasskeySigningConfiguration(
   env: Readonly<Record<string, string | undefined>>,
-): MacPasskeySigningConfiguration {
+): MacPasskeySigningConfiguration | undefined {
+  const configuredRpDomains = env.T3CODE_CLERK_PASSKEY_RP_DOMAINS?.trim();
+  const publishableKey = env.T3CODE_CLERK_PUBLISHABLE_KEY?.trim();
+  if (!configuredRpDomains && !publishableKey) {
+    return undefined;
+  }
+
   const teamId = env.T3CODE_APPLE_TEAM_ID?.trim().toUpperCase() ?? "";
   if (!APPLE_TEAM_ID_PATTERN.test(teamId)) {
     throw new InvalidAppleTeamIdError({ teamId });
@@ -1272,15 +1269,10 @@ export function resolveMacPasskeySigningConfiguration(
     throw new MissingMacPasskeyProvisioningProfileError();
   }
 
-  const configuredRpDomains = env.T3CODE_CLERK_PASSKEY_RP_DOMAINS?.trim();
-  let rpDomains: readonly string[];
+  let rpDomains: readonly string[] = [];
   if (configuredRpDomains) {
     rpDomains = configuredRpDomains.split(",").map(normalizePasskeyRpDomain);
-  } else {
-    const publishableKey = env.T3CODE_CLERK_PUBLISHABLE_KEY?.trim();
-    if (!publishableKey) {
-      throw new MissingMacPasskeyDomainConfigurationError();
-    }
+  } else if (publishableKey) {
     let hostname: string;
     try {
       hostname = clerkFrontendApiHostnameFromPublishableKey(publishableKey);
@@ -1377,10 +1369,7 @@ export function renderMacPasskeyEntitlements(
     <true/>`
     : "";
 
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-  <dict>
+  return renderMacEntitlementsPlist(`
     <key>com.apple.application-identifier</key>
     <string>${escapeXml(`${configuration.teamId}.${configuration.appId}`)}</string>
     <key>com.apple.developer.team-identifier</key>
@@ -1388,7 +1377,19 @@ export function renderMacPasskeyEntitlements(
     <key>com.apple.developer.associated-domains</key>
     <array>
 ${associatedDomains}
-    </array>${keychainAccessGroups}${browserPasskeys}
+    </array>${keychainAccessGroups}${browserPasskeys}`);
+}
+
+/** Hardened-runtime entitlements only, which Developer ID signs without a provisioning profile. */
+export function renderMacDeveloperIdEntitlements(): string {
+  return renderMacEntitlementsPlist("");
+}
+
+function renderMacEntitlementsPlist(restrictedEntitlements: string): string {
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+  <dict>${restrictedEntitlements}
     <key>com.apple.security.cs.allow-jit</key>
     <true/>
     <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
@@ -2810,10 +2811,10 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
   signed: boolean,
   mockUpdates: boolean,
   mockUpdateServerPort: number | undefined,
-  macPasskeySigning:
+  macSigning:
     | {
         readonly entitlementsPath: string;
-        readonly provisioningProfilePath: string;
+        readonly provisioningProfilePath: string | undefined;
       }
     | undefined,
   wslRuntimeBundled = false,
@@ -2916,11 +2917,9 @@ export const createBuildConfig = Effect.fn("createBuildConfig")(function* (
         },
       ],
       ...(signed ? { sign: path.join(repoRoot, "scripts/sign-macos.ts") } : {}),
-      ...(macPasskeySigning
-        ? {
-            entitlements: macPasskeySigning.entitlementsPath,
-            provisioningProfile: macPasskeySigning.provisioningProfilePath,
-          }
+      ...(macSigning ? { entitlements: macSigning.entitlementsPath } : {}),
+      ...(macSigning?.provisioningProfilePath
+        ? { provisioningProfile: macSigning.provisioningProfilePath }
         : {}),
     };
   }
@@ -3915,9 +3914,10 @@ const buildDesktopArtifactUnlocked = Effect.fn("buildDesktopArtifactUnlocked")(f
         ),
       }
     : undefined;
-  const macEntitlementsPath = macPasskeySigning
-    ? path.join(stageAppDir, "entitlements.mac.plist")
-    : undefined;
+  const macEntitlementsPath =
+    options.platform === "mac" && options.signed
+      ? path.join(stageAppDir, "entitlements.mac.plist")
+      : undefined;
   let macWebAuthn: MacWebAuthnEntitlements | undefined;
   if (macPasskeySigning && macEntitlementsPath) {
     if (!(yield* fs.exists(macPasskeySigning.provisioningProfilePath))) {
@@ -3936,6 +3936,11 @@ const buildDesktopArtifactUnlocked = Effect.fn("buildDesktopArtifactUnlocked")(f
       macEntitlementsPath,
       renderMacPasskeyEntitlements(macPasskeySigning, macWebAuthn),
     );
+  } else if (macEntitlementsPath) {
+    yield* Effect.log(
+      "[desktop-artifact] Clerk is not configured; signing with Developer ID only (no passkey entitlements or provisioning profile).",
+    );
+    yield* fs.writeFileString(macEntitlementsPath, renderMacDeveloperIdEntitlements());
   }
 
   const stageDependencies =
@@ -3978,10 +3983,10 @@ const buildDesktopArtifactUnlocked = Effect.fn("buildDesktopArtifactUnlocked")(f
       options.signed,
       options.mockUpdates,
       options.mockUpdateServerPort,
-      macPasskeySigning && macEntitlementsPath
+      macEntitlementsPath
         ? {
             entitlementsPath: macEntitlementsPath,
-            provisioningProfilePath: macPasskeySigning.provisioningProfilePath,
+            provisioningProfilePath: macPasskeySigning?.provisioningProfilePath,
           }
         : undefined,
       bundlesWslRuntime({ platform: options.platform, runtimeArchivePath: options.wslRuntime }),
