@@ -196,3 +196,11 @@ it.effect.each(["--registry=https://example.com", "../other", "other-package@lat
       expect(Result.isFailure(yield* service.get({ spec }).pipe(Effect.result))).toBe(true);
     }),
 );
+
+it.effect("the shipped layer never looks up T3 Code's npm package", () =>
+  Effect.gen(function* () {
+    const npmRelease = yield* NpmRelease.NpmRelease;
+    const result = yield* Effect.result(npmRelease.get({ spec: "latest" }));
+    expect(Result.isFailure(result) && result.failure).toBeInstanceOf(ServerNpmReleaseError);
+  }).pipe(Effect.provide(NpmRelease.layer)),
+);

@@ -1524,6 +1524,10 @@
   "4eb599c7f36c99ba": "Diese Design-Datei ist kein gültiges JSON.",
   "29a5ff50ce55c4f9": "VS-Code-Design",
   "10348092dfed8b11": "Dieses VS-Code-Design hat keine Farbe „editor.background“, daher lässt sich keine Palette daraus erstellen.",
+  "1a93bab6da356294": "T3 Code konnte diesen Worktree nicht auf nicht committete Änderungen prüfen. Beim Löschen kann Arbeit verloren gehen.",
+  "b3cc4dfd8c1c2d25": "Er enthält nicht committete Änderungen. Beim Löschen des Worktrees gehen sie verloren.",
+  "1aa396f5c19b226f": "{count, plural, one {Er enthält nicht committete Änderungen in {count} Datei. Beim Löschen des Worktrees gehen sie verloren:} other {Er enthält nicht committete Änderungen in {count} Dateien. Beim Löschen des Worktrees gehen sie verloren:}}",
+  "e8d0653cf49cd57e": "und {count} weitere",
   "6dff8d487001c6cf": "Responsiv",
   "f5f61c338cc5aeb5": "Browser-Gerätesymbolleiste",
   "3b4eb5b5ec5e60cb": "Browser-Gerätevorlage",
@@ -2247,23 +2251,6 @@
   "c65de112b48a66ed": "Kopplungslink hinzufügen",
   "bc8ab792af1d656f": "Auf deinem Computer ausführen:",
   "0ba14e4e920cfa00": "Oder lade die Desktop-App herunter",
-  "0e79b7a6508a6286": "Dann",
-  "363b9991fa23d36b": [
-    "Überspringe die Installation, wenn du ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "t3"
-    },
-    " bereits hast. Wenn",
-    " ",
-    {
-      "t": "code",
-      "i": 2,
-      "c": "t3"
-    },
-    " nach der Installation nicht gefunden wird, füge den Ordner, den das Installationsprogramm nennt, zu deinem PATH hinzu."
-  ],
   "87b24d00c08f54bb": "Tastenkürzel-Datei kann nicht geöffnet werden",
   "0ee16208cbfcdbf4": "Unbekannter Fehler beim Öffnen der Datei.",
   "9e20856550715c74": [
@@ -3104,7 +3091,6 @@
   "c646366e142ba05f": "Der WSL-Status des Desktops ist nicht verfügbar.",
   "228dcd284ea651b3": "Der WSL-Status konnte nicht geladen werden.",
   "b08d105dd2553f8d": "Das Projekt ist nicht in der Desktop-App erschienen.",
-  "7a4b3f3b83e121d7": "{organization} hat anonyme Nutzungsdaten deaktiviert.",
   "d85822b18e9475df": "Verwaltet von {organization}.",
   "a6dd531d58080010": "Verbinde dich mit diesem Server, um nach Releases zu suchen.",
   "314cdccee9c14774": "Dieser Server unterstützt keine Registry-Abfragen. Aktualisiere ihn, bevor du den Kanal wechselst.",
@@ -6191,7 +6177,6 @@
   "bd2304f25f6f999e": "{selected, plural, one {{selected} von {total} ausgewählt} other {{selected} von {total} ausgewählt}}",
   "228cd9fd55a55070": "Projekte konnten nicht erneut geprüft werden. {error}",
   "1cc599c5f5874014": "Smartphone",
-  "0f7c08d8284fee68": "T3-Code-App für iPhone und Android",
   "431bee88ecc944e4": "T3 Connect prüfen",
   "c747696796f64468": "T3 Connect ist aktiv, aber die App kann diesen Computer nicht erreichen.",
   "96557a906f6167b9": "Angemeldet. Gib diesen Computer frei, damit die App ihn erreichen kann.",
@@ -6221,26 +6206,6 @@
   ],
   "216ab7514aea1d61": "Ohne Agenten starten",
   "501ce2d99da8bfd1": "Richte einen Agenten ein, um zu starten.",
-  "71f3822326109c8e": [
-    "T3 Code erfasst anonyme Nutzungsdaten, um die App zu verbessern. Wie du widersprichst, steht in der",
-    " ",
-    {
-      "t": "a",
-      "i": 1,
-      "c": "Datenschutzerklärung"
-    },
-    "."
-  ],
-  "b33f35083757b42c": [
-    "Siehe",
-    " ",
-    {
-      "t": "a",
-      "i": 1,
-      "c": "Datenschutzerklärung"
-    },
-    "."
-  ],
   "f77d000c0710f066": "Aktivieren",
   "4ed27bf946e504db": "Einrichten",
   "7a26eaacff0607f7": [
@@ -6272,7 +6237,6 @@
     "-Verlauf"
   ],
   "0070a15f6b693068": "T3 Code auf dem Smartphone nutzen",
-  "37c66042ce1906da": "Scanne mit deinem Smartphone, um die App zu holen.",
   "1b4364ef89b07f35": "T3 Connect konnte nicht geprüft werden.",
   "7b10d40dd15938e5": "Dein Smartphone kann diesen Computer erreichen. Melde dich in der App mit demselben Konto an.",
   "8330812e7b81f020": "T3 Connect ist für diesen Computer aktiv. Melde dich in der App mit demselben Konto an.",
@@ -9043,10 +9007,6 @@
   "0be6b2546df12f66": "Stoppen",
   "7dbd7e8943e8931f": "Mikrofon wird geöffnet…",
   "efa31f38b611e912": "Diese Aufnahme konnte nicht abgespielt werden. Versuch erneut aufzunehmen.",
-  "0cebac0a2a6bdc99": "iPhone und iPad",
-  "d797c9687a256a50": "Verbinde dich von deinem Smartphone oder Tablet mit deinem Server.",
-  "c21858dee1b62639": "{store}-Link",
-  "cdcdc54a444a3636": "Mit der Kamera deines Smartphones scannen.",
   "73da41e93823fd71": [
     "Wir raten davon ab, mehrere ",
     {
@@ -10233,8 +10193,6 @@
   "c424bee294b9f778": "Diese Umgebung wird von {organization} verwaltet. Einige Einstellungen und Funktionen folgen deren Richtlinie.",
   "82d9538af590f58c": "Sieh deine Agenten, importiere Projekte und richte dein Smartphone ein.",
   "6a48fd0a37e725a1": "Rechtliches",
-  "d6d3ea46ac979e1c": "Wie wir mit deinen Daten umgehen, einschließlich der anonymen Nutzungsdaten, die T3 Code erfasst.",
-  "e741b1ab9396053a": "Wie wir mit deinen Daten umgehen. {telemetryOff}",
   "0bffbbf4d7f780c0": "Hinweise zu Abhängigkeiten, Assets und optionalen Tools, die T3 Code verwendet.",
   "e39a57514be028e9": "Review",
   "7c0512387c3a42ea": "Stable",
@@ -10263,7 +10221,6 @@
   "5fe5a45199fa9c07": "Keine Anbieter für Textgenerierung verfügbar.",
   "99ceba64591c9257": "Diagnose anzeigen",
   "eb576a5feda7b535": "Öffnen",
-  "66647e8c8123a51f": "Richtlinie anzeigen",
   "6d59e1e516e53d17": "Lizenzen anzeigen",
   "941d08db15f62d17": "Archiviert",
   "e122b2428c0d03a5": "Alle Umgebungen öffnen",
@@ -11917,12 +11874,8 @@
   "d65bdf6748801734": "release-kanal stabil latest nightly vorabversion",
   "579c989018a85eb6": "loopy-Befehl",
   "46dd4dc08c1e552f": "cli terminal shell pfad installieren kommandozeile",
-  "86479042bae0e2db": "Mobile App",
-  "dc2a999ca67ccf31": "telefon tablet iPhone iPad iOS Android App Store Google Play QR",
   "6310b97b04ef239f": "Willkommensseite",
   "df9fa3a9cb004b9b": "onboarding einrichtung erster start erste schritte agenten import projekte",
-  "3188bc3b3c4508bc": "Datenschutzerklärung",
-  "901a823214edc8c4": "telemetrie analyse nutzungsdaten tracking rechtliches deaktivieren",
   "82136480255a5106": "OTel OTLP telemetrie export endpunkte logs traces metriken Grafana",
   "659d081051faf7ff": "logs traces prozesse ressourcenverlauf fehler spans cpu speicher",
   "5eaeacfa9f82051a": "bericht fehler problem t3 team senden feedback agenten tools automatisch wenn ich darum bitte",
@@ -12786,13 +12739,5 @@
   "27d76249d09eb69f": "Review-Leitfaden bereit",
   "faa3bb26abb39c93": "Review-Leitfaden fehlgeschlagen",
   "b7df38b7d8792d78": "Leitfaden öffnen",
-  "9e91e9a77b664e4e": "Review-Leitfaden konnte nicht gestartet werden",
-  "99d51127f573296b": "Weiteres Konto",
-  "8ec2c57414669b79": "Verbinde einen zweiten {tracker}-Workspace oder -Nutzer.",
-  "99963c0142e17f00": "Für das neue {tracker}-Konto.",
-  "6d8e4ebc889bace9": "Konto hinzufügen",
-  "1a93bab6da356294": "T3 Code konnte diesen Worktree nicht auf nicht committete Änderungen prüfen. Beim Löschen kann Arbeit verloren gehen.",
-  "b3cc4dfd8c1c2d25": "Er enthält nicht committete Änderungen. Beim Löschen des Worktrees gehen sie verloren.",
-  "1aa396f5c19b226f": "{count, plural, one {Er enthält nicht committete Änderungen in {count} Datei. Beim Löschen des Worktrees gehen sie verloren:} other {Er enthält nicht committete Änderungen in {count} Dateien. Beim Löschen des Worktrees gehen sie verloren:}}",
-  "e8d0653cf49cd57e": "und {count} weitere"
+  "9e91e9a77b664e4e": "Review-Leitfaden konnte nicht gestartet werden"
 }

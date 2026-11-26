@@ -115,6 +115,12 @@ export const hostedAppUrlConfig = makePublicValueConfig(
   DEFAULT_HOSTED_APP_URL,
 ).pipe(Config.mapEffect(validateHostedAppUrl));
 
+/** Loopy has no hosted app, so links point at one only when it is configured. */
+export const configuredHostedAppUrlConfig = makePublicValueConfig("T3CODE_HOSTED_APP_URL", "").pipe(
+  Config.mapEffect(validateHostedAppUrl),
+  Config.option,
+);
+
 const NIGHTLY_HOSTED_APP_URL = "https://nightly.app.t3.codes";
 
 /**

@@ -13,7 +13,7 @@ import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 import * as Semaphore from "effect/Semaphore";
-import { FetchHttpClient, HttpClient } from "effect/http";
+import { HttpClient } from "effect/http";
 
 import * as ProcessRunner from "../processRunner.ts";
 
@@ -127,6 +127,14 @@ export const make = Effect.fn("NpmRelease.make")(function* () {
   });
 });
 
-export const layer = Layer.effect(NpmRelease, make()).pipe(
-  Layer.provide([ProcessRunner.layer, FetchHttpClient.layer]),
+// `t3` on npm is T3 Code's package and Loopy publishes none, so no lookup is made.
+export const layer = Layer.succeed(
+  NpmRelease,
+  NpmRelease.of({
+    get: Effect.fn("NpmRelease.get")(function* () {
+      return yield* new ServerNpmReleaseError({
+        reason: "Loopy has no npm releases to switch to.",
+      });
+    }),
+  }),
 );

@@ -306,7 +306,7 @@ export const make = Effect.gen(function* () {
       mcpHostedApproval: true,
       shellThreadFamilies: true,
       shellOlderSettled: true,
-      agentFeedback: true,
+      // No agentFeedback: its reports go to T3's team, so Loopy hides the setting.
     },
   };
 

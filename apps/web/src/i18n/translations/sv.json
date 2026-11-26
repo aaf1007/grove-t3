@@ -1524,6 +1524,10 @@
   "4eb599c7f36c99ba": "Temafilen är inte giltig JSON.",
   "29a5ff50ce55c4f9": "VS Code-tema",
   "10348092dfed8b11": "VS Code-temat har ingen ”editor.background”-färg, så det finns inget att bygga en palett från.",
+  "1a93bab6da356294": "T3 Code kunde inte kontrollera om den här worktree:n har ej committade ändringar. Om du tar bort den kan arbete gå förlorat.",
+  "b3cc4dfd8c1c2d25": "Den har ej committade ändringar. De går förlorade om du tar bort worktree:n.",
+  "1aa396f5c19b226f": "{count, plural, one {Den har ej committade ändringar i {count} fil. De går förlorade om du tar bort worktree:n:} other {Den har ej committade ändringar i {count} filer. De går förlorade om du tar bort worktree:n:}}",
+  "e8d0653cf49cd57e": "och {count} till",
   "6dff8d487001c6cf": "Responsiv",
   "f5f61c338cc5aeb5": "Enhetsverktygsfält för webbläsaren",
   "3b4eb5b5ec5e60cb": "Enhetsförval för webbläsaren",
@@ -2247,23 +2251,6 @@
   "c65de112b48a66ed": "Lägg till parkopplingslänk",
   "bc8ab792af1d656f": "Kör på din dator:",
   "0ba14e4e920cfa00": "Eller ladda ned skrivbordsappen",
-  "0e79b7a6508a6286": "Sedan",
-  "363b9991fa23d36b": [
-    "Hoppa över installationen om du redan har ",
-    {
-      "t": "code",
-      "i": 1,
-      "c": "t3"
-    },
-    ". Om",
-    " ",
-    {
-      "t": "code",
-      "i": 2,
-      "c": "t3"
-    },
-    " inte hittas efter installationen, lägg till mappen som installationsprogrammet anger i din PATH."
-  ],
   "87b24d00c08f54bb": "Det gick inte att öppna filen med kortkommandon",
   "0ee16208cbfcdbf4": "Okänt fel när filen öppnades.",
   "9e20856550715c74": [
@@ -3103,7 +3090,6 @@
   "c646366e142ba05f": "Skrivbordsappens WSL-status är inte tillgänglig.",
   "228dcd284ea651b3": "Det gick inte att läsa in WSL-statusen.",
   "b08d105dd2553f8d": "Projektet visades inte i skrivbordsappen.",
-  "7a4b3f3b83e121d7": "{organization} har stängt av anonym användningsdata.",
   "d85822b18e9475df": "Hanteras av {organization}.",
   "a6dd531d58080010": "Anslut till den här servern för att söka efter versioner.",
   "314cdccee9c14774": "Den här servern stöder inte registeruppslag. Uppdatera den innan du byter spår.",
@@ -6191,7 +6177,6 @@
   "bd2304f25f6f999e": "{selected, plural, one {{selected} av {total} markerad} other {{selected} av {total} markerade}}",
   "228cd9fd55a55070": "Kunde inte kontrollera projekten igen. {error}",
   "1cc599c5f5874014": "Telefon",
-  "0f7c08d8284fee68": "T3 Code-appen för iPhone och Android",
   "431bee88ecc944e4": "Kontrollera T3 Connect",
   "c747696796f64468": "T3 Connect är på, men appen kan inte nå den här datorn.",
   "96557a906f6167b9": "Inloggad. Dela den här datorn så att appen kan nå den.",
@@ -6223,26 +6208,6 @@
   ],
   "216ab7514aea1d61": "Starta utan agent",
   "501ce2d99da8bfd1": "Konfigurera en agent för att starta.",
-  "71f3822326109c8e": [
-    "T3 Code samlar in anonym användningsdata för att förbättra appen. Se",
-    " ",
-    {
-      "t": "a",
-      "i": 1,
-      "c": "integritetspolicyn"
-    },
-    " för att välja bort det."
-  ],
-  "b33f35083757b42c": [
-    "Se",
-    " ",
-    {
-      "t": "a",
-      "i": 1,
-      "c": "integritetspolicyn"
-    },
-    "."
-  ],
   "f77d000c0710f066": "Aktivera",
   "4ed27bf946e504db": "Konfigurera",
   "7a26eaacff0607f7": [
@@ -6275,7 +6240,6 @@
     "-historik"
   ],
   "0070a15f6b693068": "Använd T3 Code på telefonen",
-  "37c66042ce1906da": "Skanna med telefonen för att skaffa appen.",
   "1b4364ef89b07f35": "Kunde inte kontrollera T3 Connect.",
   "7b10d40dd15938e5": "Din telefon kan nå den här datorn. Logga in i appen med samma konto.",
   "8330812e7b81f020": "T3 Connect är på för den här datorn. Logga in i appen med samma konto.",
@@ -9049,10 +9013,6 @@
   "0be6b2546df12f66": "Stoppa",
   "7dbd7e8943e8931f": "Öppnar mikrofonen…",
   "efa31f38b611e912": "Kunde inte spela upp inspelningen. Försök spela in igen.",
-  "0cebac0a2a6bdc99": "iPhone och iPad",
-  "d797c9687a256a50": "Anslut till din server från din telefon eller surfplatta.",
-  "c21858dee1b62639": "Länk till {store}",
-  "cdcdc54a444a3636": "Skanna med telefonens kamera.",
   "73da41e93823fd71": [
     "Vi rekommenderar inte att du hanterar flera ",
     {
@@ -10240,8 +10200,6 @@
   "c424bee294b9f778": "Miljön hanteras av {organization}. Vissa inställningar och funktioner följer dess policy.",
   "82d9538af590f58c": "Se dina agenter, importera projekt och konfigurera din telefon.",
   "6a48fd0a37e725a1": "Juridiskt",
-  "d6d3ea46ac979e1c": "Hur vi hanterar dina data, inklusive de anonyma användningsdata som T3 Code samlar in.",
-  "e741b1ab9396053a": "Hur vi hanterar dina data. {telemetryOff}",
   "0bffbbf4d7f780c0": "Meddelanden för beroenden, resurser och valfria verktyg som T3 Code använder.",
   "e39a57514be028e9": "Granska",
   "7c0512387c3a42ea": "Stable",
@@ -10270,7 +10228,6 @@
   "5fe5a45199fa9c07": "Inga leverantörer för textgenerering tillgängliga.",
   "99ceba64591c9257": "Visa diagnostik",
   "eb576a5feda7b535": "Öppna",
-  "66647e8c8123a51f": "Visa policy",
   "6d59e1e516e53d17": "Visa licenser",
   "941d08db15f62d17": "Arkiverat",
   "e122b2428c0d03a5": "Öppna alla miljöer",
@@ -11923,12 +11880,8 @@
   "d65bdf6748801734": "versionskanal stabil latest nightly förhandsversion",
   "579c989018a85eb6": "Kommandot loopy",
   "46dd4dc08c1e552f": "cli terminal skal sökväg installera kommandorad",
-  "86479042bae0e2db": "Mobilapp",
-  "dc2a999ca67ccf31": "telefon surfplatta iPhone iPad iOS Android App Store Google Play QR",
   "6310b97b04ef239f": "Välkomstsida",
   "df9fa3a9cb004b9b": "introduktion konfiguration första start kom igång agenter importera projekt",
-  "3188bc3b3c4508bc": "Integritetspolicy",
-  "901a823214edc8c4": "telemetri analys användningsdata spårning juridiskt avböj",
   "82136480255a5106": "OTel OTLP telemetri export slutpunkter loggar spår mätvärden Grafana",
   "659d081051faf7ff": "loggar spår processer resurshistorik fel spans cpu minne",
   "5eaeacfa9f82051a": "rapport bugg problem t3 team skicka återkoppling agenter verktyg automatiskt när jag ber om det",
@@ -12793,13 +12746,5 @@
   "27d76249d09eb69f": "Granskningsguiden är klar",
   "faa3bb26abb39c93": "Granskningsguiden misslyckades",
   "b7df38b7d8792d78": "Öppna guiden",
-  "9e91e9a77b664e4e": "Kunde inte starta en granskningsguide",
-  "99d51127f573296b": "Ett konto till",
-  "8ec2c57414669b79": "Anslut en andra {tracker}-arbetsyta eller användare.",
-  "99963c0142e17f00": "För det nya {tracker}-kontot.",
-  "6d8e4ebc889bace9": "Lägg till konto",
-  "1a93bab6da356294": "T3 Code kunde inte kontrollera om den här worktree:n har ej committade ändringar. Om du tar bort den kan arbete gå förlorat.",
-  "b3cc4dfd8c1c2d25": "Den har ej committade ändringar. De går förlorade om du tar bort worktree:n.",
-  "1aa396f5c19b226f": "{count, plural, one {Den har ej committade ändringar i {count} fil. De går förlorade om du tar bort worktree:n:} other {Den har ej committade ändringar i {count} filer. De går förlorade om du tar bort worktree:n:}}",
-  "e8d0653cf49cd57e": "och {count} till"
+  "9e91e9a77b664e4e": "Kunde inte starta en granskningsguide"
 }

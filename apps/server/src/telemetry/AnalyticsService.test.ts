@@ -395,10 +395,55 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))("AnalyticsService
     }),
   );
 
-  it.effect.each([
-    { label: "disabled", telemetry: { T3CODE_TELEMETRY_ENABLED: false } },
-    { label: "not configured", telemetry: {} },
-  ])("does not send batch requests when telemetry is $label", ({ telemetry }) =>
+  it.effect("sends nothing until the user configures their own PostHog key and host", () =>
+    Effect.gen(function* () {
+      const requests: Array<string> = [];
+      const client = HttpClient.make((request) => {
+        requests.push(request.url);
+        return respondWithStatus(204)(request);
+      });
+      const recordWith = (config: Record<string, unknown>) =>
+        Effect.gen(function* () {
+          const analytics = yield* AnalyticsService.AnalyticsService;
+          const queued = yield* analytics.record("test.unconfigured");
+          yield* analytics.flush;
+          return queued;
+        }).pipe(
+          Effect.provide(
+            AnalyticsService.layer.pipe(
+              Layer.provideMerge(
+                ServerConfig.ServerConfig.layerTest(process.cwd(), {
+                  prefix: "t3-telemetry-unconfigured-",
+                }),
+              ),
+              Layer.provide(ConfigProvider.layer(ConfigProvider.fromUnknown(config))),
+              Layer.provide(
+                Layer.mergeAll(
+                  Layer.succeed(HostProcess.Platform, "darwin"),
+                  Layer.succeed(HostProcess.Architecture, "arm64"),
+                  Layer.succeed(HttpClient.HttpClient, client),
+                  ManagedPolicy.layerTest(),
+                ),
+              ),
+            ),
+          ),
+        );
+
+      assert.isFalse(yield* recordWith({}));
+      assert.isFalse(yield* recordWith({ T3CODE_POSTHOG_KEY: "phc_own_key" }));
+      assert.deepEqual(requests, []);
+
+      assert.isTrue(
+        yield* recordWith({
+          T3CODE_POSTHOG_KEY: "phc_own_key",
+          T3CODE_POSTHOG_HOST: "https://posthog.example",
+        }),
+      );
+      assert.deepEqual(requests, ["https://posthog.example/batch/"]);
+    }),
+  );
+
+  it.effect("does not send batch requests when telemetry is disabled", () =>
     Effect.gen(function* () {
       const capturedPaths: Array<string> = [];
       const layerServerConfig = ServerConfig.ServerConfig.layerTest(process.cwd(), {
@@ -407,7 +452,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NodeCrypto.layer))("AnalyticsService
       const layerTelemetry = AnalyticsService.layer.pipe(Layer.provideMerge(layerServerConfig));
       const layerConfig = ConfigProvider.layer(
         ConfigProvider.fromUnknown({
-          ...telemetry,
+          T3CODE_TELEMETRY_ENABLED: false,
           T3CODE_POSTHOG_KEY: "phc_test_key",
           T3CODE_POSTHOG_HOST: "http://localhost",
         }),
