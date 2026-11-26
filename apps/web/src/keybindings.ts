@@ -314,6 +314,7 @@ export function isThreadNavigationShortcut(
   const command = resolveShortcutCommand(event, keybindings, options);
   return (
     threadTraversalDirectionFromCommand(command) !== null ||
+    command === "thread.nextNeedingYou" ||
     threadJumpIndexFromCommand(command ?? "") !== null
   );
 }
