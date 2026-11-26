@@ -1,6 +1,7 @@
 import { thrownErrorMessage } from "@t3tools/client-runtime/errors";
 import { msg, T, useGT, useMessages } from "gt-react";
 import { m } from "../i18n/messages";
+import { jumpToThreadNeedingYou } from "../attentionJump";
 import { attachSidebarTree } from "../lib/sidebarTree";
 import { type EnvironmentId, type ScopedProjectRef } from "@t3tools/contracts";
 import type { EnvironmentServerConfig } from "@t3tools/client-runtime/connection";
@@ -3220,6 +3221,13 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
           navigateToThread(scopeThreadRef(targetThread.environmentId, targetThread.id));
         return true;
       };
+      if (command === "thread.nextNeedingYou") {
+        event.preventDefault();
+        event.stopPropagation();
+        const currentThreadKey = routeThreadRef ? scopedThreadKey(routeThreadRef) : null;
+        jumpToThreadNeedingYou({ currentThreadKey, navigateToThread });
+        return;
+      }
       const traversalDirection = threadTraversalDirectionFromCommand(command);
       if (traversalDirection !== null) {
         navigateToRowKey(
