@@ -4,7 +4,7 @@ import type {
   ThreadPullRequestLink,
 } from "@t3tools/contracts";
 import { threadContextRecord } from "@t3tools/shared/composerContextReferences";
-import { hostedThreadLink } from "@t3tools/shared/threadLinks";
+import { formatThreadLink, hostedThreadLink } from "@t3tools/shared/threadLinks";
 
 import { resolveThreadCurrentPullRequestLink } from "./threadPullRequests.ts";
 import { mFallback, msg } from "gt-i18n";
@@ -25,7 +25,8 @@ export interface ThreadReferenceCopyTarget {
 
 /**
  * A link that opens the thread from anywhere, through `hostedAppUrl`, this build's hosted app. It
- * pastes back as a chip into any composer whose agent reads that thread's machine.
+ * pastes back as a chip into any composer whose agent reads that thread's machine. Loopy has no
+ * hosted app, so without one it is the in-app Markdown link, which pastes back the same way.
  */
 export function threadChipCopyTarget(
   threadRef: ScopedThreadRef,
@@ -36,7 +37,10 @@ export function threadChipCopyTarget(
   const record = threadContextRecord(threadRef, title);
   return {
     kind: "thread",
-    value: hostedThreadLink(threadRef, hostedAppUrl),
+    value:
+      hostedAppUrl === undefined
+        ? formatThreadLink(threadRef, title)
+        : hostedThreadLink(threadRef, hostedAppUrl),
     description: record.title,
     fragment: { version: 1, source: { environmentId: threadRef.environmentId }, records: [record] },
     clipboardTarget: "thread",
@@ -53,7 +57,7 @@ export function resolveThreadReferenceCopyTarget(
     readonly openPanelPullRequestUrl?: string | null | undefined;
     readonly pullRequests?: ReadonlyArray<ThreadPullRequestLink> | undefined;
     readonly linkedPullRequestUrl?: string | null;
-    readonly hostedAppUrl?: string;
+    readonly hostedAppUrl?: string | undefined;
   },
   resolve: MFunctionType = mFallback,
 ): ThreadReferenceCopyTarget | null {

@@ -144,12 +144,16 @@ export function formatThreadLink(ref: ThreadLink, label?: string): string {
   return cleaned ? `[${cleaned}](${destination})` : `<${href}>`;
 }
 
-/** What a person copies out of T3 Code: a Markdown link that opens the thread anywhere. */
+/**
+ * What a person copies out of T3 Code: a Markdown link that opens the thread anywhere. Loopy has no
+ * hosted app, so without an `origin` it is the in-app link, which pastes back as a chip.
+ */
 export function formatHostedThreadLink(
   ref: ScopedThreadRef,
   label: string,
   origin?: string,
 ): string {
+  if (origin === undefined) return formatThreadLink(ref, label);
   const href = hostedThreadLink(ref, origin);
   const cleaned = linkLabel(label);
   return cleaned ? `[${cleaned}](${href})` : href;
