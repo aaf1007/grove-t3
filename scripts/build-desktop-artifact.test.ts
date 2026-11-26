@@ -38,6 +38,7 @@ import {
   MissingMacPasskeyProvisioningProfileError,
   packWindowsServerAsar,
   preflightWindowsDesktopBuild,
+  renderMacDeveloperIdEntitlements,
   renderMacPasskeyEntitlements,
   resolveMacFileExclusions,
   resolveMacWebAuthnEntitlements,
@@ -1599,6 +1600,7 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
       T3CODE_CLERK_PASSKEY_RP_DOMAINS:
         " Clerk.Example.com,example.clerk.accounts.dev,clerk.example.com ",
     });
+    assert.isDefined(configuration);
     const entitlements = renderMacPasskeyEntitlements(configuration, {
       touchIdKeychainAccessGroup: undefined,
       browserPasskeys: false,
@@ -1621,6 +1623,56 @@ it.layer(NodeServices.layer)("build-desktop-artifact", (it) => {
     assert.notInclude(entitlements, "keychain-access-groups");
     assert.notInclude(entitlements, "com.apple.developer.web-browser.public-key-credential");
   });
+
+  it("signs with Developer ID only when Clerk is not configured", () => {
+    assert.isUndefined(resolveMacPasskeySigningConfiguration({}));
+    assert.isUndefined(
+      resolveMacPasskeySigningConfiguration({
+        T3CODE_APPLE_TEAM_ID: "ABC1234567",
+        T3CODE_MACOS_PROVISIONING_PROFILE: "/tmp/t3code.provisionprofile",
+        T3CODE_CLERK_PUBLISHABLE_KEY: " ",
+      }),
+    );
+
+    const entitlements = renderMacDeveloperIdEntitlements();
+    for (const restricted of [
+      "com.apple.application-identifier",
+      "com.apple.developer.team-identifier",
+      "com.apple.developer.associated-domains",
+      "keychain-access-groups",
+      "com.apple.developer.web-browser.public-key-credential",
+    ]) {
+      assert.notInclude(entitlements, restricted);
+    }
+    for (const granted of [
+      "com.apple.security.cs.allow-jit",
+      "com.apple.security.cs.allow-unsigned-executable-memory",
+      "com.apple.security.cs.disable-library-validation",
+      "com.apple.security.automation.apple-events",
+      "com.apple.security.device.camera",
+      "com.apple.security.device.audio-input",
+    ]) {
+      assert.include(entitlements, `<key>${granted}</key>\n    <true/>`);
+    }
+  });
+
+  it.effect("adds a provisioning profile to signed macOS builds only for passkey signing", () =>
+    Effect.gen(function* () {
+      const macSigning = (provisioningProfilePath: string | undefined) =>
+        createBuildConfig("mac", "dmg", "0.1.0", true, false, undefined, {
+          entitlementsPath: "/stage/entitlements.mac.plist",
+          provisioningProfilePath,
+        }).pipe(Effect.map((config) => config.mac as Record<string, unknown>));
+
+      const developerId = yield* macSigning(undefined);
+      assert.propertyVal(developerId, "entitlements", "/stage/entitlements.mac.plist");
+      assert.notProperty(developerId, "provisioningProfile");
+
+      const passkey = yield* macSigning("/profiles/t3code.provisionprofile");
+      assert.propertyVal(passkey, "entitlements", "/stage/entitlements.mac.plist");
+      assert.propertyVal(passkey, "provisioningProfile", "/profiles/t3code.provisionprofile");
+    }),
+  );
 
   it("grants in-app browser passkey entitlements only when the provisioning profile does", () => {
     const configuration = { appId: "io.github.aaf1007.loopy", teamId: "ABC1234567" };
