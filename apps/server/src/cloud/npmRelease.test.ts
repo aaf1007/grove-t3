@@ -197,7 +197,7 @@ it.effect.each(["--registry=https://example.com", "../other", "other-package@lat
     }),
 );
 
-it.effect("the shipped layer never looks up T3 Code's npm package", () =>
+it.effect("the shipped layer never looks up Loopy's npm package", () =>
   Effect.gen(function* () {
     const npmRelease = yield* NpmRelease.NpmRelease;
     const result = yield* Effect.result(npmRelease.get({ spec: "latest" }));

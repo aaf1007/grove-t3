@@ -15,9 +15,7 @@ type WorktreeStatus = Pick<VcsStatusLocalResult, "hasWorkingTreeChanges" | "work
 export function worktreeDeleteWarning(status: WorktreeStatus | null): string | null {
   if (status === null) {
     return m(
-      msg(
-        "T3 Code couldn't check this worktree for uncommitted changes. Deleting it may lose work.",
-      ),
+      msg("Loopy couldn't check this worktree for uncommitted changes. Deleting it may lose work."),
     );
   }
   if (!status.hasWorkingTreeChanges) return null;

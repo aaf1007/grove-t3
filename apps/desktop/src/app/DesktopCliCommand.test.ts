@@ -163,14 +163,14 @@ it.layer(NodeServices.layer)("DesktopCliCommand", (it) => {
     }),
   );
 
-  it.effect("installs loopy beside T3 Code's t3 command and never touches it", () =>
+  it.effect("installs loopy beside Loopy's t3 command and never touches it", () =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const home = yield* fs.makeTempDirectoryScoped();
       const t3Launcher = path.join(home, ".t3", "bin", "t3");
       const t3Link = path.join(home, ".local", "bin", "t3");
-      const t3Script = "#!/bin/sh\n# Written by T3 Code: runs the desktop app's bundled t3 CLI.\n";
+      const t3Script = "#!/bin/sh\n# Written by Loopy: runs the desktop app's bundled t3 CLI.\n";
       yield* fs.makeDirectory(path.dirname(t3Launcher), { recursive: true });
       yield* fs.writeFileString(t3Launcher, t3Script, { mode: 0o755 });
       yield* fs.makeDirectory(path.dirname(t3Link), { recursive: true });
@@ -233,7 +233,7 @@ it.layer(NodeServices.layer)("DesktopCliCommand", (it) => {
     }),
   );
 
-  it.effect("finds and removes a link left by a previous T3 home", () =>
+  it.effect("finds and removes a link left by a previous Loopy home", () =>
     Effect.gen(function* () {
       const env: NodeJS.ProcessEnv = { PATH: "", SHELL: "/bin/zsh" };
       const fs = yield* FileSystem.FileSystem;

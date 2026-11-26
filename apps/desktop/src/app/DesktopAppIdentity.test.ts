@@ -39,7 +39,7 @@ interface ElectronAppCalls {
 const layerElectronApp = (calls: ElectronAppCalls) =>
   Layer.succeed(ElectronApp.ElectronApp, {
     metadata: Effect.die("unexpected metadata read"),
-    name: Effect.succeed("T3 Code"),
+    name: Effect.succeed("Loopy"),
     systemLocale: Effect.succeed("en-US"),
     preferredSystemLanguages: Effect.succeed(["en-US"]),
     whenReady: Effect.void,
@@ -157,7 +157,7 @@ describe("DesktopAppIdentity", () => {
       profile: "loopy-dev",
     },
   ])(
-    "uses the $profile profile for a $build build without reading T3 Code's",
+    "uses the $profile profile for a $build build without reading Loopy's",
     ({ environment, profile }) => {
       const fileSystemCalls: Array<string> = [];
       return withIdentity(

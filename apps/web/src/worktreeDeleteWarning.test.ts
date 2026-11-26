@@ -46,7 +46,7 @@ describe("worktreeDeleteWarning", () => {
 
   it("treats a failed check as possibly holding work", () => {
     expect(worktreeDeleteWarning(null)).toBe(
-      "T3 Code couldn't check this worktree for uncommitted changes. Deleting it may lose work.",
+      "Loopy couldn't check this worktree for uncommitted changes. Deleting it may lose work.",
     );
   });
 });

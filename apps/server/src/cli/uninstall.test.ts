@@ -100,7 +100,7 @@ it.layer(Layer.mergeAll(NodeServices.layer, NetService.layer))("t3 uninstall com
       label: "leaves a service that serves another home by the time it is removed",
       otherFromRead: 2,
       removed: [],
-      output: "Left the background service: it now serves another T3 home.",
+      output: "Left the background service: it now serves another Loopy home.",
     },
   ])("$label", (input) =>
     Effect.gen(function* () {

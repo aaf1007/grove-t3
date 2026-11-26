@@ -303,7 +303,7 @@ export const make = Effect.gen(function* () {
       // PATH would split the folder at the `;`, leaving two wrong entries behind.
       if (binDirectory.includes(";")) {
         return yield* fail(
-          `T3 Code cannot put ${binDirectory} on PATH because it has a ";". Run ${launcher} directly.`,
+          `Loopy cannot put ${binDirectory} on PATH because it has a ";". Run ${launcher} directly.`,
         );
       }
       const entries = pathEntries(yield* readUserPath, ";");
@@ -407,11 +407,11 @@ export const make = Effect.gen(function* () {
     }
     const setup = startupLine(installed.value);
     if (setup === undefined)
-      return yield* fail(`T3 Code cannot add ${DesktopCliShim.COMMAND} to this shell's PATH.`);
+      return yield* fail(`Loopy cannot add ${DesktopCliShim.COMMAND} to this shell's PATH.`);
     const shadowedBy = yield* foreignFirstOnPath;
     if (Option.isSome(shadowedBy)) {
       return yield* fail(
-        `Another ${DesktopCliShim.COMMAND} at ${shadowedBy.value} runs first; T3 Code leaves it in place.`,
+        `Another ${DesktopCliShim.COMMAND} at ${shadowedBy.value} runs first; Loopy leaves it in place.`,
       );
     }
     if (!(yield* folderOnPath(installed.value)) && !(yield* hasLine(setup))) {
@@ -438,7 +438,7 @@ export const make = Effect.gen(function* () {
       if (existing !== undefined) {
         const target = yield* fs.readLink(existing).pipe(Effect.option);
         if (Option.getOrUndefined(target) !== launcher) {
-          return yield* logInfo("left another T3 Code app's t3 command in place", {
+          return yield* logInfo("left another Loopy app's t3 command in place", {
             existing,
           });
         }
