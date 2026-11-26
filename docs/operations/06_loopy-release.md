@@ -1,10 +1,10 @@
 # Loopy macOS release
 
-`.github/workflows/loopy-release.yml` builds Loopy for Apple Silicon and Intel Macs on GitHub-hosted runners. A `vX.Y.Z` tag produces a signed, notarized **draft** release; a manual run is an unsigned dry run. Upstream's `release.yml` and the workflows it calls stay disabled in this repository's Actions settings. Leave those files unedited so upstream merges stay clean.
+`.github/workflows/loopy-release.yml` builds Loopy for Apple Silicon and Intel Macs on GitHub-hosted runners. A `vX.Y.Z` tag produces a **draft** release; a manual run is an unsigned dry run. Tag builds are ad-hoc signed: users open them the first time with right-click → Open, and installed apps cannot auto-update, because macOS only applies updates whose signature matches a real developer identity. Set the repository variable `LOOPY_SIGNED_RELEASES` to `true` to sign and notarize tag builds instead. Upstream's `release.yml` and the workflows it calls stay disabled in this repository's Actions settings. Leave those files unedited so upstream merges stay clean.
 
-## One-time setup
+## Signing setup
 
-In the Apple Developer site, as the team's Account Holder or Admin:
+Only needed for `LOOPY_SIGNED_RELEASES`. In the Apple Developer site, as the team's Account Holder or Admin:
 
 1. **Developer ID Application certificate.** Create it under Certificates (it needs a CSR from Keychain Access), install it, then export it from Keychain Access with its private key as a password-protected `.p12`.
 2. **Notarization key.** In App Store Connect → Users and Access → Integrations → App Store Connect API, create a team key with the Developer role. Download the `.p8` (Apple offers it once) and note its Key ID and the Issuer ID.
@@ -23,7 +23,7 @@ In GitHub → Settings → Secrets and variables → Actions:
 | `APPLE_API_ISSUER` | secret   | the Issuer ID                                                          |
 | `APPLE_TEAM_ID`    | variable | the 10-character Team ID                                               |
 
-A tag build stops in Preflight and names whatever is missing. The workflow also checks that the app is signed by `APPLE_TEAM_ID`, so a wrong certificate fails the build.
+With `LOOPY_SIGNED_RELEASES` set, a tag build stops in Preflight and names whatever is missing. The workflow also checks that the app is signed by `APPLE_TEAM_ID`, so a wrong certificate fails the build.
 
 Do not set Clerk or relay values (`T3CODE_CLERK_*`, `T3CODE_RELAY_URL`). Loopy has no T3 Connect, and the build fails if the bundle contains the T3 values from `.env.example`.
 
@@ -41,7 +41,7 @@ Actions → **Loopy Release** → Run workflow. It builds both architectures uns
 
 Installed apps cannot see a draft, so testing it is safe.
 
-1. Download the DMG for your Mac, install it, and launch it. A notarized app opens without a Gatekeeper warning; `spctl -a -vv` on the installed app reports `source=Notarized Developer ID`.
+1. Download the DMG for your Mac, install it, and launch it. An ad-hoc signed app opens with right-click → Open. A notarized app opens without a Gatekeeper warning; `spctl -a -vv` on the installed app reports `source=Notarized Developer ID`.
 2. The Intel build is never launched in CI. On Apple Silicon it runs under Rosetta, so install the x64 DMG once too.
 3. Open `latest-mac.yml` from the draft and check that it lists an `arm64` and an `x64` ZIP.
 4. Publish the draft with **Set as the latest release** checked. Installed apps find it on their next update check. From the second release on, keep the previous version installed and check that it updates.

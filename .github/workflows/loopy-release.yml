@@ -2,9 +2,11 @@ name: Loopy Release
 
 # Fork-only, so upstream merges never touch it. Upstream's release workflows
 # stay disabled here: they need Blacksmith runners and upstream accounts.
-# A `v*.*.*` tag builds signed, notarized macOS apps for arm64 and x64 and
-# attaches them, with the merged updater manifest, to a draft release. A manual
-# run is an unsigned dry run whose output stays in workflow artifacts.
+# A `v*.*.*` tag builds macOS apps for arm64 and x64 and attaches them, with
+# the merged updater manifest, to a draft release. Tag builds are ad-hoc signed
+# unless the LOOPY_SIGNED_RELEASES repository variable is `true`, which makes
+# them signed and notarized. A manual run is an unsigned dry run whose output
+# stays in workflow artifacts.
 # Runbook: docs/operations/06_loopy-release.md.
 
 on:
@@ -27,6 +29,7 @@ jobs:
     timeout-minutes: 5
     outputs:
       version: ${{ steps.version.outputs.version }}
+      release: ${{ steps.version.outputs.release }}
       signed: ${{ steps.version.outputs.signed }}
     steps:
       - name: Checkout
@@ -39,6 +42,8 @@ jobs:
       - id: version
         name: Resolve version
         shell: bash
+        env:
+          SIGNED_RELEASES: ${{ vars.LOOPY_SIGNED_RELEASES }}
         run: |
           set -euo pipefail
           if [[ "$GITHUB_EVENT_NAME" == "push" ]]; then
@@ -47,10 +52,12 @@ jobs:
               echo "::error::Tag $GITHUB_REF_NAME is not v<major>.<minor>.<patch>[-<prerelease>]."
               exit 1
             fi
-            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+            echo "signed=$([[ "${SIGNED_RELEASES:-}" == "true" ]] && echo true || echo false)" >> "$GITHUB_OUTPUT"
           else
             # A dry run never becomes a release; it only needs a valid semver.
             version="$(jq -r .version apps/desktop/package.json)-dryrun.$GITHUB_RUN_NUMBER"
+            echo "release=false" >> "$GITHUB_OUTPUT"
             echo "signed=false" >> "$GITHUB_OUTPUT"
           fi
           echo "version=$version" >> "$GITHUB_OUTPUT"
@@ -71,7 +78,7 @@ jobs:
             [[ -n "${!name:-}" ]] || missing+=("$name")
           done
           if (( ${#missing[@]} > 0 )); then
-            echo "::error::A tag release is signed and notarized, but these are not set: ${missing[*]}. APPLE_TEAM_ID is a repository variable; the rest are repository secrets. See docs/operations/06_loopy-release.md."
+            echo "::error::LOOPY_SIGNED_RELEASES is true, but these are not set: ${missing[*]}. APPLE_TEAM_ID is a repository variable; the rest are repository secrets. See docs/operations/06_loopy-release.md."
             exit 1
           fi
 
@@ -264,7 +271,7 @@ jobs:
           cat release-assets/*.yml
 
       - name: Upload merged updater manifest
-        if: needs.preflight.outputs.signed != 'true'
+        if: needs.preflight.outputs.release != 'true'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: updater-manifest
@@ -272,7 +279,7 @@ jobs:
           if-no-files-found: error
 
       - name: Create draft release
-        if: needs.preflight.outputs.signed == 'true'
+        if: needs.preflight.outputs.release == 'true'
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
           tag_name: ${{ github.ref_name }}
