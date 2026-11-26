@@ -151,17 +151,29 @@ choice.
 While this is on, the active list is ordered by when each thread last came back to you, so you
 cannot drag or move threads within it. Your saved order returns when you turn it off.
 
-### Group threads by project (beta)
+### Group threads by project
 
-Turn on **Settings → Labs → Boring sidebar (group by project)** on web and desktop to put active
-threads in a folder for each project. Pinned projects come first. A project with no active
-threads has no folder unless it is pinned or you pick it in the project filter. An archived
-project's folder comes last and shows only while it has active threads. Click a folder to open or
-close it. A closed folder shows how many threads it holds, and a dot when one of them
-needs you. Use the pen button on a folder, or right-click it, to start a thread in that project.
-Pinned threads stay above the folders, and Snoozed and Settled stay below them. In this mode you
-can drag a thread onto the composer to mention it, but not within the sidebar, and the Working
-section is off. Each device keeps its own choice.
+On web and desktop, choose **Settings → General → Sidebar layout → Projects** to group active
+threads under their project. Each device keeps its own choice. Pinned threads stay on top, Snoozed
+and Settled stay below the projects, and there is no Working section. Unsent drafts sit in their
+project, marked **Draft**, or at the top when their project isn't in the list.
+
+A row shows a dot instead of its age while the thread has something to tell you: amber when it
+needs you, red when it failed, blue for an unread reply, and a hollow ring while it works. Hover a
+dot to see what it means.
+
+Click a project to open or close it. A closed project shows how many of its threads need you.
+A project with no active threads is hidden unless it is pinned or you pick it in the project
+filter, and an archived project shows last while it still has active threads. A project that lives
+only on another machine shows that machine's name.
+
+Drag a project to reorder projects; this switches the project sort to **Manual**. Drag a thread to
+reorder it within its project, or to the top to pin it. A thread cannot move to another project.
+`mod+1` through `mod+9` and the next and previous thread shortcuts follow the order you see.
+
+A thread running subagents shows a line under it, such as "2 working · 1 done". Click it to open
+the subagent beside the thread. Hover the **Projects** heading to filter projects or add one, and
+use the pen button on a project, or right-click it, to start a thread there.
 
 ## Settle finished work
 

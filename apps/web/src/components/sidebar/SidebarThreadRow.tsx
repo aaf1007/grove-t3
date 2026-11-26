@@ -133,6 +133,8 @@ import { observeVisibleAnimation } from "~/lib/visibleAnimation";
 import { useThreadHasUnsentDraft } from "../../composerDraftStore";
 import { ThreadDetailsIssueRows } from "../chat/ThreadDetailsIssueRows";
 import { IssueGlyph, issueStatePresentation } from "../issue/issuePresentation";
+import { ProjectsLayoutStatusDot } from "./ProjectsLayoutStatusDot";
+import { projectsLayoutDot } from "./projectsLayout.logic";
 
 // The fields thread rows show. Provider status pushes refresh `checkedAt`,
 // status and auth on every provider; leaving those out keeps each
@@ -582,9 +584,11 @@ function TopStatusIcon(props: { icon: keyof typeof TOP_STATUS_ICONS; className: 
 
 type SidebarThreadRowProps = {
   thread: SidebarThreadSummary;
-  // "folder" is a one-line row inside a boring sidebar project folder;
-  // "folder-multiline" adds the card's environment and PR line under it.
-  variant: "card" | "slim" | "folder" | "folder-multiline";
+  // The Projects layout's one-line rows: "folder" sits in a project under its guide line,
+  // "line" elsewhere (Pinned and the shelves). Both show a status dot instead of an icon.
+  variant: "card" | "slim" | "folder" | "line";
+  /** Shown under a Projects layout row, such as its subagent summary. */
+  below?: ReactNode;
   navigationParent?: string | undefined;
   variantAction: SidebarSweepAction;
   settlementSupported: boolean;
@@ -1071,6 +1075,7 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
     isActive: props.isActive,
   });
 
+  const inFolder = variant === "folder" || variant === "line";
   const title = isRenaming ? (
     <ThreadRenameInput
       title={renamingTitle}
@@ -1083,28 +1088,36 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
       ref={isRegeneratingTitle ? observeVisibleAnimation : undefined}
       className={cn(
         "min-w-0 flex-1 text-start text-sm transition-opacity motion-reduce:transition-none",
-        shouldRecede ? "font-normal" : "font-medium",
+        shouldRecede || inFolder ? "font-normal" : "font-medium",
         isRegeneratingTitle
           ? "relative truncate text-muted-foreground"
-          : variant !== "slim"
-            ? cn(
+          : inFolder
+            ? // Dimmer than the project names above them, until open or hovered.
+              cn(
                 "truncate",
-                shouldRecede
-                  ? "text-foreground/75 group-hover/sidebar-row:text-foreground group-focus-visible/sidebar-row:text-foreground"
-                  : status === "failed" && !isUnread && !isWoke
-                    ? "text-foreground/95"
-                    : "text-foreground",
+                props.isActive
+                  ? "text-sidebar-foreground"
+                  : "text-sidebar-foreground/80 group-hover/sidebar-row:text-sidebar-foreground group-focus-visible/sidebar-row:text-sidebar-foreground",
               )
-            : cn(
-                "truncate group-focus-within/sidebar-row:text-foreground group-hover/sidebar-row:text-foreground",
-                shouldRecede
-                  ? "text-secondary-label"
-                  : props.isActive || isWoke || status === "input" || status === "request"
-                    ? "text-foreground"
-                    : isUnread
-                      ? "text-muted-foreground"
-                      : "text-secondary-label/70",
-              ),
+            : variant !== "slim"
+              ? cn(
+                  "truncate",
+                  shouldRecede
+                    ? "text-foreground/75 group-hover/sidebar-row:text-foreground group-focus-visible/sidebar-row:text-foreground"
+                    : status === "failed" && !isUnread && !isWoke
+                      ? "text-foreground/95"
+                      : "text-foreground",
+                )
+              : cn(
+                  "truncate group-focus-within/sidebar-row:text-foreground group-hover/sidebar-row:text-foreground",
+                  shouldRecede
+                    ? "text-secondary-label"
+                    : props.isActive || isWoke || status === "input" || status === "request"
+                      ? "text-foreground"
+                      : isUnread
+                        ? "text-muted-foreground"
+                        : "text-secondary-label/70",
+                ),
       )}
       dir={textDirection(thread.title)}
     >
@@ -1311,17 +1324,22 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
   ) : null;
 
   if (variant !== "card") {
-    const multiline = variant === "folder-multiline";
-    const inFolder = variant === "folder" || multiline;
+    const rowDot = inFolder ? projectsLayoutDot({ status, isUnread, isWoke: isWokeStatus }) : null;
     return (
       <li
         data-thread-item={threadKey}
         {...sortableRootProps}
         {...(fileDropHandlers ?? {})}
         className={cn(
-          "list-none [content-visibility:auto] [contain-intrinsic-size:auto_--spacing(9)]",
-          metaLine !== null && multiline && "[contain-intrinsic-size:auto_--spacing(13.5)]",
+          "list-none [content-visibility:auto]",
+          inFolder
+            ? "[contain-intrinsic-size:auto_--spacing(8)]"
+            : "[contain-intrinsic-size:auto_--spacing(9)]",
           sortable?.isDragging && "relative z-20",
+          // The project's guide line runs left of the row, so the row's hover stops short of it.
+          variant === "folder" &&
+            "relative ps-5.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-sidebar-border",
+          variant === "folder" && sortable?.isDragging && "before:hidden",
         )}
       >
         <Tooltip disabled={isRenaming || sortable?.isDragging}>
@@ -1339,11 +1357,8 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                 aria-busy={isRegeneratingTitle || undefined}
                 className={cn(
                   rowSurfaceClassName,
-                  multiline
-                    ? "flex flex-col justify-center px-2.5 py-1.5"
-                    : "flex h-9 items-center gap-2.5 px-2.5",
-                  // Lines titles up with the folder name, past its chevron and icon.
-                  inFolder && "ps-9",
+                  "flex items-center gap-2.5 px-2.5",
+                  inFolder ? "h-8" : "h-9",
                 )}
                 onClick={handleClick}
                 onDoubleClick={handleDoubleClick}
@@ -1353,7 +1368,7 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
             }
           >
             {/* `contents` keeps one-line rows a single flex row. */}
-            <div className={multiline ? "flex h-6 min-w-0 items-center gap-2.5" : "contents"}>
+            <div className="contents">
               {inFolder ? null : (
                 <span
                   className={cn(
@@ -1369,10 +1384,10 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
               )}
               {draftIndicator}
               {title}
-              {multiline ? titleLineIcons : null}
-              {pinIndicator}
-              {multiline ? null : terminalStatusIcon}
-              {multiline ? null : issueBadge}
+              {/* The Pinned label already says it. */}
+              {inFolder ? null : pinIndicator}
+              {terminalStatusIcon}
+              {issueBadge}
               {isRegeneratingTitle ? (
                 <span role="status" className="sr-only">
                   <T>Regenerating title</T>
@@ -1383,7 +1398,8 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
               ) : (
                 <span
                   className={cn(
-                    "relative ml-auto flex h-6 min-w-8 shrink-0 items-center justify-end",
+                    "relative ml-auto flex h-6 shrink-0 items-center justify-end",
+                    inFolder ? "min-w-6" : "min-w-8",
                     props.sweepAction !== null && "hidden",
                     jumpHintLabel && JUMP_HINT_SLOT_CLASS_NAME,
                   )}
@@ -1400,7 +1416,14 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                         <AlarmClockIcon aria-hidden className="size-3" />
                         {props.snoozeWakeLabelText}
                       </span>
-                    ) : (inFolder ? isWokeStatus : isWoke) ? (
+                    ) : rowDot !== null ? (
+                      <ProjectsLayoutStatusDot
+                        dot={rowDot}
+                        label={topStatus?.label ?? ""}
+                        dismissLabel={gt("Dismiss Woke notification")}
+                        onDismiss={isWokeStatus ? handleAcknowledgeWokeClick : undefined}
+                      />
+                    ) : !inFolder && isWoke ? (
                       <Tooltip>
                         <TooltipTrigger
                           render={
@@ -1421,17 +1444,6 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
                           <T>Dismiss Woke notification</T>
                         </TooltipPopup>
                       </Tooltip>
-                    ) : inFolder && topStatus ? (
-                      // Folder rows have no status line, so the status takes the time slot.
-                      <span
-                        className={cn(
-                          "inline-flex items-center gap-1 text-xs font-medium",
-                          topStatus.className,
-                        )}
-                      >
-                        <TopStatusIcon icon={topStatus.icon} className="size-3" />
-                        {topStatus.label}
-                      </span>
                     ) : (
                       <span className="text-xs">
                         <RelativeTimeLabel
@@ -1509,10 +1521,10 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
               )}
               {props.sweepAction !== null ? dragDestination : null}
             </div>
-            {multiline ? metaLine : null}
           </TooltipTrigger>
           {detailsTooltip}
         </Tooltip>
+        {props.below}
       </li>
     );
   }

@@ -29,6 +29,7 @@ import { useConnectedEnvironmentIds, usePrimaryEnvironmentId } from "../state/en
 import { readEnvironmentScope, useEnvironmentScope } from "../state/session";
 import { useOrchestrationCommand } from "../state/use-orchestration-command";
 import { useTerminalUiStateStore } from "../terminalUiStateStore";
+import { useUiStateStore } from "../uiStateStore";
 import { readLocalApi } from "../localApi";
 import type { Project } from "../types";
 import Sidebar from "./Sidebar";
@@ -572,5 +573,48 @@ describe("sidebar settled pagination", () => {
     const loadedRows = screen.container.querySelectorAll("[data-thread-item]").length;
     await act(() => moreButton.click());
     expect(screen.container.querySelectorAll("[data-thread-item]")).toHaveLength(loadedRows);
+  });
+});
+
+describe("sidebar projects layout", () => {
+  it("counts the threads that need you in a closed project", async () => {
+    using stack = new DisposableStack();
+    const initialUiState = useUiStateStore.getState();
+    stack.defer(() => useUiStateStore.setState(initialUiState, true));
+    const previousSettings = getClientSettings();
+    stack.defer(() => __setClientSettingsForTests(previousSettings));
+    __setClientSettingsForTests({ ...DEFAULT_CLIENT_SETTINGS, boringSidebarEnabled: true });
+    const web = project("web");
+    vi.mocked(useProjects).mockReturnValue([web]);
+    const viewed = threadShell(web.id, 0);
+    const waiting = { ...threadShell(web.id, 1), title: "Waiting on approval" };
+    vi.mocked(useQuietThreadShells).mockReturnValue([
+      viewed,
+      { ...waiting, hasPendingApprovals: true },
+    ]);
+    const threadRef = scopeThreadRef(viewed.environmentId, viewed.id);
+    vi.mocked(useThreadRouteTarget).mockReturnValue({ kind: "server", threadRef });
+    vi.mocked(useHandleNewThread).mockReturnValue({
+      activeDraftThread: null,
+      activeThread: null,
+      defaultProjectRef: null,
+      defaultProjectFallbackReady: true,
+      handleNewThread: vi.fn(),
+      routeDraftId: null,
+      routeThreadRef: threadRef,
+    });
+
+    await using screen = await render(
+      <SidebarProvider>
+        <Sidebar routeReveal={{ observedKey: null, pendingKey: null }} />
+      </SidebarProvider>,
+    );
+    await userEvent.click(screen.getByRole("button", { name: "web", exact: true }));
+
+    await expect
+      .element(screen.getByRole("button", { name: /^web\s*1 thread needs you$/ }))
+      .toHaveAttribute("aria-expanded", "false");
+    await expect.element(screen.getByText("Waiting on approval")).not.toBeInTheDocument();
+    await expect.element(screen.getByText("Thread 0")).toBeInTheDocument();
   });
 });

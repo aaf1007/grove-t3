@@ -1,3 +1,5 @@
+import * as NodeOS from "node:os";
+
 import * as Clock from "effect/Clock";
 import * as Context from "effect/Context";
 import * as Effect from "effect/Effect";
@@ -38,6 +40,7 @@ import {
 } from "../preview/GuestProtocol.ts";
 import * as PreviewManager from "../preview/Manager.ts";
 import * as PreviewPasskeys from "../preview/Passkeys.ts";
+import { supportsSidebarTranslucency } from "./sidebarTranslucency.ts";
 import * as DesktopAppSettings from "../settings/DesktopAppSettings.ts";
 import * as DesktopClientSettings from "../settings/DesktopClientSettings.ts";
 import * as ElectronApp from "../electron/ElectronApp.ts";
@@ -147,6 +150,7 @@ export class DesktopWindow extends Context.Service<
     readonly zoomMain: (direction: MainWindowZoomDirection) => Effect.Effect<void>;
     readonly runMainContentsCommand: (command: MainWindowContentsCommand) => Effect.Effect<void>;
     readonly syncAppearance: Effect.Effect<void>;
+    readonly setSidebarTranslucent: (translucent: boolean) => Effect.Effect<void>;
   }
 >()("@t3tools/desktop/window/DesktopWindow") {}
 
@@ -167,6 +171,31 @@ function getIconOption(
 
 function getInitialWindowBackgroundColor(shouldUseDarkColors: boolean): string {
   return shouldUseDarkColors ? "#000000" : "#ffffff";
+}
+
+// The OS material shows only through a transparent window, so theme syncs must keep it clear.
+const translucentWindows = new WeakSet<Electron.BrowserWindow>();
+
+function getWindowBackgroundColor(window: Electron.BrowserWindow, shouldUseDarkColors: boolean) {
+  return translucentWindows.has(window)
+    ? "#00000000"
+    : getInitialWindowBackgroundColor(shouldUseDarkColors);
+}
+
+function applyWindowTranslucency(
+  window: Electron.BrowserWindow,
+  translucent: boolean,
+  shouldUseDarkColors: boolean,
+  platform: NodeJS.Platform,
+): Effect.Effect<void> {
+  return Effect.sync(() => {
+    if (window.isDestroyed() || !supportsSidebarTranslucency(platform, NodeOS.release())) return;
+    if (platform === "darwin") window.setVibrancy(translucent ? "sidebar" : null);
+    else window.setBackgroundMaterial(translucent ? "acrylic" : "none");
+    if (translucent) translucentWindows.add(window);
+    else translucentWindows.delete(window);
+    window.setBackgroundColor(getWindowBackgroundColor(window, shouldUseDarkColors));
+  });
 }
 
 type DisplayBounds = Pick<Electron.Rectangle, "x" | "y" | "width" | "height">;
@@ -356,7 +385,7 @@ function syncWindowAppearance(
       return;
     }
 
-    window.setBackgroundColor(getInitialWindowBackgroundColor(shouldUseDarkColors));
+    window.setBackgroundColor(getWindowBackgroundColor(window, shouldUseDarkColors));
     const { titleBarOverlay } = getWindowTitleBarOptions(shouldUseDarkColors, platform);
     if (hasTitleBarOverlay && typeof titleBarOverlay === "object") {
       window.setTitleBarOverlay(titleBarOverlay);
@@ -1271,6 +1300,19 @@ export const make = Effect.gen(function* () {
         syncWindowAppearance(window, titleBarOverlay, shouldUseDarkColors, environment.platform),
       );
     }).pipe(Effect.withSpan("desktop.window.syncAppearance")),
+    setSidebarTranslucent: Effect.fn("desktop.window.setSidebarTranslucent")(
+      function* (translucent) {
+        const window = yield* electronWindow.main;
+        if (Option.isNone(window)) return;
+        const shouldUseDarkColors = yield* electronTheme.shouldUseDarkColors;
+        yield* applyWindowTranslucency(
+          window.value,
+          translucent,
+          shouldUseDarkColors,
+          environment.platform,
+        );
+      },
+    ),
   });
 });
 

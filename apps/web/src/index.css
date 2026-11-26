@@ -1775,6 +1775,31 @@ body {
   --desktop-window-right-resize-inset: 6px;
 }
 
+/* Desktop translucent sidebar: the window's OS material shows through the sidebar only.
+   !important beats the inline chrome color syncBrowserChromeTheme writes on html and body. */
+html[data-sidebar-translucent],
+html[data-sidebar-translucent] body {
+  background-color: transparent !important;
+}
+
+html[data-sidebar-translucent] #root {
+  box-shadow: inset calc(-1 * var(--desktop-window-right-resize-inset)) 0 var(--background);
+}
+
+/* Glass opacity sets the tint: its 80% default gives 55% so the material shows, 100% is solid,
+   and the 40% minimum leaves 20%. */
+html[data-sidebar-translucent] [data-app-sidebar] > [data-slot="sidebar-inner"] {
+  background-color: color-mix(
+    in srgb,
+    var(--sidebar)
+      max(
+        calc(20% + (var(--glass-opacity) - 40%) * 0.875),
+        calc(55% + (var(--glass-opacity) - 80%) * 2.25)
+      ),
+    transparent
+  );
+}
+
 /* App-chrome grain. Baked into each surface's own background (behind
    content) rather than a fixed overlay on top: a full-viewport overlay
    forces the compositor to re-blend every frame any animation produces,
