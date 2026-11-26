@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+  <title>Loopy monochrome app icon</title>
+  <defs>
+    <linearGradient id="tile" x2="0" y2="1">
+      <stop stop-color="#252529"/>
+      <stop offset=".51" stop-color="#111113"/>
+      <stop offset="1" stop-color="#070709"/>
+    </linearGradient>
+    <linearGradient id="rim" x2="0" y2="1">
+      <stop stop-color="#606064"/>
+      <stop offset=".26" stop-color="#2B2B2E"/>
+      <stop offset=".68" stop-color="#0D0D10"/>
+      <stop offset="1" stop-color="#38383B"/>
+    </linearGradient>
+    <linearGradient id="letters" x2="0" y2="1">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset=".37" stop-color="#F6F6F5"/>
+      <stop offset="1" stop-color="#BFBFC2"/>
+    </linearGradient>
+  </defs>
+  <rect x="100" y="100" width="824" height="824" rx="201" fill="url(#rim)"/>
+  <rect x="105" y="105" width="814" height="814" rx="196" fill="url(#tile)"/>
+  <path d="M213 347h83v252h143v78H213V347Zm432-4c102 0 164 61 164 169s-62 169-164 169-164-61-164-169 62-169 164-169Zm0 79c-53 0-78 32-78 90s25 90 78 90 78-32 78-90-25-90-78-90Z" fill="url(#letters)" fill-rule="evenodd"/>
+</svg>

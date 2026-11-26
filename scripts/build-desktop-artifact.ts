@@ -32,6 +32,8 @@ import {
 import { applyWebBrandAssets } from "./apply-web-brand-assets.ts";
 import {
   BRAND_ASSET_PATHS,
+  LOOPY_DESKTOP_ICON_ICO,
+  LOOPY_DESKTOP_ICON_PNG,
   resolveWebAssetBrandForChannel,
   type WebAssetBrand,
 } from "./lib/brand-assets.ts";
@@ -2777,9 +2779,9 @@ export function resolveDesktopBuildIconAssets(version: string): DesktopBuildIcon
   }
 
   return {
-    macIconPng: BRAND_ASSET_PATHS.productionMacIconPng,
-    linuxIconPng: BRAND_ASSET_PATHS.productionLinuxIconPng,
-    windowsIconIco: BRAND_ASSET_PATHS.productionWindowsIconIco,
+    macIconPng: LOOPY_DESKTOP_ICON_PNG,
+    linuxIconPng: LOOPY_DESKTOP_ICON_PNG,
+    windowsIconIco: LOOPY_DESKTOP_ICON_ICO,
   };
 }
 

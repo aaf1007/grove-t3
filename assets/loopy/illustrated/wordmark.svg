@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 325 107" fill="none">
+  <title>Loopy illustrated wordmark</title>
+  <g stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M27 15c-1 17-7 39-5 53 1 6 4 8 8 7" stroke-width="28"/>
+    <ellipse cx="78" cy="56" rx="20" ry="20" transform="rotate(-10 78 56)" stroke-width="24"/>
+    <ellipse cx="145" cy="56" rx="20" ry="21" transform="rotate(11 145 56)" stroke-width="24"/>
+    <path d="M191 94c1-15 3-39 0-60" stroke-width="25"/>
+    <ellipse cx="212" cy="54" rx="20" ry="21" transform="rotate(-13 212 54)" stroke-width="23"/>
+    <path d="M258 35c-3 16-3 40 15 40 18 0 23-18 25-38 0 21-2 56-30 57" stroke-width="24" transform="translate(5)"/>
+  </g>
+</svg>

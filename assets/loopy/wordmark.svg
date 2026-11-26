@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 184 68" fill="none">
+  <title>Loopy</title>
+  <g transform="translate(0 -6)" stroke="currentColor" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 13v29a10 10 0 0 0 10 10h13"/>
+    <circle cx="51" cy="39" r="13"/>
+    <circle cx="88" cy="39" r="13"/>
+    <path d="M113 67V27"/>
+    <circle cx="126" cy="39" r="13"/>
+    <path d="M151 27v12a13 13 0 0 0 26 0m0-12v24c0 11-7 16-18 16h-2"/>
+  </g>
+</svg>

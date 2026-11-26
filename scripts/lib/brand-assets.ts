@@ -39,6 +39,9 @@ export const BRAND_ASSET_PATHS = {
 
 export type WebAssetBrand = "development" | "nightly" | "production";
 
+export const LOOPY_DESKTOP_ICON_PNG = "assets/loopy/illustrated/app-icon-1024.png";
+export const LOOPY_DESKTOP_ICON_ICO = "assets/loopy/windows.ico";
+
 export const WEB_ASSET_CHANNELS = ["latest", "nightly"] as const;
 
 export type WebAssetChannel = (typeof WEB_ASSET_CHANNELS)[number];
@@ -79,12 +82,12 @@ const WEB_ICON_SOURCE_PATHS_BY_BRAND = {
     icon512Png: BRAND_ASSET_PATHS.nightlyWebIcon512Png,
   },
   production: {
-    faviconIco: BRAND_ASSET_PATHS.productionWebFaviconIco,
-    favicon16Png: BRAND_ASSET_PATHS.productionWebFavicon16Png,
-    favicon32Png: BRAND_ASSET_PATHS.productionWebFavicon32Png,
-    appleTouchIconPng: BRAND_ASSET_PATHS.productionWebAppleTouchIconPng,
-    icon192Png: BRAND_ASSET_PATHS.productionWebIcon192Png,
-    icon512Png: BRAND_ASSET_PATHS.productionWebIcon512Png,
+    faviconIco: "assets/loopy/favicon.ico",
+    favicon16Png: "assets/loopy/favicon-16x16.png",
+    favicon32Png: "assets/loopy/favicon-32x32.png",
+    appleTouchIconPng: "assets/loopy/apple-touch-icon.png",
+    icon192Png: "assets/loopy/icon-192x192.png",
+    icon512Png: "assets/loopy/icon-512x512.png",
   },
 } as const satisfies Record<WebAssetBrand, Record<keyof typeof WEB_ICON_TARGET_FILENAMES, string>>;
 
