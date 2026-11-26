@@ -63,6 +63,7 @@ import { readEnvironmentScope } from "~/state/session";
 import { useManagedPolicy, usePrimaryManagedPolicy } from "~/state/managedPolicy";
 import { useAtomCommand } from "~/state/use-atom-command";
 import { ManagedControl } from "../ManagedPolicy";
+import { hasCloudPublicConfig } from "~/cloud/publicConfig";
 import { openUseInAnotherApp } from "../mcp/UseInAnotherAppDialog";
 import { ConnectionStatusDot } from "../ConnectionStatusDot";
 import { ITEM_ROW_CLASSNAME, ITEM_ROW_INNER_CLASSNAME } from "./itemRows";
@@ -677,10 +678,12 @@ export const AuthorizedClientsHeaderAction = memo(function AuthorizedClientsHead
 
   return (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <Button size="xs" variant="outline" onClick={() => openUseInAnotherApp(environmentId)}>
-        <PlugIcon className="size-3" />
-        <T>Use in another app (MCP)</T>
-      </Button>
+      {hasCloudPublicConfig() ? (
+        <Button size="xs" variant="outline" onClick={() => openUseInAnotherApp(environmentId)}>
+          <PlugIcon className="size-3" />
+          <T>Use in another app (MCP)</T>
+        </Button>
+      ) : null}
       <Button
         size="xs"
         variant="destructive-outline"

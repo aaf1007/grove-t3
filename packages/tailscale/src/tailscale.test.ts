@@ -124,7 +124,7 @@ describe("tailscale", () => {
     }),
   );
 
-  it.effect("does not treat another T3 server behind the Serve URL as this server", () =>
+  it.effect("does not treat another Loopy server behind the Serve URL as this server", () =>
     Effect.gen(function* () {
       const answer = (environmentId: string) =>
         HttpClient.make((request) =>

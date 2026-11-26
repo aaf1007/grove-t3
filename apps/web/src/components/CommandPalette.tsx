@@ -271,6 +271,7 @@ import { ProjectFilePicker } from "./files/ProjectFilePicker";
 import { openLinkPullRequestDialog } from "./pullRequest/LinkPullRequestDialog";
 import { canShareWithGuestAtom } from "./chat/guestShareAvailability";
 import { openGuestShareDialog } from "./chat/guestShareDialogState";
+import { hasCloudPublicConfig } from "~/cloud/publicConfig";
 import { openUseInAnotherApp } from "./mcp/UseInAnotherAppDialog";
 import { ProjectContentSearchDialog } from "./search/ProjectContentSearchDialog";
 import { settingsForThisPlatform, SETTINGS_SECTION_LABELS } from "./settings/settingsSearch";
@@ -1402,7 +1403,7 @@ function OpenCommandPaletteDialog(props: {
       value: "action:triage",
       searchTerms: ["triage", "bug", "issue", "report", "broken", "debug", "help", "support"],
       title: gt("Triage an issue"),
-      description: gt("An agent investigates a T3 Code problem and helps file an issue"),
+      description: gt("An agent investigates a Loopy problem and helps file an issue"),
       icon: <BugIcon className={ITEM_ICON_CLASS} />,
       run: () => startTriage(triageEnvironmentId),
     });
@@ -1724,33 +1725,36 @@ function OpenCommandPaletteDialog(props: {
     });
   }
 
-  actionItems.push({
-    kind: "action",
-    value: "action:use-in-another-app",
-    searchTerms: [
-      "mcp",
-      "connector",
-      "another app",
-      "poke",
-      "claude",
-      "chatgpt",
-      "grok",
-      "muse",
-      "instinct",
-      "openclaw",
-      "hermes",
-    ],
-    title: gt("Use T3 Code in another app (MCP)"),
-    icon: <PlugIcon className={ITEM_ICON_CLASS} />,
-    run: async () => {
-      openUseInAnotherApp(
-        currentProjectEnvironmentId ??
-          (paletteRouteTarget?.kind === "server"
-            ? paletteRouteTarget.threadRef.environmentId
-            : null),
-      );
-    },
-  });
+  // Other apps reach this environment's MCP URL through T3 Connect.
+  if (hasCloudPublicConfig()) {
+    actionItems.push({
+      kind: "action",
+      value: "action:use-in-another-app",
+      searchTerms: [
+        "mcp",
+        "connector",
+        "another app",
+        "poke",
+        "claude",
+        "chatgpt",
+        "grok",
+        "muse",
+        "instinct",
+        "openclaw",
+        "hermes",
+      ],
+      title: gt("Use Loopy in another app (MCP)"),
+      icon: <PlugIcon className={ITEM_ICON_CLASS} />,
+      run: async () => {
+        openUseInAnotherApp(
+          currentProjectEnvironmentId ??
+            (paletteRouteTarget?.kind === "server"
+              ? paletteRouteTarget.threadRef.environmentId
+              : null),
+        );
+      },
+    });
+  }
 
   if (workflowsReachable) {
     actionItems.push({

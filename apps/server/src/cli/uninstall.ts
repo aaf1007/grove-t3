@@ -206,7 +206,7 @@ const logOtherHomeService = (plan: UninstallPlan) =>
   plan.otherHomeService === undefined
     ? Effect.void
     : Console.log(
-        `The T3 Code service serves ${plan.otherHomeService}, so it was not removed. Pass \`${BootService.formatBootServiceBaseDirOption(plan.otherHomeService)}\` to remove it.`,
+        `The Loopy service serves ${plan.otherHomeService}, so it was not removed. Pass \`${BootService.formatBootServiceBaseDirOption(plan.otherHomeService)}\` to remove it.`,
       );
 
 const runUninstall = Effect.fn("cli.uninstall.run")(function* (input: {
@@ -258,7 +258,7 @@ const runUninstall = Effect.fn("cli.uninstall.run")(function* (input: {
 
   // The prompt can wait a long time; keep a service or launcher that changed hands meanwhile.
   if (plan.service && (yield* service.status).otherBaseDir !== undefined) {
-    yield* Console.log("Left the background service: it now serves another T3 home.");
+    yield* Console.log("Left the background service: it now serves another Loopy home.");
   } else if (plan.service) {
     yield* service.uninstall;
     yield* Console.log("Removed the background service.");
@@ -302,6 +302,6 @@ const runUninstall = Effect.fn("cli.uninstall.run")(function* (input: {
     }
   }
   yield* Console.log("");
-  yield* Console.log("t3 is uninstalled. Thanks for trying T3 Code.");
+  yield* Console.log("t3 is uninstalled. Thanks for trying Loopy.");
   yield* logOtherHomeService(plan);
 });

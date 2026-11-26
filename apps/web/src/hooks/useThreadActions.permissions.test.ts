@@ -504,7 +504,7 @@ describe("thread action permissions", () => {
     state.worktreeStatusFails = true;
     expect((await useThreadActions().deleteThread(target))._tag).toBe("Success");
     expect(state.confirm.mock.calls[0]?.[0]).toContain(
-      "T3 Code couldn't check this worktree for uncommitted changes.",
+      "Loopy couldn't check this worktree for uncommitted changes.",
     );
   });
 
