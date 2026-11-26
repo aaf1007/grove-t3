@@ -7,37 +7,34 @@ import * as PlatformError from "effect/PlatformError";
 
 import { clearStaleGpuCaches, resolveUserDataPath } from "./DesktopUserData.ts";
 
-it.effect.each(["t3code", "T3 Code (Alpha)"])(
-  "preserves Windows credential keys from %s without copying browser databases",
-  (sourceName) =>
+const T3_CODE_PROFILES = ["t3code", "t3code-v2", "t3code-dev", "T3 Code (Alpha)", "T3 Code (Dev)"];
+
+it.effect.each([
+  { build: "packaged", isDevelopment: false, profile: "loopy" },
+  { build: "development", isDevelopment: true, profile: "loopy-dev" },
+])(
+  "uses its own $profile profile for a $build build and copies nothing from T3 Code's",
+  ({ isDevelopment, profile }) =>
     Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const directory = yield* fs.makeTempDirectoryScoped({ prefix: "t3-v2-profile-" });
-      const source = path.join(directory, sourceName);
-      const destination = path.join(directory, "t3code-v2");
-      const state = '{"os_crypt":{"encrypted_key":"test-encrypted-key"}}';
-      yield* fs.makeDirectory(path.join(directory, "T3 Code (Alpha)"), { recursive: true });
-      yield* fs.makeDirectory(path.join(source, "IndexedDB"), { recursive: true });
-      yield* fs.writeFileString(path.join(source, "Local State"), state);
-      yield* fs.writeFileString(path.join(source, "IndexedDB", "LOCK"), "V1 owns this database");
-      yield* resolveUserDataPath({
+      const directory = yield* fs.makeTempDirectoryScoped({ prefix: "loopy-profile-" });
+      const state = '{"os_crypt":{"encrypted_key":"t3-code-key"}}';
+      for (const name of T3_CODE_PROFILES) {
+        yield* fs.makeDirectory(path.join(directory, name, "IndexedDB"), { recursive: true });
+        yield* fs.writeFileString(path.join(directory, name, "Local State"), state);
+      }
+
+      const userDataPath = yield* resolveUserDataPath({
         appDataDirectory: directory,
-        isDevelopment: false,
-        platform: "win32",
+        isDevelopment,
       });
-      assert.equal(yield* fs.readFileString(path.join(destination, "Local State")), state);
-      assert.equal(yield* fs.readFileString(path.join(source, "Local State")), state);
-      assert.isFalse(yield* fs.exists(path.join(destination, "IndexedDB")));
-      yield* fs.writeFileString(path.join(destination, "Local State"), "existing V2 state");
-      yield* resolveUserDataPath({
-        appDataDirectory: directory,
-        isDevelopment: false,
-        platform: "win32",
-      });
-      assert.equal(
-        yield* fs.readFileString(path.join(destination, "Local State")),
-        "existing V2 state",
+
+      assert.equal(userDataPath, path.join(directory, profile));
+      assert.isFalse(yield* fs.exists(userDataPath));
+      assert.deepStrictEqual(
+        (yield* fs.readDirectory(directory)).toSorted(),
+        T3_CODE_PROFILES.toSorted(),
       );
     }).pipe(Effect.scoped, Effect.provide(NodeServices.layer)),
 );
@@ -98,7 +95,7 @@ it.effect("keeps GPU caches built on the first launch of a fresh install", () =>
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const appData = yield* fs.makeTempDirectoryScoped({ prefix: "t3-v2-fresh-" });
-    const userDataPath = path.join(appData, "t3code-v2");
+    const userDataPath = path.join(appData, "loopy");
 
     yield* clearStaleGpuCaches({ userDataPath, electronVersion: "44.10.1" });
     yield* fs.makeDirectory(path.join(userDataPath, "GPUCache"));
