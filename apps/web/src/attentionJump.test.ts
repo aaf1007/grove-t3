@@ -80,7 +80,8 @@ describe("nextThreadNeedingYou", () => {
     thread("plan", 2, planReady(2)),
     thread("failed", 3, failed(3)),
     thread("guest", 4, guest),
-    thread("input", 5, input),
+    thread("input-asked-later", 4, { ...input, pendingUserInputAt: at(9) }),
+    thread("input-asked-earlier", 5, { ...input, pendingUserInputAt: at(6) }),
     thread("approval-newer", 7, approval),
     thread("approval-older", 6, approval),
   ];
@@ -95,7 +96,8 @@ describe("nextThreadNeedingYou", () => {
     expect(visited).toEqual([
       "approval-older",
       "approval-newer",
-      "input",
+      "input-asked-earlier",
+      "input-asked-later",
       "guest",
       "failed",
       "plan",

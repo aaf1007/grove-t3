@@ -66,6 +66,7 @@ export function nextThreadNeedingYou<T extends EnvironmentThreadShell>(input: {
       timestamp(thread.unsettledAt),
       timestamp(run?.requestedAt),
       timestamp(run?.completedAt),
+      timestamp(thread.pendingUserInputAt),
     );
     queue.push({ thread, position: { key: threadKey(thread), rank, since } });
   }
