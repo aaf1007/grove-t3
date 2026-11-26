@@ -60,7 +60,7 @@ describe("DesktopEnvironment", () => {
     }),
   );
 
-  it.effect("keeps implicit development state separate from production state", () =>
+  it.effect("keeps implicit development state and OS identity separate from production", () =>
     Effect.gen(function* () {
       const development = yield* makeEnvironment(
         {},
@@ -68,8 +68,15 @@ describe("DesktopEnvironment", () => {
       );
       const production = yield* makeEnvironment();
 
-      assert.equal(development.stateDir, "/Users/alice/.t3/dev");
-      assert.equal(production.stateDir, "/Users/alice/.t3/userdata");
+      assert.equal(development.stateDir, "/Users/alice/.loopy/dev");
+      assert.equal(production.stateDir, "/Users/alice/.loopy/userdata");
+      assert.equal(development.appUserModelId, "io.github.aaf1007.loopy.dev");
+      assert.equal(production.appUserModelId, "io.github.aaf1007.loopy");
+      assert.equal(
+        development.linuxDesktopEntryName,
+        "io.github.aaf1007.Loopy.Development.desktop",
+      );
+      assert.equal(production.linuxDesktopEntryName, "io.github.aaf1007.Loopy.desktop");
     }),
   );
 });

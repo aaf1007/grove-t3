@@ -5,7 +5,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Layer from "effect/Layer";
 import * as Option from "effect/Option";
-import * as PlatformError from "effect/PlatformError";
 
 import type * as Electron from "electron";
 
@@ -111,8 +110,7 @@ const withIdentity = <A, E, R>(
   input: {
     readonly calls?: ElectronAppCalls;
     readonly environment?: TestEnvironmentInput;
-    readonly legacyPathExists?: boolean;
-    readonly legacyPathProbeError?: PlatformError.PlatformError;
+    readonly fileSystemCalls?: Array<string>;
     readonly packageJson?: string;
     readonly pngIconPath?: Option.Option<string>;
   } = {},
@@ -129,14 +127,17 @@ const withIdentity = <A, E, R>(
         Layer.provide(NodePath.layerPosix),
         Layer.provideMerge(
           FileSystem.layerNoop({
+            // T3 Code's profiles exist beside this app's.
             exists: (path) =>
-              input.legacyPathProbeError
-                ? Effect.fail(input.legacyPathProbeError)
-                : Effect.succeed(
-                    input.legacyPathExists === true && /T3 Code \((Alpha|Dev)\)/.test(path),
-                  ),
-            readFileString: () =>
-              Effect.succeed(input.packageJson ?? '{"t3codeCommitHash":"abcdef1234567890"}'),
+              Effect.sync(() => {
+                input.fileSystemCalls?.push(`exists ${path}`);
+                return /t3code|T3 Code/.test(path);
+              }),
+            readFileString: (path) =>
+              Effect.sync(() => {
+                input.fileSystemCalls?.push(`readFileString ${path}`);
+                return input.packageJson ?? '{"t3codeCommitHash":"abcdef1234567890"}';
+              }),
           }),
         ),
         Layer.provideMerge(layerAssets(input.pngIconPath ?? Option.none())),
@@ -148,32 +149,29 @@ const withIdentity = <A, E, R>(
 };
 
 describe("DesktopAppIdentity", () => {
-  it.effect("isolates the V2 profile even when the legacy V1 profile exists", () =>
-    withIdentity(
-      Effect.gen(function* () {
-        const identity = yield* DesktopAppIdentity.DesktopAppIdentity;
-        const userDataPath = yield* identity.resolveUserDataPath;
-
-        assert.equal(userDataPath, "/Users/alice/Library/Application Support/t3code-v2");
-      }),
-      { legacyPathExists: true },
-    ),
-  );
-
-  it.effect("keeps using the legacy development profile", () =>
-    withIdentity(
-      Effect.gen(function* () {
-        const identity = yield* DesktopAppIdentity.DesktopAppIdentity;
-        assert.equal(
-          yield* identity.resolveUserDataPath,
-          "/Users/alice/Library/Application Support/T3 Code (Dev)",
-        );
-      }),
-      {
-        legacyPathExists: true,
-        environment: { env: { VITE_DEV_SERVER_URL: "http://localhost:5173" } },
-      },
-    ),
+  it.effect.each([
+    { build: "packaged", environment: {}, profile: "loopy" },
+    {
+      build: "development",
+      environment: { env: { VITE_DEV_SERVER_URL: "http://localhost:5173" } },
+      profile: "loopy-dev",
+    },
+  ])(
+    "uses the $profile profile for a $build build without reading T3 Code's",
+    ({ environment, profile }) => {
+      const fileSystemCalls: Array<string> = [];
+      return withIdentity(
+        Effect.gen(function* () {
+          const identity = yield* DesktopAppIdentity.DesktopAppIdentity;
+          assert.equal(
+            yield* identity.resolveUserDataPath,
+            `/Users/alice/Library/Application Support/${profile}`,
+          );
+          assert.deepStrictEqual(fileSystemCalls, []);
+        }),
+        { environment, fileSystemCalls },
+      );
+    },
   );
 
   it.effect.each([

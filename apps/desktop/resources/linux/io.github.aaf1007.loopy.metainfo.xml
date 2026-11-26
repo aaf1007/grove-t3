@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.aaf1007.loopy</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MIT</project_license>
+  <name>Loopy</name>
+  <summary>Desktop GUI for coding agents</summary>
+  <developer id="io.github.aaf1007">
+    <name>aaf1007</name>
+  </developer>
+  <description>
+    <p>
+      Loopy is an open-source desktop app for coding agents, built on T3 Code.
+      Work with your existing agent subscriptions, review code changes, and run
+      commands in your projects.
+    </p>
+  </description>
+  <launchable type="desktop-id">loopy.desktop</launchable>
+  <icon type="stock">loopy</icon>
+  <provides>
+    <binary>loopy</binary>
+  </provides>
+  <categories>
+    <category>Development</category>
+  </categories>
+  <url type="bugtracker">https://github.com/aaf1007/grove-t3/issues</url>
+  <url type="vcs-browser">https://github.com/aaf1007/grove-t3</url>
+</component>
