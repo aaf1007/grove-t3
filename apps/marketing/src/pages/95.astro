@@ -343,11 +343,11 @@ const userDigits = MARKETING_STATS.users.replaceAll(",", "").padStart(7, "0").sp
         if (!command || !feedback) return;
         try {
           await navigator.clipboard.writeText(command.value);
-          feedback.textContent = "Copied! Paste it in your terminal. Welcome to the future.";
+          feedback.textContent = "Copied! Paste it in your terminal. Not found? Choose Add to PATH in Loopy Settings.";
         } catch {
           command.focus();
           command.select();
-          feedback.textContent = "Select and copy the command, then paste it in your terminal.";
+          feedback.textContent = "Select and copy the command, then paste it in your terminal. Not found? Choose Add to PATH in Loopy Settings.";
         }
       });
     </script>

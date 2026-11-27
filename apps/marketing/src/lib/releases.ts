@@ -22,7 +22,7 @@ export interface Release {
 }
 
 function cacheKey(channel: ReleaseChannel) {
-  return `t3code-${channel}-release`;
+  return `${REPO}-${channel}-release`;
 }
 
 async function fetchJson<T>(url: string): Promise<T> {
