@@ -674,4 +674,42 @@ describe("sidebar projects layout", () => {
     await userEvent.click(screen.getByRole("button", { name: "New thread without a project" }));
     expect(startScratchThread).toHaveBeenCalledExactlyOnceWith(web.environmentId);
   });
+
+  it("keeps the Threads button when there are no projects or threads yet", async () => {
+    using stack = new DisposableStack();
+    const previousSettings = getClientSettings();
+    stack.defer(() => __setClientSettingsForTests(previousSettings));
+    __setClientSettingsForTests({ ...DEFAULT_CLIENT_SETTINGS, boringSidebarEnabled: true });
+    const local = EnvironmentId.make("local");
+    vi.mocked(useProjects).mockReturnValue([]);
+    vi.mocked(useQuietThreadShells).mockReturnValue([]);
+    vi.mocked(useThreadRouteTarget).mockReturnValue(null);
+    vi.mocked(useHandleNewThread).mockReturnValue({
+      activeDraftThread: null,
+      activeThread: null,
+      defaultProjectRef: null,
+      defaultProjectFallbackReady: true,
+      handleNewThread: vi.fn(),
+      routeDraftId: null,
+      routeThreadRef: null,
+    });
+    const startScratchThread = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useScratchProject).mockReturnValue({
+      scratchWorkspaceRootFor: () => "/scratch",
+      scratchEnvironmentId: () => local,
+      openScratchProject: vi.fn(),
+      startScratchThread,
+    });
+
+    await using screen = await render(
+      <SidebarProvider>
+        <Sidebar routeReveal={{ observedKey: null, pendingKey: null }} />
+      </SidebarProvider>,
+    );
+
+    await expect.element(screen.getByText("No projects yet")).toBeInTheDocument();
+    await expect.element(screen.getByTestId("sidebar-projects-heading")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "New thread without a project" }));
+    expect(startScratchThread).toHaveBeenCalledExactlyOnceWith(local);
+  });
 });

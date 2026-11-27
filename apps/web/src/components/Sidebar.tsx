@@ -2138,6 +2138,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     // Boring mode keeps a pinned open project or one the user filtered to, so it can start a thread.
     if (
       !hasProjectFolders &&
+      !showThreadsSection &&
       pinnedThreads.length +
         activeThreads.length +
         workingThreads.length +
@@ -3970,14 +3971,17 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                         }
                         if (projectFolders !== null && item.marker === "pinned-divider") continue;
                         if (projectFolders !== null && item.marker === "active-placeholder") {
-                          items.push(
-                            <SidebarProjectsHeading
-                              key="projects-heading"
-                              filter={projectGroups.length > 0 ? projectScopeMenu : null}
-                              filterActive={scopedProjectGroups.length > 0}
-                              onAddProject={openAddProjectCommandPalette}
-                            />,
-                          );
+                          // With no projects, the "No projects yet" notice above stands in for it.
+                          if (projects.length > 0) {
+                            items.push(
+                              <SidebarProjectsHeading
+                                key="projects-heading"
+                                filter={projectGroups.length > 0 ? projectScopeMenu : null}
+                                filterActive={scopedProjectGroups.length > 0}
+                                onAddProject={openAddProjectCommandPalette}
+                              />,
+                            );
+                          }
                           for (const folder of projectFolders) {
                             if (folder === threadsFolder) continue;
                             items.push(
