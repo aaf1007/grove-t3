@@ -537,8 +537,8 @@ export const ClientSettingsSchema = Schema.Struct({
   ),
   proactivePanelsEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   showSkillsInSlashMenu: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
-  /** Sidebar layout: false is the Inbox, true groups threads by project. */
-  boringSidebarEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
+  /** Sidebar layout: true groups threads by project, false is the Inbox. Loopy defaults to Projects. */
+  boringSidebarEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   /** Desktop only: the OS draws the sidebar's background (macOS vibrancy, Windows 11 acrylic). */
   sidebarTranslucent: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
   toolCallVisibility: ToolCallVisibility.pipe(

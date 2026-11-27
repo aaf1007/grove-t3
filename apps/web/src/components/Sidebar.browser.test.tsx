@@ -202,7 +202,7 @@ describe("sidebar numbered jumps", () => {
     stack.defer(() => useComposerDraftStore.setState(initial, true));
     const previousSettings = getClientSettings();
     stack.defer(() => __setClientSettingsForTests(previousSettings));
-    __setClientSettingsForTests(DEFAULT_CLIENT_SETTINGS);
+    __setClientSettingsForTests({ ...DEFAULT_CLIENT_SETTINGS, boringSidebarEnabled: false });
     using _platform = vi.spyOn(navigator, "platform", "get").mockReturnValue("Linux x86_64");
     const web = project("web");
     vi.mocked(useProjects).mockReturnValue([web]);
