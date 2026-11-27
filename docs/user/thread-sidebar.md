@@ -7,7 +7,7 @@ branch, so T3 Code refuses a branch switch there while one of them is working.
 ## Start a thread
 
 On web and desktop, **New thread** opens the project picker when you have more than one
-open project in the default or project-grouped sidebar. Archived projects don't count. **Shift-click** to start in
+open project. Archived projects don't count. **Shift-click** to start in
 the current project, or use a project's own new-thread action. A new thread carries
 your model and mode selections, unless the destination project has its own model default.
 Its branch and workspace mode come from your configured defaults. To continue in
@@ -153,10 +153,11 @@ cannot drag or move threads within it. Your saved order returns when you turn it
 
 ### Group threads by project
 
-On web and desktop, choose **Settings → General → Sidebar layout → Projects** to group active
-threads under their project. Each device keeps its own choice. Pinned threads stay on top, Snoozed
-and Settled stay below the projects, and there is no Working section. Unsent drafts sit in their
-project, marked **Draft**, or at the top when their project isn't in the list.
+On web and desktop, the sidebar groups active threads under their project. To list threads by what
+needs you instead, choose **Settings → General → Sidebar layout → Inbox**. Each device keeps its own
+choice. In the Projects layout, pinned threads stay on top, Snoozed and Settled stay below the
+projects, and there is no Working section. Unsent drafts sit in their project, marked **Draft**, or
+at the top when their project isn't in the list.
 
 A row shows a dot instead of its age while the thread has something to tell you: amber when it
 needs you, red when it failed, blue for an unread reply, and a hollow ring while it works. Hover a

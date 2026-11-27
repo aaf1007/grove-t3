@@ -323,6 +323,13 @@ describe("resolveIdleCompaction", () => {
   });
 });
 
+describe("ClientSettings sidebar layout", () => {
+  it("opens grouped by project unless the device saved the Inbox", () => {
+    expect(decodeClientSettings({}).boringSidebarEnabled).toBe(true);
+    expect(decodeClientSettings({ boringSidebarEnabled: false }).boringSidebarEnabled).toBe(false);
+  });
+});
+
 describe("ClientSettings notifications", () => {
   it("requires opt-in when existing settings omit notification preferences", () => {
     expect(decodeClientSettings({}).notificationMode).toBe("off");
