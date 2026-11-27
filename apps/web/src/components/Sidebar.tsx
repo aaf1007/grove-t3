@@ -299,6 +299,7 @@ import {
   useProjectGroupDrag,
 } from "./sidebar/SidebarProjectsLayout";
 import {
+  keepsEmptyProjectFolder,
   orderProjectsLayoutGroups,
   projectDropTarget,
   resolveProjectsLayoutDrop,
@@ -1359,6 +1360,9 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
         )
       : scopedProjectGroups
     : null;
+  const projectRefsWithThreads = new Set(
+    listedThreads.map((thread) => `${thread.environmentId}:${thread.projectId}`),
+  );
   const dropProjectGroup = useStableCallback(
     (before: readonly string[], after: readonly string[], dragged: string) => {
       const target = projectDropTarget(before, after, dragged);
@@ -1435,7 +1439,10 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
             getId: (group) => group.projectKey,
           }),
     keepEmptyFolders: (group) =>
-      scopedProjectGroups.length > 0 || (group.pinned && !group.archived),
+      keepsEmptyProjectFolder(group, {
+        filtered: scopedProjectGroups.length > 0,
+        projectRefsWithThreads,
+      }),
     foldAllFolders: projectDrag.drag !== null,
   });
   const startProjectDrag = useStableCallback(
@@ -2109,7 +2116,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
         const key = scopedThreadKey(scopeThreadRef(thread.environmentId, thread.id));
         return { kind: "thread", key, section };
       });
-    // Boring mode keeps a pinned open project or one the user filtered to, so it can start a thread.
+    // Boring mode keeps a pinned, new, or filtered-to project, so it can start a thread.
     if (
       !hasProjectFolders &&
       pinnedThreads.length +
