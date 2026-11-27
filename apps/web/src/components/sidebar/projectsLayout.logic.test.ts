@@ -5,6 +5,7 @@ import { describe, expect, it } from "vite-plus/test";
 import { makeThreadFixture, type ThreadFixtureOverrides } from "../../test-fixtures";
 import {
   countThreadsNeedingYou,
+  keepsEmptyProjectFolder,
   moveProjectKey,
   orderProjectsLayoutGroups,
   projectDropTarget,
@@ -131,6 +132,32 @@ describe("orderProjectsLayoutGroups", () => {
       [group("old", true)],
     );
     expect(ordered.map((entry) => entry.name)).toEqual(["web", "api", "old", "scratch"]);
+  });
+});
+
+describe("keepsEmptyProjectFolder", () => {
+  it("keeps a project with no threads at all, so a newly added one shows right away", () => {
+    const project = (
+      projectId: string,
+      options: { archived?: boolean; pinned?: boolean } = {},
+    ) => ({
+      archived: options.archived ?? false,
+      pinned: options.pinned ?? false,
+      memberProjectRefs: [{ environmentId: "environment-local", projectId }],
+    });
+    const keeps = (group: ReturnType<typeof project> & { isScratch?: boolean }, filtered = false) =>
+      keepsEmptyProjectFolder(group, {
+        filtered,
+        projectRefsWithThreads: new Set(["environment-local:settled"]),
+      });
+
+    expect(keeps(project("new"))).toBe(true);
+    // Its threads are all settled or snoozed, so it has nothing to show.
+    expect(keeps(project("settled"))).toBe(false);
+    expect(keeps(project("settled", { pinned: true }))).toBe(true);
+    expect(keeps(project("settled"), true)).toBe(true);
+    expect(keeps(project("new", { archived: true }))).toBe(false);
+    expect(keeps({ ...project("scratch"), isScratch: true })).toBe(false);
   });
 });
 

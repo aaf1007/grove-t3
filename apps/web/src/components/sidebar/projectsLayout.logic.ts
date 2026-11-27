@@ -146,6 +146,33 @@ export function orderProjectsLayoutGroups<
   ];
 }
 
+/**
+ * Whether a project with no active threads still gets a folder: one the user filtered to, a
+ * pinned one, or an open one with no threads at all, so a newly added project shows right away.
+ */
+export function keepsEmptyProjectFolder(
+  group: {
+    readonly archived: boolean;
+    readonly pinned: boolean;
+    readonly isScratch?: boolean | undefined;
+    readonly memberProjectRefs: ReadonlyArray<{
+      readonly environmentId: string;
+      readonly projectId: string;
+    }>;
+  },
+  input: { readonly filtered: boolean; readonly projectRefsWithThreads: ReadonlySet<string> },
+): boolean {
+  if (input.filtered) return true;
+  if (group.archived) return false;
+  if (group.pinned) return true;
+  return (
+    group.isScratch !== true &&
+    !group.memberProjectRefs.some((ref) =>
+      input.projectRefsWithThreads.has(`${ref.environmentId}:${ref.projectId}`),
+    )
+  );
+}
+
 /** `order` with `dragged` moved to `index` of the result. */
 export function moveProjectKey(
   order: readonly string[],

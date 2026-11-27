@@ -164,9 +164,10 @@ needs you, red when it failed, blue for an unread reply, and a hollow ring while
 dot to see what it means.
 
 Click a project to open or close it. A closed project shows how many of its threads need you.
-A project with no active threads is hidden unless it is pinned or you pick it in the project
-filter, and an archived project shows last while it still has active threads. A project that lives
-only on another machine shows that machine's name.
+A new project shows as soon as you add it. Once a project has threads but none of them are
+active, it is hidden unless it is pinned or you pick it in the project filter, and an archived
+project shows last while it still has active threads. A project that lives only on another machine
+shows that machine's name.
 
 Drag a project to reorder projects; this switches the project sort to **Manual**. Drag a thread to
 reorder it within its project, or to the top to pin it. A thread cannot move to another project.
