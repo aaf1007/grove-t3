@@ -4,7 +4,7 @@ import * as NodeModule from "node:module";
 import * as NodeOS from "node:os";
 import * as NodePath from "node:path";
 import * as NodeURL from "node:url";
-import { LOOPY_DESKTOP_ICON_PNG } from "../../../scripts/lib/brand-assets.ts";
+import { BRAND_ASSET_PATHS, LOOPY_DESKTOP_ICON_PNG } from "../../../scripts/lib/brand-assets.ts";
 import { ensureElectronRuntime } from "./ensure-electron-runtime.mjs";
 
 const isDevelopment = Boolean(process.env.VITE_DEV_SERVER_URL);
@@ -22,9 +22,7 @@ const APP_PROTOCOL_SCHEMES = isDevelopment ? ["loopy-dev"] : ["loopy"];
 const LAUNCHER_VERSION = 20;
 const developmentMacIconPngPath = NodePath.join(
   repoRoot,
-  "assets",
-  "dev",
-  "blueprint-macos-1024.png",
+  BRAND_ASSET_PATHS.developmentDesktopIconPng,
 );
 const productionMacIconPngPath = NodePath.join(repoRoot, LOOPY_DESKTOP_ICON_PNG);
 // oxlint-disable-next-line t3code/no-global-process-runtime -- Standalone launcher script has no Effect runtime.

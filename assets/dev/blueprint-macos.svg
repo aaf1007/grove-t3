@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 128 128">
+  <title>Loopy Dev app icon</title>
+  <defs>
+    <linearGradient id="blueprint" x2=".85" y2="1">
+      <stop stop-color="#67c2ff"/>
+      <stop offset=".44" stop-color="#347ff8"/>
+      <stop offset="1" stop-color="#1538d0"/>
+    </linearGradient>
+    <pattern id="grid" width="8" height="8" patternUnits="userSpaceOnUse">
+      <path d="M0 8V0H8" fill="none" stroke="#d9f7ff" stroke-width=".24" opacity=".5"/>
+    </pattern>
+  </defs>
+  <rect x="12.5" y="12.5" width="103" height="103" rx="25" fill="url(#blueprint)"/>
+  <rect x="12.5" y="12.5" width="103" height="103" rx="25" fill="url(#grid)"/>
+  <path d="M36 22h17c6 0 11 5 11 11v35L37 95a19 19 0 0 1-12-18V33c0-6 5-11 11-11Z M43 103l30-30h22c6 0 11 5 11 11v8c0 6-5 11-11 11H43Z" transform="translate(20.74 20.74) scale(.676)" fill="#fff"/>
+</svg>

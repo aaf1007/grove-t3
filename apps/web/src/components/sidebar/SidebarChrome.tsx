@@ -5,6 +5,8 @@ import { memo } from "react";
 import { Link, useLocation, useNavigate } from "@tanstack/react-router";
 
 import { useAtomValue } from "@effect/atom-react";
+import loopyIconDark from "../../../../../assets/loopy/illustrated/app-icon-dark.svg";
+import loopyIconLight from "../../../../../assets/loopy/illustrated/app-icon-light.svg";
 import { useEnvironmentIdentificationMode } from "../../hooks/useSettings";
 import { shortcutLabelForCommand } from "../../keybindings";
 import {
@@ -185,13 +187,17 @@ function SidebarBrand({ onBackdrop }: { onBackdrop: boolean }) {
 
 function SidebarBrandMark({ onBackdrop }: { onBackdrop: boolean }) {
   return (
-    <span
-      className={cn(
-        "min-w-0 truncate text-sm font-semibold tracking-tight [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both_cap_alphabetic]:py-1",
-        onBackdrop ? "text-white" : "text-foreground",
-      )}
-    >
-      {APP_BASE_NAME}
+    <span className="flex min-w-0 items-center gap-1">
+      <img alt="" className="size-6 shrink-0 dark:hidden" src={loopyIconLight} />
+      <img alt="" className="hidden size-6 shrink-0 dark:block" src={loopyIconDark} />
+      <span
+        className={cn(
+          "min-w-0 truncate text-sm font-semibold tracking-tight [text-box:trim-both_cap_alphabetic] supports-[text-box:trim-both_cap_alphabetic]:py-1",
+          onBackdrop ? "text-white" : "text-foreground",
+        )}
+      >
+        {APP_BASE_NAME}
+      </span>
     </span>
   );
 }

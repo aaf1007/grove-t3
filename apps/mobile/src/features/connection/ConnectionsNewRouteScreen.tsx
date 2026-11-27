@@ -277,8 +277,8 @@ function PairingForm({
               {pairingConnectionError ??
                 (linked
                   ? gt(
-                      "Create a pairing code on {environment}, in its Settings → Sharing & access or with `t3 auth pairing create`, and enter it here.",
-                      { environment: linked.label },
+                      "Create a pairing code on {environment}, in its Settings → Sharing & access or with `{command}`, and enter it here.",
+                      { environment: linked.label, command: "loopy auth pairing create" },
                     )
                   : gt(
                       "For machines on your local network or tailnet. The machine keeps its own provider credentials.",
@@ -380,7 +380,7 @@ function PairingScanCard(props: {
         </View>
         <Text className={cn("text-center text-sm", light ? "text-black/70" : "text-white/80")}>
           {gt("Scan the code from {command} or desktop Connections settings", {
-            command: "t3 pair",
+            command: "loopy pair",
           })}
         </Text>
       </View>

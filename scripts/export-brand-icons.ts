@@ -45,7 +45,6 @@ type IconPlatform = "iOS";
 
 interface VariantOutputs {
   readonly ios: string;
-  readonly macos: string;
   readonly universal: string;
   readonly appleTouch: string;
   readonly webIcon192: string;
@@ -210,7 +209,6 @@ const ICON_VARIANTS = [
     source: BRAND_ASSET_PATHS.developmentIconComposerProject,
     outputs: {
       ios: BRAND_ASSET_PATHS.developmentIosIconPng,
-      macos: BRAND_ASSET_PATHS.developmentDesktopIconPng,
       universal: BRAND_ASSET_PATHS.developmentUniversalIconPng,
       appleTouch: BRAND_ASSET_PATHS.developmentWebAppleTouchIconPng,
       webIcon192: BRAND_ASSET_PATHS.developmentWebIcon192Png,
@@ -226,7 +224,6 @@ const ICON_VARIANTS = [
     source: BRAND_ASSET_PATHS.nightlyIconComposerProject,
     outputs: {
       ios: BRAND_ASSET_PATHS.nightlyIosIconPng,
-      macos: BRAND_ASSET_PATHS.nightlyMacIconPng,
       universal: BRAND_ASSET_PATHS.nightlyLinuxIconPng,
       appleTouch: BRAND_ASSET_PATHS.nightlyWebAppleTouchIconPng,
       webIcon192: BRAND_ASSET_PATHS.nightlyWebIcon192Png,
@@ -242,7 +239,6 @@ const ICON_VARIANTS = [
     source: BRAND_ASSET_PATHS.productionIconComposerProject,
     outputs: {
       ios: BRAND_ASSET_PATHS.productionIosIconPng,
-      macos: BRAND_ASSET_PATHS.productionMacIconPng,
       universal: BRAND_ASSET_PATHS.productionLinuxIconPng,
       appleTouch: BRAND_ASSET_PATHS.productionWebAppleTouchIconPng,
       webIcon192: BRAND_ASSET_PATHS.productionWebIcon192Png,

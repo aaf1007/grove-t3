@@ -743,9 +743,9 @@ const build = Effect.fn("nativeClient.build")(function* (
         [
           "xcodebuild",
           "-workspace",
-          path.join(mobile, "ios/T3CodeDev.xcworkspace"),
+          path.join(mobile, "ios/LoopyDev.xcworkspace"),
           "-scheme",
-          "T3CodeDev",
+          "LoopyDev",
           "-configuration",
           "Debug",
           "-destination",
@@ -759,7 +759,7 @@ const build = Effect.fn("nativeClient.build")(function* (
         true,
       );
       yield* command("ditto", [
-        path.join(output, "Build/Products/Debug-iphonesimulator", artifactNames.ios),
+        path.join(output, "Build/Products/Debug-iphonesimulator/LoopyDev.app"),
         path.join(staging, artifactNames.ios),
       ]);
     } else {
