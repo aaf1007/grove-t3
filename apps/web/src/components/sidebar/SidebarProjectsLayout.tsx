@@ -18,6 +18,7 @@ import { cn } from "~/lib/utils";
 import { contextMenuSourceOf } from "../../contextMenuSource";
 import type { SidebarProjectSnapshot } from "../../sidebarProjectGrouping";
 import { useUiStateStore } from "../../uiStateStore";
+import { ProjectFavicon } from "../ProjectFavicon";
 import { animateSidebarLayoutChanges, resolveThreadLastVisitedAt } from "../Sidebar.logic";
 import { Button } from "../ui/button";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
@@ -217,6 +218,7 @@ export const SidebarProjectGroupHeader = memo(function SidebarProjectGroupHeader
           props.lifted && "bg-sidebar-row-selected ring-1 ring-inset ring-sidebar-border",
         )}
       >
+        <ProjectFavicon project={group} className="size-4 shrink-0" />
         <span className="min-w-0 truncate text-sm font-medium text-sidebar-foreground">
           {group.displayName}
         </span>
