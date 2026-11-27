@@ -41,6 +41,7 @@ import { Button } from "../components/ui/button";
 import { StandalonePage, StandalonePageHeader } from "../components/ui/standalone-page";
 import { AnchoredToastProvider, ToastProvider } from "../components/ui/toast";
 import { isElectron } from "../env";
+import { DesktopZoomBubble } from "../components/DesktopZoomBubble";
 import { useClientSettings } from "../hooks/useSettings";
 import {
   deriveLogicalProjectKeyFromSettings,
@@ -143,6 +144,7 @@ function RootRouteView() {
     <ToastProvider>
       <AnchoredToastProvider>
         <RootRouteBranch />
+        {isElectron ? <DesktopZoomBubble /> : null}
       </AnchoredToastProvider>
     </ToastProvider>
   );

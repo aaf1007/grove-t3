@@ -72,7 +72,7 @@ const environmentInput = {
 function makeFakeBrowserWindow() {
   const windowListeners = new Map<string, (...args: readonly unknown[]) => void>();
   const webContentsListeners = new Map<string, (...args: readonly unknown[]) => void>();
-  let zoomLevel = 0;
+  let zoomFactor = 1;
   const webContents = {
     id: 1,
     session: {
@@ -84,10 +84,9 @@ function makeFakeBrowserWindow() {
     focus: vi.fn(),
     isDestroyed: vi.fn(() => false),
     getURL: vi.fn(() => "loopy-dev://app/"),
-    getZoomLevel: vi.fn(() => zoomLevel),
-    getZoomFactor: vi.fn(() => 1.2 ** zoomLevel),
-    setZoomLevel: vi.fn((level: number) => {
-      zoomLevel = level;
+    getZoomFactor: vi.fn(() => zoomFactor),
+    setZoomFactor: vi.fn((factor: number) => {
+      zoomFactor = factor;
     }),
     isLoadingMainFrame: vi.fn(() => false),
     navigationHistory: {
@@ -158,7 +157,7 @@ function makeFakeBrowserWindow() {
     navigationHistory: webContents.navigationHistory,
     setIgnoreMenuShortcuts: webContents.setIgnoreMenuShortcuts,
     send: webContents.send,
-    setZoomLevel: webContents.setZoomLevel,
+    setZoomFactor: webContents.setZoomFactor,
     setWindowButtonPosition: window.setWindowButtonPosition,
     setBackgroundThrottling: webContents.setBackgroundThrottling,
     setAutoHideCursor: window.setAutoHideCursor,
@@ -381,7 +380,7 @@ function layerTest(input: {
           getBrowserPartition: () => Effect.succeed("persist:t3code-preview-test"),
           reapplyZoom: () =>
             Effect.sync(() => {
-              input.previewZoomReapplies?.push(input.window.webContents.getZoomLevel());
+              input.previewZoomReapplies?.push(input.window.webContents.getZoomFactor());
             }),
         }),
       ),
@@ -815,11 +814,11 @@ describe("DesktopWindow", () => {
         yield* desktopWindow.zoomMain("reset");
 
         assert.deepEqual(
-          fakeWindow.setZoomLevel.mock.calls.map(([level]) => level),
-          [-0.5, -1, -0.5, 0],
+          fakeWindow.setZoomFactor.mock.calls.map(([factor]) => factor),
+          [0.9, 0.8, 0.9, 1],
         );
-        assert.deepEqual(previewZoomReapplies, [-0.5, -1, -0.5, 0]);
-        assert.equal(popup.setZoomLevel.mock.calls.length, 0);
+        assert.deepEqual(previewZoomReapplies, [0.9, 0.8, 0.9, 1]);
+        assert.equal(popup.setZoomFactor.mock.calls.length, 0);
       }).pipe(Effect.provide(layer));
     }),
   );
@@ -848,10 +847,44 @@ describe("DesktopWindow", () => {
         zoomChanged({}, "out");
 
         assert.deepEqual(
-          fakeWindow.setZoomLevel.mock.calls.map(([level]) => level),
-          [0.5, 0, -0.5],
+          fakeWindow.setZoomFactor.mock.calls.map(([factor]) => factor),
+          [1.1, 1, 0.9],
         );
-        assert.deepEqual(previewZoomReapplies, [0.5, 0, -0.5]);
+        assert.deepEqual(previewZoomReapplies, [1.1, 1, 0.9]);
+      }).pipe(Effect.provide(layer));
+    }),
+  );
+
+  it.effect("steps app zoom in exact tenths between 50% and 300%", () =>
+    Effect.gen(function* () {
+      const fakeWindow = makeFakeBrowserWindow();
+      const createCount = yield* Ref.make(0);
+      const mainWindow = yield* Ref.make<Option.Option<Electron.BrowserWindow>>(Option.none());
+      const layer = layerTest({ window: fakeWindow.window, createCount, mainWindow });
+
+      yield* Effect.gen(function* () {
+        const desktopWindow = yield* DesktopWindow.DesktopWindow;
+        yield* desktopWindow.handleBackendReady(new URL("http://127.0.0.1:3773"));
+        // Off-grid factor left by the old 1.2^0.5 step snaps back onto the 10% grid.
+        fakeWindow.setZoomFactor(1.2 ** 0.5);
+        fakeWindow.setZoomFactor.mockClear();
+
+        for (let i = 0; i < 21; i++) yield* desktopWindow.zoomMain("in");
+        assert.deepEqual(
+          fakeWindow.setZoomFactor.mock.calls.map(([factor]) => factor),
+          [
+            1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9,
+            3, 3, 3,
+          ],
+        );
+
+        yield* desktopWindow.zoomMain("reset");
+        fakeWindow.setZoomFactor.mockClear();
+        for (let i = 0; i < 7; i++) yield* desktopWindow.zoomMain("out");
+        assert.deepEqual(
+          fakeWindow.setZoomFactor.mock.calls.map(([factor]) => factor),
+          [0.9, 0.8, 0.7, 0.6, 0.5, 0.5, 0.5],
+        );
       }).pipe(Effect.provide(layer));
     }),
   );
