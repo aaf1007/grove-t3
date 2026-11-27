@@ -1369,7 +1369,27 @@ const SidebarThreadRow = memo(function SidebarThreadRow(props: SidebarThreadRowP
           >
             {/* `contents` keeps one-line rows a single flex row. */}
             <div className="contents">
-              {inFolder ? null : (
+              {inFolder ? (
+                // A fixed box, so titles stay aligned when a provider is unknown.
+                <span
+                  aria-hidden
+                  data-testid="sidebar-row-provider"
+                  className="pointer-events-none flex size-4 shrink-0 items-center justify-center"
+                >
+                  {providerEntry ? (
+                    <ProviderInstanceIcon
+                      driverKind={providerEntry.driverKind}
+                      displayName={providerEntry.displayName}
+                      accentColor={providerEntry.accentColor}
+                      acpRegistryAgentId={providerEntry.acpRegistryAgentId}
+                      acpRegistryIconUrl={providerEntry.acpRegistryIconUrl}
+                      showBadge={showInstanceBadge}
+                      size="compact"
+                      iconClassName="opacity-60"
+                    />
+                  ) : null}
+                </span>
+              ) : (
                 <span
                   className={cn(
                     "flex shrink-0 items-center transition-opacity",
