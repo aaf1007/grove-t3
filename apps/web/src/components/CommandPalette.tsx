@@ -61,6 +61,7 @@ import {
 import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
+  BellDotIcon,
   BugIcon,
   ChartNoAxesColumnIcon,
   CheckIcon,
@@ -192,6 +193,7 @@ import {
   newProjectId,
 } from "../lib/utils";
 import { buildThreadRouteParams } from "../threadRoutes";
+import { jumpToThreadNeedingYou } from "../attentionJump";
 import { useAvailableSettingsSearchItems } from "./settings/useAvailableSettingsSearchItems";
 import {
   applyWslEnvironmentConfiguration,
@@ -1768,6 +1770,22 @@ function OpenCommandPaletteDialog(props: {
       },
     });
   }
+
+  actionItems.push({
+    kind: "action",
+    value: "action:next-thread-needing-you",
+    searchTerms: ["next", "needs you", "waiting", "approval", "input", "attention", "inbox"],
+    title: gt("Go to thread that needs you"),
+    icon: <BellDotIcon className={ITEM_ICON_CLASS} />,
+    shortcutCommand: "thread.nextNeedingYou",
+    run: async () => {
+      jumpToThreadNeedingYou({
+        currentThreadKey: activeThreadKey,
+        navigateToThread: (threadRef) =>
+          navigate({ to: "/$environmentId/$threadId", params: buildThreadRouteParams(threadRef) }),
+      });
+    },
+  });
 
   actionItems.push({
     kind: "action",
