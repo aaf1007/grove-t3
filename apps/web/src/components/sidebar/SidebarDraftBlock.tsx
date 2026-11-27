@@ -73,8 +73,8 @@ const SidebarDraftRow = memo(function SidebarDraftRow(props: {
   projectDisplayName: string | null;
   isActive: boolean;
   jumpLabel: string | null;
-  /** A one-line row inside its project, in the Projects layout. */
-  nested: boolean;
+  /** A one-line row in the Projects layout: under its project's guide line, or "flat" without one. */
+  nested: boolean | "flat";
   onNavigate: (draftId: DraftId) => void;
   onDiscard: (draftId: DraftId) => void;
   onContextMenu: (
@@ -161,7 +161,13 @@ const SidebarDraftRow = memo(function SidebarDraftRow(props: {
   );
   if (props.nested) {
     return (
-      <li className="relative list-none ps-5.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-sidebar-border">
+      <li
+        className={cn(
+          "relative list-none",
+          props.nested !== "flat" &&
+            "ps-5.5 before:pointer-events-none before:absolute before:inset-y-0 before:left-3.5 before:w-px before:bg-sidebar-border",
+        )}
+      >
         <div
           role="button"
           tabIndex={0}
@@ -306,8 +312,8 @@ export const SidebarDraftBlock = memo(function SidebarDraftBlock(props: {
   projectByKey: ReadonlyMap<string, EnvironmentProject>;
   projectDisplayNameByKey: ReadonlyMap<string, string>;
   routeDraftId: string | null;
-  /** Rows inside a project in the Projects layout: one line each and no divider. */
-  nested?: boolean;
+  /** Rows inside a project or the Threads section of the Projects layout: one line each and no divider. */
+  nested?: boolean | "flat";
   onNavigateToDraft: (draftId: DraftId) => void;
   onDraftContextMenu: (
     draftId: DraftId,
@@ -348,7 +354,7 @@ export const SidebarDraftBlock = memo(function SidebarDraftBlock(props: {
             projectDisplayName={props.projectDisplayNameByKey.get(projectKey) ?? null}
             isActive={draftId === props.routeDraftId}
             jumpLabel={props.jumpLabelByDraftId?.get(draftId) ?? null}
-            nested={props.nested === true}
+            nested={props.nested ?? false}
             onNavigate={props.onNavigateToDraft}
             onDiscard={discardComposerDraft}
             onContextMenu={props.onDraftContextMenu}

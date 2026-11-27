@@ -31,8 +31,9 @@ import {
 import { SIDEBAR_SORTABLE_DRAG_DISABLED } from "./SidebarThreadRow";
 
 export const PROJECTS_HEADING_ID = projectsLayoutMarkerId("projects");
+export const THREADS_HEADING_ID = projectsLayoutMarkerId("threads");
 
-/** The small-caps label of a Projects layout section: Pinned, Projects, Snoozed, Settled. */
+/** The small-caps label of a Projects layout section: Pinned, Projects, Threads, Snoozed, Settled. */
 export const PROJECTS_LAYOUT_LABEL_CLASS_NAME =
   "text-2xs font-semibold tracking-wider uppercase text-sidebar-muted-foreground";
 
@@ -117,6 +118,32 @@ export function SidebarProjectsHeading(props: {
           <PlusIcon aria-hidden />
         </ProjectsHeadingIconButton>
       </span>
+    </li>
+  );
+}
+
+/** The "Threads" heading over threads with no project; its button starts one. */
+export function SidebarThreadsHeading(props: { onNewThread: (() => void) | null }) {
+  const gt = useGT();
+  const { setNodeRef, style } = useListedMarker(THREADS_HEADING_ID);
+  return (
+    <li
+      ref={setNodeRef}
+      style={style}
+      data-testid="sidebar-threads-heading"
+      className="mt-2 flex h-7 list-none items-center gap-1 ps-(--sidebar-row-content-inset) pe-1"
+    >
+      <span className={cn("min-w-0 flex-1 truncate", PROJECTS_LAYOUT_LABEL_CLASS_NAME)}>
+        <T context="sidebar heading">Threads</T>
+      </span>
+      {props.onNewThread ? (
+        <ProjectsHeadingIconButton
+          label={gt("New thread without a project")}
+          onClick={props.onNewThread}
+        >
+          <SquarePenIcon aria-hidden />
+        </ProjectsHeadingIconButton>
+      ) : null}
     </li>
   );
 }

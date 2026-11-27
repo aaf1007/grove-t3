@@ -30,7 +30,8 @@ if that project exists there. Otherwise it selects an environment that has it.
 A thread does not need a project. To start one without a project, click **or
 start without a project** under a new thread's heading, pick **No project** from
 the project menu in that heading or from **New thread in...** in the command
-palette, or press `mod+alt+n`. On mobile, pick **No project** from the project
+palette, click the pen button on the sidebar's **Threads** heading in the Projects layout, or
+press `mod+alt+n`. On mobile, pick **No project** from the project
 list. It starts on your current machine; before sending, pick another machine
 from the machine menu to move it there. To move a draft into a project, pick the
 project in the heading.
@@ -155,9 +156,10 @@ cannot drag or move threads within it. Your saved order returns when you turn it
 
 On web and desktop, the sidebar groups active threads under their project. To list threads by what
 needs you instead, choose **Settings → General → Sidebar layout → Inbox**. Each device keeps its own
-choice. In the Projects layout, pinned threads stay on top, Snoozed and Settled stay below the
-projects, and there is no Working section. Unsent drafts sit in their project, marked **Draft**, or
-at the top when their project isn't in the list.
+choice. In the Projects layout, pinned threads stay on top, threads without a project are listed
+under **Threads** below the projects, Snoozed and Settled stay below that, and there is no Working
+section. Unsent drafts sit in their project or under **Threads**, marked **Draft**, or at the top
+when their project isn't in the list.
 
 A row shows a dot instead of its age while the thread has something to tell you: amber when it
 needs you, red when it failed, blue for an unread reply, and a hollow ring while it works. Hover a
