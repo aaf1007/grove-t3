@@ -113,7 +113,7 @@ export function DitherSettingsSection() {
         description={
           themeDither
             ? gt("This theme comes with a dither. Turn it off or change it on this device.")
-            : gt("Add dithered light across the app on this device.")
+            : gt("Show dithered light across the app on this device.")
         }
         resetAction={resetToTheme}
         control={
