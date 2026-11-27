@@ -513,7 +513,11 @@ export const make = Effect.gen(function* () {
       minHeight: DesktopAppSettings.MIN_MAIN_WINDOW_SIZE.height,
       show: false,
       autoHideMenuBar: true,
-      ...(environment.platform === "darwin" ? { disableAutoHideCursor: true } : {}),
+      // Electron on macOS leaves old frames behind see-through pixels unless the window is created
+      // transparent; the translucent sidebar turns on at runtime, so the window starts transparent.
+      ...(environment.platform === "darwin"
+        ? { disableAutoHideCursor: true, transparent: true }
+        : {}),
       backgroundColor: getInitialWindowBackgroundColor(shouldUseDarkColors),
       ...iconOption,
       title: environment.displayName,
