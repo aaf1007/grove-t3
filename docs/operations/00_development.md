@@ -24,18 +24,6 @@ vp run dev
 
 Open the pairing URL printed by the dev runner (the bare origin does not authenticate a new browser). Prefer a container? See [Dev container](./01_devcontainer.md).
 
-## Forge mirror (optional)
-
-GitHub is the source of truth; [source.tanstack.com/@pingdotgg/t3code](https://source.tanstack.com/@pingdotgg/t3code) is a two-way mirror for parallel agent work:
-
-```sh
-git remote set-url origin https://source.tanstack.com/@pingdotgg/t3code.git
-git remote add github https://github.com/pingdotgg/t3code.git
-src auth login --web && src auth setup-git
-```
-
-With `origin` on the mirror, use `src` instead of `gh`. PRs into `main` still merge on GitHub, and numbers can differ between forges—use the GitHub number in text that reaches GitHub.
-
 ## Running dev servers
 
 - `vp run dev` (server + web), `vp run dev:desktop` (Electron), `vp run dev:server`, `vp run dev:web`. See [apps/mobile/README.md](../../apps/mobile/README.md) for mobile.
