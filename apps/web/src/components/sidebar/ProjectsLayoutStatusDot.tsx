@@ -9,7 +9,7 @@ import type { ProjectsLayoutDot } from "./projectsLayout.logic";
 const DOT_CLASS_NAME: Record<Exclude<ProjectsLayoutDot, "working">, string> = {
   attention: "bg-warning",
   failed: "bg-error",
-  unread: "bg-success",
+  unread: "bg-info",
 };
 
 /**
