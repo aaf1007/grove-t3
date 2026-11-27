@@ -2,11 +2,11 @@ import type { Messages } from "./en";
 
 export const fr: Messages = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code. Le poste de pilotage open source pour agents de codage.",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy. Le poste de pilotage open source pour agents de codage.",
     socialImageAlt:
-      "T3 Code : le poste de pilotage open source pour agents de codage, avec Claude Code, Codex, Cursor, OpenCode, Grok et Antigravity.",
-    homeLabel: "Accueil T3 Code",
+      "Loopy : le poste de pilotage open source pour agents de codage, avec Claude Code, Codex, Cursor, OpenCode, Grok et Antigravity.",
+    homeLabel: "Accueil Loopy",
     download: "Télécharger",
     starsLabel: "Mettre une étoile à T3 Code sur GitHub, {stars} étoiles",
     githubStars: "{stars} étoiles sur GitHub",

@@ -2,11 +2,11 @@ import type { Messages } from "./en";
 
 export const ru: Messages = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code. Открытый пульт управления ИИ-агентами для программирования.",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy. Открытый пульт управления ИИ-агентами для программирования.",
     socialImageAlt:
-      "T3 Code: открытый пульт управления ИИ-агентами для программирования. Claude Code, Codex, Cursor, OpenCode, Grok и Antigravity.",
-    homeLabel: "Главная страница T3 Code",
+      "Loopy: открытый пульт управления ИИ-агентами для программирования. Claude Code, Codex, Cursor, OpenCode, Grok и Antigravity.",
+    homeLabel: "Главная страница Loopy",
     download: "Скачать",
     starsLabel: "Поставить звезду T3 Code на GitHub, звёзд: {stars}",
     githubStars: "{stars} звёзд на GitHub",

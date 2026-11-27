@@ -2,11 +2,11 @@ import type { Messages } from "./en";
 
 export const ja: Messages = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code。オープンソースのコーディングエージェント制御プレーン。",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy。オープンソースのコーディングエージェント制御プレーン。",
     socialImageAlt:
-      "T3 Code：オープンソースのコーディングエージェント制御プレーン。Claude Code、Codex、Cursor、OpenCode、Grok、Antigravity に対応。",
-    homeLabel: "T3 Code ホーム",
+      "Loopy：オープンソースのコーディングエージェント制御プレーン。Claude Code、Codex、Cursor、OpenCode、Grok、Antigravity に対応。",
+    homeLabel: "Loopy ホーム",
     download: "ダウンロード",
     starsLabel: "GitHub で T3 Code にスターを付ける（{stars} スター）",
     githubStars: "GitHub スター {stars}",

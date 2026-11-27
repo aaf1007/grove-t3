@@ -2,11 +2,11 @@ import type { Messages } from "./en";
 
 export const ko: Messages = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code. 코딩 에이전트를 위한 오픈 소스 컨트롤 플레인.",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy. 코딩 에이전트를 위한 오픈 소스 컨트롤 플레인.",
     socialImageAlt:
-      "T3 Code: 코딩 에이전트를 위한 오픈 소스 컨트롤 플레인. Claude Code, Codex, Cursor, OpenCode, Grok, Antigravity 지원.",
-    homeLabel: "T3 Code 홈",
+      "Loopy: 코딩 에이전트를 위한 오픈 소스 컨트롤 플레인. Claude Code, Codex, Cursor, OpenCode, Grok, Antigravity 지원.",
+    homeLabel: "Loopy 홈",
     download: "다운로드",
     starsLabel: "GitHub에서 T3 Code에 스타 주기, 현재 스타 {stars}",
     githubStars: "GitHub 스타 {stars}",

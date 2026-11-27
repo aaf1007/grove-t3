@@ -103,6 +103,7 @@ import { readCodexSetupMode } from "../settings/CodexSetupSection.logic";
 import { TerminalViewport } from "../ThreadTerminalDrawer";
 import { ProviderInstanceIcon } from "../chat/ProviderInstanceIcon";
 import { ACPRegistryIcon } from "../Icons";
+import { LoopyMark } from "../LoopyMark";
 import { Button } from "../ui/button";
 import { Checkbox } from "../ui/checkbox";
 import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from "../ui/collapsible";
@@ -276,9 +277,12 @@ export function WelcomePage({
         {isElectron ? <WorkspacePageHeader electron /> : null}
         <div className="min-h-0 flex-1 overflow-y-auto scrollbar-gutter-both">
           <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col px-6 pt-12 pb-8 sm:pt-20">
-            <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-              <T>Welcome to Loopy</T>
-            </h1>
+            <div className="flex items-center gap-3">
+              <LoopyMark className="size-8 text-foreground" aria-hidden />
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+                <T>Welcome to Loopy</T>
+              </h1>
+            </div>
             <p className="mt-1.5 text-sm text-muted-foreground">
               <T>
                 Setting up{" "}

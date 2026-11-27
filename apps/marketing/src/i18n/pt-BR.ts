@@ -2,11 +2,11 @@ import type { Messages } from "./en";
 
 export const ptBR: Messages = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code. O painel de controle open source para agentes de programação.",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy. O painel de controle open source para agentes de programação.",
     socialImageAlt:
-      "T3 Code: o painel de controle open source para agentes de programação, com Claude Code, Codex, Cursor, OpenCode, Grok e Antigravity.",
-    homeLabel: "Página inicial do T3 Code",
+      "Loopy: o painel de controle open source para agentes de programação, com Claude Code, Codex, Cursor, OpenCode, Grok e Antigravity.",
+    homeLabel: "Página inicial do Loopy",
     download: "Baixar",
     starsLabel: "Dê uma estrela ao T3 Code no GitHub, {stars} estrelas",
     githubStars: "{stars} estrelas no GitHub",

@@ -2,11 +2,11 @@
 // `{name}` placeholders are filled at render time and must survive translation.
 export const en = {
   layout: {
-    defaultTitle: "T3 Code",
-    defaultDescription: "T3 Code. The open-source control plane for coding agents.",
+    defaultTitle: "Loopy",
+    defaultDescription: "Loopy. The open-source control plane for coding agents.",
     socialImageAlt:
-      "T3 Code: the open-source control plane for coding agents, with Claude Code, Codex, Cursor, OpenCode, Grok and Antigravity.",
-    homeLabel: "T3 Code home",
+      "Loopy: the open-source control plane for coding agents, with Claude Code, Codex, Cursor, OpenCode, Grok and Antigravity.",
+    homeLabel: "Loopy home",
     download: "Download",
     starsLabel: "Star T3 Code on GitHub, {stars} stars",
     githubStars: "{stars} GitHub stars",

@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 
 import { APP_BASE_NAME } from "../../branding";
+import { LoopyMark } from "../LoopyMark";
 
 export function StandalonePage({ children }: { readonly children: ReactNode }) {
   return (
@@ -23,7 +24,8 @@ export function StandalonePageHeader({
   return (
     <>
       <div className="flex items-baseline justify-between gap-3 text-muted-foreground">
-        <span className="text-lg font-semibold tracking-tight text-foreground">
+        <span className="inline-flex items-center gap-2 text-lg font-semibold tracking-tight text-foreground">
+          <LoopyMark className="size-5" aria-hidden />
           {APP_BASE_NAME}
         </span>
         {context ? <span className="text-sm">{context}</span> : null}

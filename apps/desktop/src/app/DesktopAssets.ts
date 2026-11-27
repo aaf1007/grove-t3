@@ -6,6 +6,7 @@ import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
 
 import {
+  BRAND_ASSET_PATHS,
   LOOPY_DESKTOP_ICON_ICO,
   LOOPY_DESKTOP_ICON_PNG,
 } from "../../../../scripts/lib/brand-assets.ts";
@@ -76,11 +77,11 @@ function resolveSourceTreeIconPath(
   }
   const icon =
     ext === "ico"
-      ? "blueprint-windows.ico"
+      ? BRAND_ASSET_PATHS.developmentWindowsIconIco
       : environment.platform === "darwin"
-        ? "blueprint-macos-1024.png"
-        : "blueprint-universal-1024.png";
-  return environment.path.join(environment.rootDir, "assets", "dev", icon);
+        ? BRAND_ASSET_PATHS.developmentDesktopIconPng
+        : BRAND_ASSET_PATHS.developmentUniversalIconPng;
+  return environment.path.join(environment.rootDir, icon);
 }
 
 const resolveIconPath = Effect.fn("desktop.assets.resolveIconPath")(function* (
