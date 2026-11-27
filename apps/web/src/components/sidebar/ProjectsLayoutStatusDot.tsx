@@ -13,8 +13,8 @@ const DOT_CLASS_NAME: Record<Exclude<ProjectsLayoutDot, "working">, string> = {
 };
 
 /**
- * A Projects layout row's status: a 7px dot whose words live in its tooltip and screen-reader
- * text. With `onDismiss` it is a button that clears the mark, as a woken thread's is.
+ * A Projects layout row's status: a 7px dot, or a spinning dashed ring while working, whose words
+ * live in its tooltip and screen-reader text. With `onDismiss` it is a button that clears the mark, as a woken thread's is.
  */
 export function ProjectsLayoutStatusDot(props: {
   dot: ProjectsLayoutDot;
