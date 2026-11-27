@@ -21,6 +21,7 @@ import { openCommandPalette } from "../commandPaletteBus";
 import { DraftId, useComposerDraftStore } from "../composerDraftStore";
 import { makeThreadFixture } from "../test-fixtures";
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
+import { useScratchProject } from "../hooks/useScratchProject";
 import { useNowMinute } from "../hooks/useNowMinute";
 import { __setClientSettingsForTests, getClientSettings } from "../hooks/useSettings";
 import { useThreadRouteTarget } from "../hooks/useThreadRouteTarget";
@@ -44,6 +45,7 @@ vi.mock(import("../state/olderSettledShelf"), async (original) => {
 vi.mock("../state/entities", { spy: true });
 vi.mock("../state/environments", { spy: true });
 vi.mock("../hooks/useHandleNewThread", { spy: true });
+vi.mock("../hooks/useScratchProject", { spy: true });
 vi.mock("../hooks/useNowMinute", { spy: true });
 vi.mock("../hooks/useThreadRouteTarget", { spy: true });
 vi.mock("./sidebar/SidebarThreadRow", { spy: true });
@@ -616,5 +618,98 @@ describe("sidebar projects layout", () => {
       .toHaveAttribute("aria-expanded", "false");
     await expect.element(screen.getByText("Waiting on approval")).not.toBeInTheDocument();
     await expect.element(screen.getByText("Thread 0")).toBeInTheDocument();
+  });
+
+  it("lists threads with no project under Threads, below the projects", async () => {
+    using stack = new DisposableStack();
+    const previousSettings = getClientSettings();
+    stack.defer(() => __setClientSettingsForTests(previousSettings));
+    __setClientSettingsForTests({ ...DEFAULT_CLIENT_SETTINGS, boringSidebarEnabled: true });
+    const web = project("web");
+    const scratch = { ...project("scratch"), isScratch: true as const };
+    vi.mocked(useProjects).mockReturnValue([web, scratch]);
+    vi.mocked(useQuietThreadShells).mockReturnValue([
+      { ...threadShell(web.id, 0), title: "Project work" },
+      { ...threadShell(scratch.id, 1), title: "Quick chat" },
+    ]);
+    vi.mocked(useThreadRouteTarget).mockReturnValue(null);
+    vi.mocked(useHandleNewThread).mockReturnValue({
+      activeDraftThread: null,
+      activeThread: null,
+      defaultProjectRef: null,
+      defaultProjectFallbackReady: true,
+      handleNewThread: vi.fn(),
+      routeDraftId: null,
+      routeThreadRef: null,
+    });
+    const startScratchThread = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useScratchProject).mockReturnValue({
+      scratchWorkspaceRootFor: () => "/scratch",
+      scratchEnvironmentId: () => web.environmentId,
+      openScratchProject: vi.fn(),
+      startScratchThread,
+    });
+
+    await using screen = await render(
+      <SidebarProvider>
+        <Sidebar routeReveal={{ observedKey: null, pendingKey: null }} />
+      </SidebarProvider>,
+    );
+
+    await expect.element(screen.getByText("Quick chat")).toBeInTheDocument();
+    expect(
+      screen.container.querySelectorAll('[data-testid="sidebar-project-folder"]'),
+    ).toHaveLength(1);
+    const order = [
+      ...screen.container.querySelectorAll(
+        '[data-testid="sidebar-projects-heading"], [data-testid="sidebar-threads-heading"], [data-thread-item]',
+      ),
+    ].map((element) => element.getAttribute("data-testid") ?? element.textContent);
+    expect(order).toEqual([
+      "sidebar-projects-heading",
+      expect.stringContaining("Project work"),
+      "sidebar-threads-heading",
+      expect.stringContaining("Quick chat"),
+    ]);
+    await userEvent.click(screen.getByRole("button", { name: "New thread without a project" }));
+    expect(startScratchThread).toHaveBeenCalledExactlyOnceWith(web.environmentId);
+  });
+
+  it("keeps the Threads button when there are no projects or threads yet", async () => {
+    using stack = new DisposableStack();
+    const previousSettings = getClientSettings();
+    stack.defer(() => __setClientSettingsForTests(previousSettings));
+    __setClientSettingsForTests({ ...DEFAULT_CLIENT_SETTINGS, boringSidebarEnabled: true });
+    const local = EnvironmentId.make("local");
+    vi.mocked(useProjects).mockReturnValue([]);
+    vi.mocked(useQuietThreadShells).mockReturnValue([]);
+    vi.mocked(useThreadRouteTarget).mockReturnValue(null);
+    vi.mocked(useHandleNewThread).mockReturnValue({
+      activeDraftThread: null,
+      activeThread: null,
+      defaultProjectRef: null,
+      defaultProjectFallbackReady: true,
+      handleNewThread: vi.fn(),
+      routeDraftId: null,
+      routeThreadRef: null,
+    });
+    const startScratchThread = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useScratchProject).mockReturnValue({
+      scratchWorkspaceRootFor: () => "/scratch",
+      scratchEnvironmentId: () => local,
+      openScratchProject: vi.fn(),
+      startScratchThread,
+    });
+
+    await using screen = await render(
+      <SidebarProvider>
+        <Sidebar routeReveal={{ observedKey: null, pendingKey: null }} />
+      </SidebarProvider>,
+    );
+
+    await expect.element(screen.getByText("No projects yet")).toBeInTheDocument();
+    await expect.element(screen.getByTestId("sidebar-projects-heading")).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole("button", { name: "New thread without a project" }));
+    expect(startScratchThread).toHaveBeenCalledExactlyOnceWith(local);
   });
 });

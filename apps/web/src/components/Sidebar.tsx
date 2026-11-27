@@ -140,6 +140,7 @@ import {
 import { useHandleNewThread } from "../hooks/useHandleNewThread";
 import { useOrderWhileOpen } from "../hooks/useOrderWhileOpen";
 import { useProjectPin } from "../hooks/useProjectGroupUpdate";
+import { useScratchProject } from "../hooks/useScratchProject";
 import { useSidebarProjectGroups } from "../hooks/useSidebarProjectGroups";
 import { isCommandPaletteOpen, openCommandPalette } from "../commandPaletteBus";
 import { registerSettleAndAdvance } from "../settleAndAdvance";
@@ -294,6 +295,8 @@ import {
   PROJECTS_LAYOUT_LABEL_CLASS_NAME,
   SidebarProjectGroupHeader,
   SidebarProjectsHeading,
+  SidebarThreadsHeading,
+  THREADS_HEADING_ID,
   SidebarSubagentSummary,
   sidebarFolderRowId,
   useProjectGroupDrag,
@@ -567,21 +570,32 @@ function useSidebarThreads(input: {
   const projectFolders =
     folderGroups === null
       ? null
-      : groupSidebarThreadsByProject(folderGroups, activeThreads, keepEmpty).map((folder) => {
+      : groupSidebarThreadsByProject(
+          folderGroups,
+          activeThreads,
+          // The Threads section holds No project's drafts even before it has threads.
+          (group) => (group.isScratch === true && !group.archived) || keepEmpty(group),
+        ).map((folder) => {
+          // No project's threads form the Threads section, which has no header to reopen it.
+          const foldsAll = foldAllFolders && folder.group.isScratch !== true;
           const collapsed =
-            foldAllFolders ||
-            !resolveProjectExpanded(projectExpandedById, sidebarFolderExpansionKeys(folder.group));
+            foldsAll ||
+            (folder.group.isScratch !== true &&
+              !resolveProjectExpanded(
+                projectExpandedById,
+                sidebarFolderExpansionKeys(folder.group),
+              ));
           return {
             group: folder.group,
             collapsed,
             allThreads: folder.threads,
             // A closed folder still shows the open thread, and hints at the rest.
-            threads: foldAllFolders
+            threads: foldsAll
               ? EMPTY_THREADS
               : collapsed
                 ? routeThreadOnly(folder.threads, routeRowThreadKey)
                 : folder.threads,
-            hiddenThreads: foldAllFolders
+            hiddenThreads: foldsAll
               ? folder.threads
               : collapsed
                 ? folder.threads.filter((thread) => threadShellKey(thread) !== routeRowThreadKey)
@@ -1449,10 +1463,22 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     (group: SidebarProjectSnapshot, event: ReactPointerEvent) =>
       projectDrag.start(
         group.projectKey,
-        (projectFolders ?? []).map((folder) => folder.group.projectKey),
+        (projectFolders ?? []).flatMap((folder) =>
+          folder.group.isScratch === true ? [] : [folder.group.projectKey],
+        ),
         event,
       ),
   );
+  // The Projects layout lists No project's threads in a Threads section below the projects.
+  const { scratchEnvironmentId, startScratchThread } = useScratchProject();
+  const scratchTargetEnvironmentId = scratchEnvironmentId(null);
+  const threadsFolder = projectFolders?.find((folder) => folder.group.isScratch === true) ?? null;
+  const showThreadsSection =
+    projectFolders !== null && (threadsFolder !== null || scratchTargetEnvironmentId !== null);
+  const startThreadWithoutProject =
+    scratchTargetEnvironmentId === null
+      ? null
+      : () => void startScratchThread(scratchTargetEnvironmentId);
 
   // Ranked across environments as the palette ranks them, so one
   // environment's list does not sit above another's better matches; rows
@@ -2119,6 +2145,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
     // Boring mode keeps a pinned, new, or filtered-to project, so it can start a thread.
     if (
       !hasProjectFolders &&
+      !showThreadsSection &&
       pinnedThreads.length +
         activeThreads.length +
         workingThreads.length +
@@ -2210,21 +2237,45 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
               folderKeyByProjectRef.get(`${thread.environmentId}:${thread.projectId}`) ?? null,
           })),
           { kind: "marker", id: PROJECTS_HEADING_ID, marker: "projects" },
-          ...projectFolders.flatMap((folder): ProjectsLayoutItem[] => [
-            {
-              kind: "marker",
-              id: projectGroupMarkerId(folder.group.projectKey),
-              marker: "project",
-              projectKey: folder.group.projectKey,
-              closedKeys: folder.collapsed ? folder.allThreads.map(threadShellKey) : null,
-            },
-            ...folder.threads.map((thread) => ({
-              kind: "thread" as const,
-              id: threadShellKey(thread),
-              section: "active" as const,
-              projectKey: folder.group.projectKey,
-            })),
-          ]),
+          ...projectFolders.flatMap((folder): ProjectsLayoutItem[] =>
+            folder === threadsFolder
+              ? []
+              : [
+                  {
+                    kind: "marker",
+                    id: projectGroupMarkerId(folder.group.projectKey),
+                    marker: "project",
+                    projectKey: folder.group.projectKey,
+                    closedKeys: folder.collapsed ? folder.allThreads.map(threadShellKey) : null,
+                  },
+                  ...folder.threads.map((thread) => ({
+                    kind: "thread" as const,
+                    id: threadShellKey(thread),
+                    section: "active" as const,
+                    projectKey: folder.group.projectKey,
+                  })),
+                ],
+          ),
+          ...((): ProjectsLayoutItem[] => {
+            if (!showThreadsSection) return [];
+            // With no thread yet there is nothing to reorder, so no thread matches the key.
+            const projectKey = threadsFolder?.group.projectKey ?? THREADS_HEADING_ID;
+            return [
+              {
+                kind: "marker",
+                id: THREADS_HEADING_ID,
+                marker: "project",
+                projectKey,
+                closedKeys: null,
+              },
+              ...(threadsFolder?.threads ?? []).map((thread) => ({
+                kind: "thread" as const,
+                id: threadShellKey(thread),
+                section: "active" as const,
+                projectKey,
+              })),
+            ];
+          })(),
           ...[
             ...(snoozedThreads.length === 0
               ? []
@@ -3771,7 +3822,8 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                             : isCard
                               ? "card"
                               : "slim";
-                        const subagents = folderRow ? subagentSummaries?.get(threadKey) : undefined;
+                        const subagents =
+                          section === "active" ? subagentSummaries?.get(threadKey) : undefined;
                         return (
                           <SortableThreadRow
                             key={threadKey}
@@ -3926,15 +3978,19 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                         }
                         if (projectFolders !== null && item.marker === "pinned-divider") continue;
                         if (projectFolders !== null && item.marker === "active-placeholder") {
-                          items.push(
-                            <SidebarProjectsHeading
-                              key="projects-heading"
-                              filter={projectGroups.length > 0 ? projectScopeMenu : null}
-                              filterActive={scopedProjectGroups.length > 0}
-                              onAddProject={openAddProjectCommandPalette}
-                            />,
-                          );
+                          // With no projects, the "No projects yet" notice above stands in for it.
+                          if (projects.length > 0) {
+                            items.push(
+                              <SidebarProjectsHeading
+                                key="projects-heading"
+                                filter={projectGroups.length > 0 ? projectScopeMenu : null}
+                                filterActive={scopedProjectGroups.length > 0}
+                                onAddProject={openAddProjectCommandPalette}
+                              />,
+                            );
+                          }
                           for (const folder of projectFolders) {
+                            if (folder === threadsFolder) continue;
                             items.push(
                               <SidebarProjectGroupHeader
                                 key={`project-folder:${folder.group.projectKey}`}
@@ -3975,6 +4031,38 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                                   sidebarFolderRowId(folder.group.projectKey),
                                 ),
                               );
+                            }
+                          }
+                          if (showThreadsSection) {
+                            items.push(
+                              <SidebarThreadsHeading
+                                key="threads-heading"
+                                onNewThread={startThreadWithoutProject}
+                              />,
+                            );
+                            const threadsDraftIds =
+                              threadsFolder === null
+                                ? undefined
+                                : draftIdsByFolderKey.get(threadsFolder.group.projectKey);
+                            if (threadsDraftIds !== undefined) {
+                              items.push(
+                                <SidebarDraftBlock
+                                  key="threads-drafts"
+                                  nested="flat"
+                                  draftIds={threadsDraftIds}
+                                  routeDraftComposer={routeDraftComposer}
+                                  terminalLabels={draftTerminalLabels}
+                                  jumpLabelByDraftId={draftJumpLabelById}
+                                  projectByKey={projectByKey}
+                                  projectDisplayNameByKey={projectDisplayNameByKey}
+                                  routeDraftId={routeDraftIdForRows}
+                                  onNavigateToDraft={navigateToDraft}
+                                  onDraftContextMenu={handleDraftContextMenu}
+                                />,
+                              );
+                            }
+                            for (const thread of threadsFolder?.threads ?? []) {
+                              items.push(renderThreadRow(thread, "active"));
                             }
                           }
                           continue;
