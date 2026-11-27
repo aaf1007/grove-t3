@@ -59,6 +59,8 @@ it("shows each folder row's provider icon, keeping the slot for an unknown provi
       .filter({ hasText: title })
       .getByTestId("sidebar-row-provider");
   await expect.element(providerSlot(known.title)).toBeInTheDocument();
-  expect(providerSlot(known.title).element().querySelector("svg")).not.toBeNull();
+  await vi.waitFor(() => {
+    expect(providerSlot(known.title).element().querySelector("svg")).not.toBeNull();
+  });
   await expect.element(providerSlot(unknown.title)).toBeEmptyDOMElement();
 });
