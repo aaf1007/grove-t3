@@ -10,13 +10,10 @@ const preview = readFileSync(join(__dirname, "../workflows/web-preview.yml"), "u
 const stepPattern =
   /        name: (?:Build staged deployment|Deploy preview)\n        shell: bash\n        run: \|\n((?:          .*\n|\n)+)/g;
 const steps = [
-  ...Array.from(release.matchAll(stepPattern), (match, index) => [
-    index === 0 ? "hosted web" : "marketing",
-    match[1],
-  ]),
+  ...Array.from(release.matchAll(stepPattern), (match) => ["hosted web", match[1]]),
   ...Array.from(preview.matchAll(stepPattern), (match) => ["web preview", match[1]]),
 ];
-assert.equal(steps.length, 3, "Expected both release steps and the preview step");
+assert.equal(steps.length, 2, "Expected the hosted web release step and the preview step");
 
 const url = "https://t3code-fixture-pinglabs.vercel.app";
 const warning = 'Error while parsing config file: "/runner/t3code/pnpm-lock.yaml"';
@@ -30,7 +27,6 @@ function runStep(script, stdout, exitCode = 0) {
       [
         "-c",
         'vp() { printf "%s\\n" "$FIXTURE_STDOUT"; return "$FIXTURE_EXIT"; }\n' +
-          'curl() { printf \'{"id":"fixture-project"}\\n\'; }\n' +
           script.replace(/^          /gm, "").replace(/\$\{\{.*?\}\}/g, "fixture"),
       ],
       {
@@ -65,10 +61,7 @@ for (const [name, script] of steps) {
     test(`${name}: saves one deployment URL after ${label}`, () => {
       const result = runStep(script, stdout);
       assert.equal(result.status, 0, result.stderr);
-      assert.deepEqual(
-        result.output.split("\n").filter((line) => !line.startsWith("project_id=")),
-        [`deployment_url=${url}`, ""],
-      );
+      assert.deepEqual(result.output.split("\n"), [`deployment_url=${url}`, ""]);
     });
   }
 
