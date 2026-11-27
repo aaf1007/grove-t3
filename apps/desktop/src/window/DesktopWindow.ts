@@ -63,6 +63,8 @@ class ContextMenuImageCopyError extends Schema.TaggedError<ContextMenuImageCopyE
 // Match --workspace-topbar-height in apps/web/src/index.css; native macOS buttons stay 14 points at any zoom.
 const MACOS_WORKSPACE_TOPBAR_HEIGHT = 52;
 const MACOS_WINDOW_BUTTON_RADIUS = 7;
+const MIN_ZOOM_TENTHS = 5;
+const MAX_ZOOM_TENTHS = 30;
 
 function parseMailtoAddress(rawUrl: string): Option.Option<string> {
   let url: URL;
@@ -464,9 +466,15 @@ export const make = Effect.gen(function* () {
     window: Electron.BrowserWindow,
     direction: MainWindowZoomDirection,
   ) {
-    const webContents = window.webContents;
-    webContents.setZoomLevel(
-      direction === "reset" ? 0 : webContents.getZoomLevel() + (direction === "in" ? 0.5 : -0.5),
+    // Chromium zoom levels are exponential (1.2^level); step the factor so the app goes 100%, 110%, 120%.
+    const tenths = Math.round(window.webContents.getZoomFactor() * 10);
+    window.webContents.setZoomFactor(
+      direction === "reset"
+        ? 1
+        : Math.min(
+            MAX_ZOOM_TENTHS,
+            Math.max(MIN_ZOOM_TENTHS, tenths + (direction === "in" ? 1 : -1)),
+          ) / 10,
     );
     if (environment.platform === "darwin") syncMacosWindowButtons(window);
     // App zoom propagates to guests; restore each preview's own zoom.
