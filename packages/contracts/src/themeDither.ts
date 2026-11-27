@@ -29,6 +29,6 @@ export const ThemeDither = Schema.Struct({
 });
 export type ThemeDither = typeof ThemeDither.Type;
 
-/** Per device: follow the theme's dither, turn it off, or use this one on every theme. */
-export const ThemeDitherOverride = Schema.Union([Schema.Literals(["theme", "off"]), ThemeDither]);
+/** Per device: follow the theme's dither, or use this one on every theme. */
+export const ThemeDitherOverride = Schema.Union([Schema.Literal("theme"), ThemeDither]);
 export type ThemeDitherOverride = typeof ThemeDitherOverride.Type;

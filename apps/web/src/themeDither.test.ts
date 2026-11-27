@@ -10,6 +10,7 @@ import {
   ditherCells,
   ditherThreshold,
   effectiveThemeDither,
+  packInk,
   resolveThemeDither,
   themeDitherCss,
   themeDitherField,
@@ -113,11 +114,25 @@ describe("theme dither", () => {
     }
   });
 
-  it("follows the theme, turns off, or overrides it per device", () => {
+  it("rounds opacity down when packing, so text keeps its contrast floor", () => {
+    const colors: ThemeColors = {
+      ...getStandardPaintedThemeColors("light"),
+      canvas: "#ffffff",
+      text: "#000000",
+      textMuted: "#757575",
+    };
+    const alpha = ditherAlphaFor(colors, "canvas", "#000000", 0.15);
+    const packedAlpha = (packInk({ rgb: { r: 0, g: 0, b: 0 }, alpha }) >>> 24) / 255;
+    expect(packedAlpha).toBeLessThanOrEqual(alpha);
+    const background = rgb(colors.canvas);
+    const blended = blend(background, [0, 0, 0], packedAlpha);
+    expect(contrast(rgb(colors.textMuted), blended)).toBeGreaterThanOrEqual(4.5);
+  });
+
+  it("follows the theme or a per-device override", () => {
     const themeDither = { pattern: "lines", strength: 40 } as const;
     expect(effectiveThemeDither(undefined, "theme")).toEqual(DEFAULT_THEME_DITHER);
     expect(effectiveThemeDither(themeDither, "theme")).toMatchObject({ pattern: "lines" });
-    expect(effectiveThemeDither(themeDither, "off")).toBeNull();
     expect(effectiveThemeDither(undefined, { pattern: "noise" })).toMatchObject({
       pattern: "noise",
       strength: DEFAULT_THEME_DITHER.strength,

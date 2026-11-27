@@ -20,9 +20,7 @@ import {
 } from "../../themePalette";
 import {
   autoDitherColor,
-  DEFAULT_THEME_DITHER,
   effectiveThemeDither,
-  resolveThemeDither,
   toThemeDither,
   type ResolvedThemeDither,
 } from "../../themeDither";
@@ -70,15 +68,13 @@ export function DitherSettingsSection() {
     getStandardPaintedThemeColors(resolvedTheme);
   const themeDither = definition?.dither;
   const override = settings.ditherOverride;
-  const effective = effectiveThemeDither(themeDither, override);
-  const shown: ResolvedThemeDither =
-    effective ?? (themeDither ? resolveThemeDither(themeDither) : DEFAULT_THEME_DITHER);
+  const enabled = settings.ditherEnabled;
+  const shown = effectiveThemeDither(themeDither, override);
   const customTheme = customThemes.find((candidate) => candidate.id === definition?.id) ?? null;
 
   const update = (patch: Partial<ResolvedThemeDither>) =>
     updateSettings({ ditherOverride: toThemeDither({ ...shown, ...patch }) });
-  const setEnabled = (enabled: boolean) =>
-    updateSettings({ ditherOverride: enabled ? "theme" : "off" });
+  const setEnabled = (next: boolean) => updateSettings({ ditherEnabled: next });
   const saveToTheme = () => {
     if (!customTheme || typeof override !== "object") return;
     try {
@@ -124,14 +120,14 @@ export function DitherSettingsSection() {
               </Button>
             ) : null}
             <Switch
-              checked={effective !== null}
+              checked={enabled}
               onCheckedChange={(checked) => setEnabled(Boolean(checked))}
               aria-label={gt("Dither")}
             />
           </div>
         }
       />
-      {effective ? (
+      {enabled ? (
         <>
           <SettingsRow
             {...searchableSetting("dither-pattern")}

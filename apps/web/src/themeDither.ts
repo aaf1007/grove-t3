@@ -67,11 +67,9 @@ export function toThemeDither(dither: ResolvedThemeDither): ThemeDither {
 export function effectiveThemeDither(
   themeDither: ThemeDither | undefined,
   override: ThemeDitherOverride,
-): ResolvedThemeDither | null {
-  if (override === "off") return null;
-  if (override === "theme")
-    return themeDither ? resolveThemeDither(themeDither) : DEFAULT_THEME_DITHER;
-  return resolveThemeDither(override);
+): ResolvedThemeDither {
+  if (override !== "theme") return resolveThemeDither(override);
+  return themeDither ? resolveThemeDither(themeDither) : DEFAULT_THEME_DITHER;
 }
 
 type Rgb = Readonly<{ r: number; g: number; b: number }>;
@@ -340,14 +338,18 @@ function ditherInks(
 }
 
 // RGBA bytes in memory order; Uint32Array is little-endian on every platform browsers run on.
-function packInk({ rgb, alpha }: { rgb: Rgb; alpha: number }): number {
+export function packInk({ rgb, alpha }: { rgb: Rgb; alpha: number }): number {
   const byte = (value: number) => Math.round(value * 255);
-  return ((byte(alpha) << 24) | (byte(rgb.b) << 16) | (byte(rgb.g) << 8) | byte(rgb.r)) >>> 0;
+  // Rounding opacity up could push text just below its contrast floor.
+  const alphaByte = Math.floor(alpha * 255 + 1e-9);
+  return ((alphaByte << 24) | (byte(rgb.b) << 16) | (byte(rgb.g) << 8) | byte(rgb.r)) >>> 0;
 }
 
 let ditherSheet: CSSStyleSheet | null = null;
 let themeSource: Readonly<{ dither: ThemeDither | undefined; colors: ThemeColors }> | null = null;
 let deviceOverride: ThemeDitherOverride = "theme";
+let deviceEnabled = true;
+let reducedMotion: MediaQueryList | null = null;
 let imageUrls: ReadonlyArray<string> = [];
 let paintKey = "";
 let paintGeneration = 0;
@@ -433,10 +435,7 @@ async function paint(dither: ResolvedThemeDither, colors: ThemeColors, time: num
 }
 
 function motionAllowed(): boolean {
-  return (
-    document.visibilityState !== "hidden" &&
-    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
-  );
+  return document.visibilityState !== "hidden" && !reducedMotion?.matches;
 }
 
 function stopMotion() {
@@ -446,7 +445,8 @@ function stopMotion() {
 
 function render(): void {
   if (typeof CSSStyleSheet === "undefined") return;
-  const dither = themeSource ? effectiveThemeDither(themeSource.dither, deviceOverride) : null;
+  const dither =
+    themeSource && deviceEnabled ? effectiveThemeDither(themeSource.dither, deviceOverride) : null;
   if (!dither || !themeSource) {
     stopMotion();
     paintKey = "";
@@ -459,7 +459,10 @@ function render(): void {
   if (!listening) {
     listening = true;
     window.addEventListener("resize", scheduleRender);
-    document.addEventListener("visibilitychange", scheduleRender);
+    // Not via scheduleRender: hidden windows skip animation frames, so motion would never stop.
+    document.addEventListener("visibilitychange", render);
+    reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    reducedMotion.addEventListener("change", render);
   }
   const { colors } = themeSource;
   const animate = dither.motion && motionAllowed();
@@ -499,8 +502,9 @@ export function setThemeDitherSource(dither: ThemeDither | undefined, colors: Th
   render();
 }
 
-/** This device's dither setting, applied over whatever theme is on screen. */
-export function setThemeDitherOverride(override: ThemeDitherOverride): void {
+/** This device's dither settings, applied over whatever theme is on screen. */
+export function setThemeDitherDevice(enabled: boolean, override: ThemeDitherOverride): void {
+  deviceEnabled = enabled;
   deviceOverride = override;
   render();
 }

@@ -67,7 +67,7 @@ export function useCommandPaletteThemeItems() {
     setThemeHalf,
   } = useTheme();
   const themeCards = useThemeCards();
-  const ditherOverride = useClientSettings((settings) => settings.ditherOverride);
+  const ditherOn = useClientSettings((settings) => settings.ditherEnabled);
   const gt = useGT();
   const messages = useMessages();
 
@@ -174,7 +174,6 @@ export function useCommandPaletteThemeItems() {
     },
   };
 
-  const ditherOn = ditherOverride !== "off";
   const ditherItem: CommandPaletteActionItem = {
     kind: "action",
     value: "action:toggle-dither",
@@ -182,9 +181,7 @@ export function useCommandPaletteThemeItems() {
     title: ditherOn ? gt("Turn off dither") : gt("Turn on dither"),
     icon: <GridIcon className={ITEM_ICON_CLASS} />,
     run: async () => {
-      await updateClientSettings({
-        ditherOverride: ditherOn ? "off" : "theme",
-      });
+      await updateClientSettings({ ditherEnabled: !ditherOn });
     },
   };
 
