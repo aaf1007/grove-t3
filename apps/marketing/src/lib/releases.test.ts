@@ -16,20 +16,31 @@ describe("fetchLatestRelease", () => {
     await expect(fetchLatestRelease("stable")).rejects.toThrow("403");
   });
 
-  it("ignores a release cached before the download source moved to Loopy", async () => {
-    const upstream = { tag_name: "v0.0.1", html_url: "", published_at: "", assets: [] };
-    const stored = new Map([["t3code-stable-release", JSON.stringify(upstream)]]);
-    vi.stubGlobal("sessionStorage", {
-      getItem: (key: string) => stored.get(key) ?? null,
-      setItem: (key: string, value: string) => stored.set(key, value),
-    });
-    vi.stubGlobal("fetch", async (url: string) =>
-      Response.json({ ...upstream, tag_name: "v0.1.11", html_url: url, assets: [] }),
-    );
+  it.each(["stable", "nightly"] as const)(
+    "ignores a %s release cached before the download source moved to Loopy",
+    async (channel) => {
+      const release = (tag: string, url: string) => ({
+        tag_name: tag,
+        html_url: url,
+        published_at: "",
+        assets: [],
+      });
+      const stored = new Map([
+        [`t3code-${channel}-release`, JSON.stringify(release("v0.0.1-nightly.1", "upstream"))],
+      ]);
+      vi.stubGlobal("sessionStorage", {
+        getItem: (key: string) => stored.get(key) ?? null,
+        setItem: (key: string, value: string) => stored.set(key, value),
+      });
+      vi.stubGlobal("fetch", async (url: string) => {
+        const latest = release("v0.1.12-nightly.1", url);
+        return Response.json(channel === "nightly" ? [latest] : latest);
+      });
 
-    const release = await fetchLatestRelease("stable");
+      const latest = await fetchLatestRelease(channel);
 
-    expect(release.tag_name).toBe("v0.1.11");
-    expect(release.html_url).toContain("aaf1007/loopy");
-  });
+      expect(latest.tag_name).toBe("v0.1.12-nightly.1");
+      expect(latest.html_url).toContain("aaf1007/loopy");
+    },
+  );
 });
