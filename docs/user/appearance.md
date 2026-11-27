@@ -27,6 +27,21 @@ On desktop for macOS and Windows 11, turn on **Translucent sidebar** in **Settin
 let the desktop behind the window show through the sidebar. The chat area stays solid. **Glass opacity**
 sets how much shows through; at 100% the sidebar is solid.
 
+## Dither
+
+On web and desktop, every theme shows dithered light that spreads across the chat area, brightest
+at the top. In **Settings → Appearance → Dither**, turn it off or choose a pattern, how far the light
+reaches, the pixel size, a color, and which surfaces show it. The setting is saved on each device. In the command palette, **Turn on dither** and **Turn off dither** switch it without opening
+Settings.
+
+Some themes, such as **Bitmap**, come with their own dither. Turning Dither off or changing it on a
+device overrides the theme there; the reset button returns to the theme's dither. For a custom theme,
+**Save to theme** stores your dither in the theme, so it exports and publishes with it.
+
+Dither never makes text harder to read: where the light would lower text contrast, it stays faint.
+**Dither motion** lets the light drift and pulse. It uses more power, pauses while the window is
+hidden, and stays still when your system asks for reduced motion.
+
 ## Composer context
 
 Git-backed projects show branch and worktree controls below the composer while you create a thread.

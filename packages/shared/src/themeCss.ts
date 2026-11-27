@@ -1,3 +1,9 @@
+import {
+  MAX_THEME_DITHER_SCALE,
+  MIN_THEME_DITHER_SCALE,
+  THEME_DITHER_PATTERNS,
+  THEME_DITHER_SURFACES,
+} from "@t3tools/contracts";
 import { THEME_COLOR_ROLES } from "./themePalettes.ts";
 
 const FETCHES_BY_STRING = /image-set\(|\bsrc\(/i;
@@ -104,6 +110,8 @@ export const THEME_GUIDE = [
   "It cannot reach the terminal text, the file tree, or diff internals. Use color roles for those.",
   "Native scrollbars take `::-webkit-scrollbar` and `::-webkit-scrollbar-thumb`.",
   "Icons are `svg.lucide`. stroke-width, stroke-linecap, and stroke-linejoin restyle them.",
+  "",
+  `Dither: \`dither\` tunes the dithered light every theme shows across the app, brightest at the top; leave it out for the default. \`pattern\` is ${THEME_DITHER_PATTERNS.join(", ")}; \`strength\` is 0 to 100 and sets how far the light reaches; \`scale\` is ${MIN_THEME_DITHER_SCALE} to ${MAX_THEME_DITHER_SCALE} pixels per cell; \`color\` is hex, or leave it out for automatic; \`surfaces\` lists ${THEME_DITHER_SURFACES.join(", ")} (default canvas); \`motion\` lets it drift. Clients dim it to keep text readable. Use it instead of CSS for textures. Users can turn it off per device.`,
   "",
   "Stable selectors (other class names change between releases, so do not use them):",
   ...THEME_CSS_HOOKS.map((hook) => `- ${hook.selector}: ${hook.styles}`),

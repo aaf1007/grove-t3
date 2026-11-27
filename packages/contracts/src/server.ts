@@ -26,6 +26,7 @@ import { EditorId, FileManagerRevealKind, RemoteOpenTarget } from "./editor.ts";
 import { ManagedPolicySummary } from "./managedPolicy.ts";
 import { ModelCapabilities, ProviderOptionDescriptor } from "./model.ts";
 import { RuntimeMode } from "./providerPolicy.ts";
+import { ThemeDither } from "./themeDither.ts";
 import { ProviderDriverKind, ProviderInstanceId } from "./providerInstance.ts";
 import { ServerProviderUsageLimits, UsageLimitSourceSnapshots } from "./providerUsageLimits.ts";
 import { ServerSettings } from "./settings.ts";
@@ -657,6 +658,7 @@ const environmentThemeFields = {
   ),
   /** Custom styles for web and desktop clients. */
   css: Schema.optional(Schema.String.check(Schema.isMaxLength(THEME_CSS_MAX_LENGTH))),
+  dither: Schema.optional(ThemeDither),
 };
 
 export const EnvironmentThemeFile = Schema.Struct(environmentThemeFields);

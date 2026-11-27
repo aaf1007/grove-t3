@@ -28,6 +28,7 @@ import { startSlowRpcRequestToasts } from "./components/SlowRpcRequestToastCoord
 import { startThreadNotifications } from "./components/ThreadNotificationCoordinator";
 import { startGuideRunNotifications } from "./components/pullRequest/guide/PullRequestGuideRunCoordinator";
 import { APP_BASE_NAME, APP_DISPLAY_NAME, APP_STAGE_LABEL } from "./branding";
+import { setThemeDitherOverride } from "./themeDither";
 import { resolveServerBackedAppDisplayName, resolveWindowTitle } from "./branding.logic";
 import { isElectron } from "./env";
 import {
@@ -92,6 +93,9 @@ function startClientAppearance(): void {
     }
     if (previous?.appearanceContrast !== settings.appearanceContrast) {
       applyAppearanceContrast(root, settings.appearanceContrast);
+    }
+    if (previous?.ditherOverride !== settings.ditherOverride) {
+      setThemeDitherOverride(settings.ditherOverride);
     }
     if (previous?.glassOpacity !== settings.glassOpacity) {
       root.style.setProperty("--glass-opacity", `${settings.glassOpacity}%`);

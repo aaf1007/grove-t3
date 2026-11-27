@@ -1,5 +1,5 @@
 import { pipe } from "effect/Function";
-import { THEME_CSS_MAX_LENGTH, type EnvironmentTheme } from "@t3tools/contracts";
+import { THEME_CSS_MAX_LENGTH, type EnvironmentTheme, type ThemeDither } from "@t3tools/contracts";
 import * as Equal from "effect/Equal";
 import * as Option from "effect/Option";
 import * as Schema from "effect/Schema";
@@ -8,10 +8,12 @@ import { msg } from "gt-react";
 import "culori/css";
 import { converter, parse } from "culori/fn";
 import {
+  BITMAP_THEME,
   BUILT_IN_THEMES,
   EMBER_THEME,
   GROVE_THEME,
   IRIS_THEME,
+  OTTER_THEME,
   OCEAN_THEME,
   T3_CHAT_THEME,
   T3_CODE_LIGHT_THEME_COLORS,
@@ -34,9 +36,11 @@ import { m } from "./i18n/messages";
 import { appAtomRegistry, subscribeAtomChanges } from "./rpc/atomRegistry";
 import { applyThemeBackground } from "./themeBackground";
 import { applyThemeCss } from "./themeCss";
+import { setThemeDitherSource, themeDitherField } from "./themeDither";
 import { themeServerEnvironmentThemesAtom } from "./state/server";
 
 export { EMBER_THEME, GROVE_THEME, IRIS_THEME, OCEAN_THEME, T3_CHAT_THEME, THEME_COLOR_ROLES };
+export { BITMAP_THEME, OTTER_THEME };
 export type { ThemeAppearance, ThemeColorRole, ThemeColors, ThemeDefinition, ThemeVariants };
 
 const T3_CHAT_THEME_ID = "t3-chat" as const;
@@ -71,6 +75,7 @@ export type ThemeFile = Readonly<{
   collection?: ThemeCollection;
   managed?: boolean;
   css?: string;
+  dither?: ThemeDither;
 }>;
 
 const customThemeListeners = new Set<() => void>();
@@ -195,6 +200,7 @@ function parseStoredTheme(value: unknown): ThemeDefinition | null {
     ...(collection ? { collection } : {}),
     ...(value.managed === true ? { managed: true } : {}),
     ...(isThemeCss(value.css) && value.css.length > 0 ? { css: value.css } : {}),
+    ...themeDitherField(value.dither),
   };
 }
 
@@ -299,6 +305,7 @@ function environmentThemeDefinition(theme: EnvironmentTheme): ThemeDefinition {
       ? { managed: true }
       : {}),
     ...(theme.css ? { css: theme.css } : {}),
+    ...(theme.dither ? { dither: theme.dither } : {}),
   };
 }
 
@@ -1618,6 +1625,7 @@ export function parseThemeFile(value: unknown): ThemeDefinition {
     ...(collection ? { collection } : {}),
     ...(value.managed === true ? { managed: true } : {}),
     ...(value.css ? { css: value.css } : {}),
+    ...themeDitherField(value.dither),
   };
 }
 
@@ -1631,6 +1639,7 @@ export function renameTheme(theme: ThemeDefinition, name: string): ThemeDefiniti
     ...(theme.variants ? { variants: theme.variants } : {}),
     ...(theme.managed ? { managed: true } : {}),
     ...(theme.css ? { css: theme.css } : {}),
+    ...(theme.dither ? { dither: theme.dither } : {}),
   });
 }
 
@@ -1646,6 +1655,7 @@ export function serializeThemeFile(theme: ThemeDefinition): string {
     ...(canonicalTheme.collection ? { collection: canonicalTheme.collection } : {}),
     ...(canonicalTheme.managed ? { managed: true } : {}),
     ...(canonicalTheme.css ? { css: canonicalTheme.css } : {}),
+    ...(canonicalTheme.dither ? { dither: canonicalTheme.dither } : {}),
   };
   return `${JSON.stringify(file, null, 2)}\n`;
 }
@@ -1725,6 +1735,7 @@ export function applyThemeColorPreview(
   colors: ThemeColors,
   appearance: ThemeAppearance,
   css?: string,
+  dither?: ThemeDither,
 ): void {
   if (typeof document === "undefined") return;
   const root = document.documentElement;
@@ -1737,6 +1748,7 @@ export function applyThemeColorPreview(
   }
   applyContextChipVariables(root, colors);
   applyThemeCss(css);
+  setThemeDitherSource(dither, colors);
   setThemePreviewAppearance(appearance);
 }
 
@@ -1759,6 +1771,7 @@ export function applyThemePalette(theme: ThemePreference, appearance?: ThemeAppe
       root.style.setProperty(APP_THEME_VARIABLES[role], value);
     }
     applyContextChipVariables(root, colors);
+    setThemeDitherSource(palette.dither, colors);
     return;
   }
 
@@ -1767,6 +1780,7 @@ export function applyThemePalette(theme: ThemePreference, appearance?: ThemeAppe
     root.style.removeProperty(variable);
   }
   applyContextChipVariables(root, getStandardPaintedThemeColors(appearance ?? "light"));
+  setThemeDitherSource(undefined, getStandardPaintedThemeColors(appearance ?? "light"));
 }
 
 export function resolveThemeAppearance(

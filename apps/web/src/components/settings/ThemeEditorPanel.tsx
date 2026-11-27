@@ -9,6 +9,7 @@ import {
   ChevronUpIcon,
 } from "lucide-react";
 import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import type { ThemeDither } from "@t3tools/contracts";
 import {
   applyThemeColorPreview,
   THEME_COLOR_ROLES,
@@ -361,6 +362,7 @@ export function ThemeEditorPanel({
   >({ light: false, dark: false });
   const [shouldRegenerateGuidedColors, setShouldRegenerateGuidedColors] = useState(false);
   const [css, setCss] = useState("");
+  const [dither, setDither] = useState<ThemeDither | undefined>(undefined);
   const [cssOpen, setCssOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -415,6 +417,7 @@ export function ThemeEditorPanel({
       setShouldRegenerateGuidedColors(sourceTheme !== null && sourceTheme.managed !== true);
       setColorsByAppearance(nextColors);
       setCss(sourceTheme?.css ?? "");
+      setDither(sourceTheme?.dither);
       setCssOpen(Boolean(sourceTheme?.css));
       setSelectedRole(null);
       setUsageCount(null);
@@ -436,6 +439,7 @@ export function ThemeEditorPanel({
   const takenAppearances = mergeTarget ? getThemeModes(mergeTarget) : [];
   // A merge keeps the target's CSS when this draft has none.
   const cssForSave = css.trim() ? css : (mergeTarget?.css ?? "");
+  const ditherForSave = dither ?? mergeTarget?.dither;
   const editableAppearances = editingTheme ? getThemeModes(editingTheme) : null;
 
   const appearanceLockReason = (appearance: ThemeAppearance): string | null => {
@@ -473,8 +477,13 @@ export function ThemeEditorPanel({
   // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- applies the edited colors to the document as a live theme preview while the editor is open
   useEffect(() => {
     if (!open) return;
-    applyThemeColorPreview(colorsByAppearance[activeAppearance], activeAppearance, cssForSave);
-  }, [activeAppearance, colorsByAppearance, cssForSave, open]);
+    applyThemeColorPreview(
+      colorsByAppearance[activeAppearance],
+      activeAppearance,
+      cssForSave,
+      ditherForSave,
+    );
+  }, [activeAppearance, colorsByAppearance, cssForSave, ditherForSave, open]);
 
   // oxlint-disable-next-line t3code/no-unreasoned-state-sync -- restores the document theme when the editor closes or unmounts
   useEffect(() => {
@@ -834,6 +843,7 @@ export function ThemeEditorPanel({
             },
             ...(mergeTarget.managed === true && !isAdvanced ? { managed: true } : {}),
             ...(cssForSave ? { css: cssForSave } : {}),
+            ...(ditherForSave ? { dither: ditherForSave } : {}),
           }),
           ...(mergeTarget.collection ? { collection: mergeTarget.collection } : {}),
         });
@@ -854,6 +864,7 @@ export function ThemeEditorPanel({
               : {}),
             ...(isAdvanced ? {} : { managed: true }),
             ...(cssForSave ? { css: cssForSave } : {}),
+            ...(ditherForSave ? { dither: ditherForSave } : {}),
           }),
           ...(editingTheme.collection ? { collection: editingTheme.collection } : {}),
         });
@@ -880,6 +891,7 @@ export function ThemeEditorPanel({
             },
             ...(mergeTarget.managed === true && !isAdvanced ? { managed: true } : {}),
             ...(cssForSave ? { css: cssForSave } : {}),
+            ...(ditherForSave ? { dither: ditherForSave } : {}),
           }),
           ...(mergeTarget.collection ? { collection: mergeTarget.collection } : {}),
         });
@@ -892,6 +904,7 @@ export function ThemeEditorPanel({
             colors: colorsForSave[activeAppearance],
             ...(isAdvanced ? {} : { managed: true }),
             ...(cssForSave ? { css: cssForSave } : {}),
+            ...(ditherForSave ? { dither: ditherForSave } : {}),
           }),
         );
       }
