@@ -193,12 +193,20 @@ export const SidebarProjectGroupHeader = memo(function SidebarProjectGroupHeader
         <span className="min-w-0 truncate text-sm font-medium text-sidebar-foreground">
           {group.displayName}
         </span>
+        <ChevronRightIcon
+          aria-hidden
+          className={cn(
+            "size-3 shrink-0 text-sidebar-muted-foreground/70 transition-transform",
+            !collapsed && "rotate-90",
+          )}
+        />
         {machineLabel ? (
           <span className="min-w-0 shrink truncate text-xs text-sidebar-muted-foreground">
             {machineLabel}
           </span>
         ) : null}
-        <span className="flex-1" />
+        {/* Keeps the chevron clear of the New thread button on long names. */}
+        <span className="min-w-4 flex-1" />
         {needsYou > 0 ? (
           <span className="flex h-4 min-w-4 shrink-0 items-center justify-center rounded-full bg-warning/15 px-1 text-2xs font-medium tabular-nums text-warning-foreground pointer-fine:group-hover/project-folder:invisible pointer-fine:group-has-[[data-sidebar-action-for]:focus]/project-folder:invisible pointer-coarse:me-6.5">
             {needsYou}{" "}
@@ -209,16 +217,9 @@ export const SidebarProjectGroupHeader = memo(function SidebarProjectGroupHeader
             </span>
           </span>
         ) : null}
-        <ChevronRightIcon
-          aria-hidden
-          className={cn(
-            "size-3 shrink-0 text-sidebar-muted-foreground/70 transition-transform",
-            !collapsed && "rotate-90",
-          )}
-        />
       </button>
       {/* Sits over the count, which hides on hover or focus; touch screens move the count left of it. */}
-      <span className="absolute inset-y-0 right-6 flex items-center opacity-0 focus-within:opacity-100 group-hover/project-folder:opacity-100 pointer-coarse:opacity-100">
+      <span className="absolute inset-y-0 right-1 flex items-center opacity-0 focus-within:opacity-100 group-hover/project-folder:opacity-100 pointer-coarse:opacity-100">
         <Tooltip>
           <TooltipTrigger
             render={
