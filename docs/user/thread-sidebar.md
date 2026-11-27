@@ -162,8 +162,8 @@ section. Unsent drafts sit in their project or under **Threads**, marked **Draft
 when their project isn't in the list.
 
 A row shows a dot instead of its age while the thread has something to tell you: amber when it
-needs you, red when it failed, blue for an unread reply, and a hollow ring while it works. Hover a
-dot to see what it means.
+needs you, red when it failed, solid blue for an unread reply, and a turning blue dashed circle while it
+works. Hover a dot to see what it means.
 
 Click a project to open or close it. A closed project shows how many of its threads need you.
 A new project shows as soon as you add it. Once a project has threads but none of them are
