@@ -1,15 +1,15 @@
+import { CircleDashedIcon } from "lucide-react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 
 import { cn } from "~/lib/utils";
+import { observeVisibleAnimation } from "~/lib/visibleAnimation";
 import { Tooltip, TooltipPopup, TooltipTrigger } from "../ui/tooltip";
 import type { ProjectsLayoutDot } from "./projectsLayout.logic";
 
-// Static on purpose: a working thread can stay working for an hour, and a pulse would repaint all of it.
-const DOT_CLASS_NAME: Record<ProjectsLayoutDot, string> = {
+const DOT_CLASS_NAME: Record<Exclude<ProjectsLayoutDot, "working">, string> = {
   attention: "bg-warning",
   failed: "bg-error",
-  unread: "bg-info",
-  working: "shadow-[inset_0_0_0_1.5px_var(--color-sidebar-muted-foreground)]",
+  unread: "bg-success",
 };
 
 /**
@@ -22,12 +22,22 @@ export function ProjectsLayoutStatusDot(props: {
   dismissLabel?: string;
   onDismiss?: ((event: ReactMouseEvent) => void) | undefined;
 }) {
-  const dot = (
-    <span
-      aria-hidden
-      className={cn("size-[7px] shrink-0 rounded-full", DOT_CLASS_NAME[props.dot])}
-    />
-  );
+  const dot =
+    props.dot === "working" ? (
+      // A working thread can spin for an hour, so the spin is a transform only, paused offscreen
+      // and in hidden tabs, and static under reduced motion.
+      <CircleDashedIcon
+        aria-hidden
+        ref={observeVisibleAnimation}
+        strokeWidth={3}
+        className="size-3 shrink-0 text-info motion-safe:visible-animate-spin"
+      />
+    ) : (
+      <span
+        aria-hidden
+        className={cn("size-[7px] shrink-0 rounded-full", DOT_CLASS_NAME[props.dot])}
+      />
+    );
   return (
     <Tooltip>
       <TooltipTrigger
