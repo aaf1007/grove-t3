@@ -454,13 +454,13 @@
   "9cf0001d0c442fe2": "T3 Connect konnte den Tunnel von {host} nicht erreichen",
   "04ee2bcc0e87f46e": "Loopy auf {host} hat dieses Gerät nicht akzeptiert",
   "3c42b11c76ab8480": "Loopy auf {host} hat nicht geantwortet",
-  "5d11910833c27d35": "Prüfe auf {host} Einstellungen > Freigabe & Zugriff oder führe `t3 connect status` aus.",
+  "c7c55fd470e24ea6": "Prüfe auf {host} Einstellungen > Freigabe & Zugriff oder führe `loopy connect status` aus.",
   "f67753ec91ea05cf": "Verbinde dieses Gerät mit dem Internet. Loopy verbindet sich von selbst neu.",
   "4bc4ac654fbacefb": "Warte einen Moment. Loopy versucht es von selbst erneut.",
   "1142047325fb17b4": "Wenn es weiter wartet, lade Loopy auf diesem Gerät neu oder starte es neu.",
   "570aaeb32dc600a7": "Öffne auf einem Gerät, das bereits mit {host} verbunden ist, Einstellungen > Freigabe & Zugriff und genehmige das Gerät mit dem Code {code}.",
   "08a2d57d02f30799": "Öffne auf einem Gerät, das bereits mit {host} verbunden ist, Einstellungen > Freigabe & Zugriff und genehmige dieses Gerät.",
-  "9cc57bb41f513f35": "Oder führe `t3 auth connect-device approve {code}` auf {host} aus.",
+  "8f5c9b32594fa0dc": "Oder führe `loopy auth connect-device approve {code}` auf {host} aus.",
   "428f3e9585b5138f": "Aktualisiere Loopy auf {host}.",
   "3c35e0980e06bfa6": "Aktiviere automatisches Datum und Uhrzeit auf diesem Gerät und auf {host} und versuche es dann erneut.",
   "0f441d0e53f2e965": "Prüfe, ob dieses Gerät beim selben T3-Connect-Konto angemeldet ist wie der Host.",
@@ -2492,8 +2492,8 @@
   "b25472ef70df9b5d": "Alle aktualisieren",
   "febf4ec3cdcdf372": "Update-Befehl kopiert",
   "bee440d0da53841c": "Neustart-Befehl kopiert",
-  "9e17a8beb64d6130": "Führe `{command}` auf {serverLabel} aus und starte t3 dann mit deinen üblichen Optionen neu.",
-  "218253b96de09d5d": "Stoppe t3 auf {serverLabel} und starte es dann mit `{command}` und demselben Unterbefehl und denselben Optionen neu. Ein installierter t3-Befehl wird dadurch nicht aktualisiert.",
+  "3d101301109ccaff": "Führe `{command}` auf {serverLabel} aus und starte loopy dann mit deinen üblichen Optionen neu.",
+  "ca4a8c881149181b": "Stoppe loopy auf {serverLabel} und starte es dann mit `{command}` und demselben Unterbefehl und denselben Optionen neu. Ein installierter loopy-Befehl wird dadurch nicht aktualisiert.",
   "3cb4fcae1546e2eb": "Update-Befehl konnte nicht kopiert werden",
   "54332a48746c5595": "Die Loopy-Desktop-App aktualisieren, auf der {serverLabel} läuft? Sie wird auf diesem Rechner geschlossen und neu gestartet.",
   "a1581c125ff5ba06": "Update-Befehl kopieren",
@@ -3218,13 +3218,13 @@
   ],
   "c54cc9c75db9dc58": "Genehmige nur eine Anmeldung, die du gerade selbst gestartet hast.",
   "e9f4b93c4ec30453": "Anmeldecode",
-  "4f69730ef78c7962": [
+  "8207b4aef427185c": [
     "Hol dir einen über „Loopy in einer anderen App verwenden (MCP)“, Einstellungen → Freigabe & Zugriff oder",
     " ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3 auth pairing create"
+      "c": "loopy auth pairing create"
     },
     " auf diesem Rechner."
   ],
@@ -5153,7 +5153,7 @@
   "c246e33dafd359cc": "Hinzufügen",
   "b0c1beb79a87d97b": "Autorisierungsanfrage",
   "0311d7ed2b7eb2f6": "Dieser Verbindungslink ist unvollständig",
-  "09e69d04f7e588eb": "Dem Link fehlt die Autorisierungsanfrage. Führe `t3 connect` in deinem Terminal erneut aus und öffne die neu ausgegebene URL.",
+  "efd90058703a59ac": "Dem Link fehlt die Autorisierungsanfrage. Führe `loopy connect` in deinem Terminal erneut aus und öffne die neu ausgegebene URL.",
   "55ee748307f0cd6a": "Browser-Autorisierung",
   "1ccae6b48df9cf15": "Dein Terminal wird verbunden",
   "b3e7da67bc047933": "Weiterleitung zur Autorisierung von T3 Connect für deine CLI…",
@@ -6263,7 +6263,7 @@
     "in diesem Terminal aus."
   ],
   "9d9b9624c7bd95df": "Andere Ordner",
-  "1eb8f3d4695033fb": [
+  "e4d96d273c9c5635": [
     "Zu ",
     {
       "i": 1,
@@ -6275,16 +6275,16 @@
     {
       "t": "code",
       "i": 2,
-      "c": "t3"
+      "c": "loopy"
     },
     " zu verwenden."
   ],
-  "ad72bb102aa39c31": [
+  "363b4b0fa291feee": [
     "Verwende ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3"
+      "c": "loopy"
     },
     " in jedem Terminal. Fügt eine Zeile zu",
     " ",
@@ -7409,7 +7409,7 @@
   "8a333daf9b7fd03f": "Mit {environment} verbinden",
   "7662025844bf543f": "Umgebung hinzufügen",
   "65b1d784a5e84254": "Kopple diesen Rechner erneut über eine andere Adresse, etwa seinen Tailscale-Namen. Er wird den vorhandenen Routen hinzugefügt, statt einen zweiten Rechner anzulegen.",
-  "e1cb1c8599e84e26": "Erstelle auf {environment} einen Kopplungscode, in dessen Einstellungen → Freigabe & Zugriff oder mit `t3 auth pairing create`, und gib ihn hier ein.",
+  "afd320f4f5277688": "Erstelle auf {environment} einen Kopplungscode, in dessen Einstellungen → Freigabe & Zugriff oder mit `loopy auth pairing create`, und gib ihn hier ein.",
   "1bea4864d46d70d0": "Eine weitere Umgebung mit diesem Client koppeln.",
   "9b24ef052b321e57": "Gib einen Backend-Host und einen Kopplungscode ein.",
   "3e20f17f71edf0ad": "Lokale SSH-Konfiguration, Agent und Tunnel für das Backend verwenden.",
@@ -7674,7 +7674,7 @@
   "f818040c75078d53": "Branch-Benennung auf Standard zurücksetzen",
   "2c82cf0bf586ddd8": "Benennung von Worktree-Branches",
   "bff8a0d14cb10f17": "Branch-Präfix",
-  "4e33e869882b8ef3": "Zum Beispiel ergibt t3 oder t3/ den Namen t3/add-search. Leer lassen für kein Präfix.",
+  "dcec878dcb97527a": "Zum Beispiel ergibt loopy oder loopy/ den Namen loopy/add-search. Leer lassen für kein Präfix.",
   "fc32aa5738bccb9a": "Branch-Präfix auf Standard zurücksetzen",
   "452b86cb8c4e0432": "Kein Präfix",
   "abcdead6f7529103": "Anweisungen zur Branch-Benennung",
@@ -8983,7 +8983,7 @@
   "ca4e4015b89ed9a8": "{target} konnte nicht zurück mit {source} verknüpft werden",
   "64ac3d1579ca9f5b": "{source} mit {target} verknüpfen",
   "5f2e20c62a4fece3": "{via} ist mit Vollzugriff mit {target} verknüpft und holt daher den Kopplungscode. Kein Code zum Einfügen nötig.",
-  "fb71127e5746a6bc": "Unter „Freigabe & Zugriff“ dort oder mit t3 pair",
+  "0bab01ce0c8ad3e3": "Unter „Freigabe & Zugriff“ dort oder mit loopy pair",
   "1e3fee7084791773": "Auch {target} zurück mit {source} verknüpfen",
   "ea34a190b0bd804c": "Agenten auf {target} können dann auch auf {source} arbeiten.",
   "974f8c65e8b5f492": "{label} vergessen? Agenten hier arbeiten dort nicht mehr, und ihre Sitzung auf {label} endet ebenfalls, wenn es antwortet.",
@@ -9737,8 +9737,8 @@
   "ae3971c4379c262f": "T3 Connect ist aktiv, aber andere Geräte erreichen diese Umgebung nicht.",
   "8fddf21c28c34154": "T3 Connect ist aktiv. Die Erreichbarkeit wurde noch nicht geprüft.",
   "b2cf3dccd52f02ec": "T3 Connect ist nicht synchron. Diese Umgebung ist nur zum Veröffentlichen der Agentenaktivität verknüpft, daher können sich andere Geräte nicht verbinden. Schalte T3 Connect ein, um das zu reparieren.",
-  "bf1a82ceb6a864f5": "Diese Umgebung wurde aus T3 Connect entfernt. Führe `t3 connect link` auf dem Host aus, um sie erneut zu verknüpfen.",
-  "d94329a3761ef519": "Führe `t3 connect link` auf dem Host aus und starte Loopy dort neu.",
+  "bb04fed6dacc1de8": "Diese Umgebung wurde aus T3 Connect entfernt. Führe `loopy connect link` auf dem Host aus, um sie erneut zu verknüpfen.",
+  "b19c6871688c7b3f": "Führe `loopy connect link` auf dem Host aus und starte Loopy dort neu.",
   "0a3123a6ce981075": "Melde dich an, um Aktivität an mobile Benachrichtigungen und Live-Aktivitäten zu senden.",
   "c42a0de969f4133f": "Aktivität ohne T3 Connect an mobile Benachrichtigungen und Live-Aktivitäten senden.",
   "5f8ca828eca1ce1a": "Agentenaktivität an mobile Clients veröffentlichen",

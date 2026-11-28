@@ -81,9 +81,18 @@ const FULL_NAME = /(?<![/\\])T3(?:\s+|%20)Code\b/g;
 // "T3" alone used as the product name. "T3 team" stays: it names the people reports go to.
 const BARE_NAME =
   /\bT3(?= (?:[Ss]erver|home|threads?|desktop|process|system footprint|operations|tool|requests)\b)/g;
+// The CLI is installed as `loopy`. `t3@version` (the npm package), `t3.json` and `t3.chat` stay.
+const COMMAND =
+  /\bt3(?= (?:pair\b|auth\b|connect(?: link\b| status\b|`)|or t3\/ produces\b))|(?<=or )t3(?=\/ produces)|\bt3(?=\/add-search\b)|(?<=\b(?:restart|Stop|installed) )t3(?= (?:with|on|command)\b)/g;
+// Bare `t3` left in a translation once the English no longer has it.
+const LOCALE_COMMAND = /\bt3\b(?![@.\w])/g;
 // Characters of a test string on each side of the name that must match app copy.
 const CONTEXT = 12;
-const rebrand = (text: string) => text.replace(FULL_NAME, NAME).replace(BARE_NAME, NAME);
+const rebrand = (text: string) =>
+  text.replace(FULL_NAME, NAME).replace(BARE_NAME, NAME).replace(COMMAND, "loopy");
+// The `t3` inside a `<code>` element is a catalog text node of its own.
+const rebrandCatalogText = (text: string) => (text === "t3" ? "loopy" : rebrand(text));
+const hasBareCommand = (text: string) => /\bt3\b(?![@.\w-])/.test(text);
 const hasProductT3 = (text: string) => /\bT3\b(?![\s-](?:Connect|Chat))/.test(text);
 
 const git = (...args: string[]) =>
@@ -165,7 +174,7 @@ function rebrandTokens(
           match,
         ),
     );
-    result += text.slice(cursor, start) + (kept ? token : rebrand(token));
+    result += text.slice(cursor, start) + (kept ? token : rebrandCatalogText(token));
     cursor = end;
   }
   return result + text.slice(cursor);
@@ -263,7 +272,8 @@ for (const file of keptSources.filter((source) => !isTest(source))) {
 }
 for (const file of sources.filter((source) => !isTest(source))) {
   const text = read(file);
-  if (/T3\b|T3%20Code/.test(text)) write(file, text, rebrandTokens(text, copyTokens(file, text)));
+  if (/T3\b|T3%20Code|\bt3\b/.test(text))
+    write(file, text, rebrandTokens(text, copyTokens(file, text)));
 }
 for (const file of sources.filter(isTest)) {
   const text = read(file);
@@ -305,7 +315,7 @@ for (const { app, files, en: oldEn, locales } of snapshots) {
   const previous = new Map<string, string[]>();
   for (const [key, value] of Object.entries(oldEn)) {
     if (Object.hasOwn(newEn, key)) continue;
-    const renamed = allText(mapText(value, rebrand));
+    const renamed = allText(mapText(value, rebrandCatalogText));
     previous.set(renamed, [...(previous.get(renamed) ?? []), key]);
   }
   const moves: Array<readonly [string, string]> = [];
@@ -341,10 +351,13 @@ for (const { app, files, en: oldEn, locales } of snapshots) {
       // Keep a translated bare "T3" when the English still has one, like "the T3 team".
       const keepBare = hasProductT3(allText(newEn[key]!));
       const reflowed =
-        JSON.stringify(mapText(oldEn[oldKey]!, rebrand)) !== JSON.stringify(newEn[key]);
+        JSON.stringify(mapText(oldEn[oldKey]!, rebrandCatalogText)) !== JSON.stringify(newEn[key]);
       return mapText(reflowed ? joinText(translation) : translation, (text) => {
         const named = text.replace(/T3[\s-]Code\b/g, NAME);
-        return keepBare ? named : named.replace(/\bT3\b(?![\s-](?:Connect|Chat))/g, NAME);
+        const product = keepBare ? named : named.replace(/\bT3\b(?![\s-](?:Connect|Chat))/g, NAME);
+        return hasBareCommand(allText(newEn[key]!))
+          ? product
+          : product.replace(LOCALE_COMMAND, "loopy");
       });
     });
   }

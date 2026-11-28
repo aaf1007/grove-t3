@@ -454,13 +454,13 @@
   "9cf0001d0c442fe2": "T3 Connect no pudo acceder al túnel de {host}",
   "04ee2bcc0e87f46e": "Loopy en {host} no aceptó este dispositivo",
   "3c42b11c76ab8480": "Loopy en {host} no respondió",
-  "5d11910833c27d35": "En {host}, revisa Ajustes > Compartir y acceso o ejecuta `t3 connect status`.",
+  "c7c55fd470e24ea6": "En {host}, revisa Ajustes > Compartir y acceso o ejecuta `loopy connect status`.",
   "f67753ec91ea05cf": "Conecta este dispositivo a internet. Loopy se vuelve a conectar solo.",
   "4bc4ac654fbacefb": "Espera un momento. Loopy lo reintenta solo.",
   "1142047325fb17b4": "Si sigue esperando, recarga o reinicia Loopy en este dispositivo.",
   "570aaeb32dc600a7": "En un dispositivo ya conectado a {host}, abre Ajustes > Compartir y acceso y aprueba el dispositivo que muestra {code}.",
   "08a2d57d02f30799": "En un dispositivo ya conectado a {host}, abre Ajustes > Compartir y acceso y aprueba este dispositivo.",
-  "9cc57bb41f513f35": "O ejecuta `t3 auth connect-device approve {code}` en {host}.",
+  "8f5c9b32594fa0dc": "O ejecuta `loopy auth connect-device approve {code}` en {host}.",
   "428f3e9585b5138f": "Actualiza Loopy en {host}.",
   "3c35e0980e06bfa6": "Activa la fecha y hora automáticas en este dispositivo y en {host}, y vuelve a intentarlo.",
   "0f441d0e53f2e965": "Comprueba que este dispositivo ha iniciado sesión en la misma cuenta de T3 Connect que el host.",
@@ -2492,8 +2492,8 @@
   "b25472ef70df9b5d": "Actualizar todo",
   "febf4ec3cdcdf372": "Comando de actualización copiado",
   "bee440d0da53841c": "Comando de reinicio copiado",
-  "9e17a8beb64d6130": "Ejecuta `{command}` en {serverLabel} y reinicia t3 con tus opciones habituales.",
-  "218253b96de09d5d": "Detén t3 en {serverLabel} y vuelve a iniciarlo con `{command}` usando el mismo subcomando y las mismas opciones. Esto no actualiza un comando t3 instalado.",
+  "3d101301109ccaff": "Ejecuta `{command}` en {serverLabel} y reinicia loopy con tus opciones habituales.",
+  "ca4a8c881149181b": "Detén loopy en {serverLabel} y vuelve a iniciarlo con `{command}` usando el mismo subcomando y las mismas opciones. Esto no actualiza un comando loopy instalado.",
   "3cb4fcae1546e2eb": "No se pudo copiar el comando de actualización",
   "54332a48746c5595": "¿Actualizar la app de escritorio de Loopy que ejecuta {serverLabel}? Se cerrará y se volverá a abrir en esa máquina.",
   "a1581c125ff5ba06": "Copiar comando de actualización",
@@ -3217,13 +3217,13 @@
   ],
   "c54cc9c75db9dc58": "Aprueba solo un inicio de sesión que acabes de iniciar.",
   "e9f4b93c4ec30453": "Código de inicio de sesión",
-  "4f69730ef78c7962": [
+  "8207b4aef427185c": [
     "Obtén uno en Usar Loopy en otra app (MCP), Ajustes → Compartir y acceso, o con",
     " ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3 auth pairing create"
+      "c": "loopy auth pairing create"
     },
     " en esta máquina."
   ],
@@ -5151,7 +5151,7 @@
   "c246e33dafd359cc": "Añadir",
   "b0c1beb79a87d97b": "Solicitud de autorización",
   "0311d7ed2b7eb2f6": "Este enlace de conexión está incompleto",
-  "09e69d04f7e588eb": "Al enlace le falta su solicitud de autorización. Vuelve a ejecutar `t3 connect` en tu terminal y abre la URL que se acaba de imprimir.",
+  "efd90058703a59ac": "Al enlace le falta su solicitud de autorización. Vuelve a ejecutar `loopy connect` en tu terminal y abre la URL que se acaba de imprimir.",
   "55ee748307f0cd6a": "Autorización del navegador",
   "1ccae6b48df9cf15": "Conectando tu terminal",
   "b3e7da67bc047933": "Redirigiendo para autorizar T3 Connect para tu CLI…",
@@ -6264,7 +6264,7 @@
     "en esta terminal."
   ],
   "9d9b9624c7bd95df": "Otras carpetas",
-  "1eb8f3d4695033fb": [
+  "e4d96d273c9c5635": [
     "Añadido a ",
     {
       "i": 1,
@@ -6276,16 +6276,16 @@
     {
       "t": "code",
       "i": 2,
-      "c": "t3"
+      "c": "loopy"
     },
     "."
   ],
-  "ad72bb102aa39c31": [
+  "363b4b0fa291feee": [
     "Usa ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3"
+      "c": "loopy"
     },
     " desde cualquier terminal. Añade una línea a",
     " ",
@@ -7410,7 +7410,7 @@
   "8a333daf9b7fd03f": "Conectar con {environment}",
   "7662025844bf543f": "Añadir entorno",
   "65b1d784a5e84254": "Vuelve a emparejar esta máquina con otra dirección, como su nombre de Tailscale. Se une a las rutas existentes en lugar de añadir una segunda máquina.",
-  "e1cb1c8599e84e26": "Crea un código de emparejamiento en {environment}, en sus Ajustes → Compartir y acceso o con `t3 auth pairing create`, e introdúcelo aquí.",
+  "afd320f4f5277688": "Crea un código de emparejamiento en {environment}, en sus Ajustes → Compartir y acceso o con `loopy auth pairing create`, e introdúcelo aquí.",
   "1bea4864d46d70d0": "Empareja otro entorno con este cliente.",
   "9b24ef052b321e57": "Introduce un host de backend y un código de emparejamiento.",
   "3e20f17f71edf0ad": "Usa la configuración SSH local, el agente y los túneles para el backend.",
@@ -7675,7 +7675,7 @@
   "f818040c75078d53": "Restablecer la nomenclatura de ramas al valor predeterminado",
   "2c82cf0bf586ddd8": "Nombres de ramas de los worktrees",
   "bff8a0d14cb10f17": "Prefijo de rama",
-  "4e33e869882b8ef3": "Por ejemplo, t3 o t3/ produce t3/add-search. Déjalo vacío para no usar prefijo.",
+  "dcec878dcb97527a": "Por ejemplo, loopy o loopy/ produce loopy/add-search. Déjalo vacío para no usar prefijo.",
   "fc32aa5738bccb9a": "Restablecer el prefijo de ramas al valor predeterminado",
   "452b86cb8c4e0432": "Sin prefijo",
   "abcdead6f7529103": "Instrucciones para nombrar ramas",
@@ -8981,7 +8981,7 @@
   "ca4e4015b89ed9a8": "No se pudo vincular {target} de vuelta a {source}",
   "64ac3d1579ca9f5b": "Vincular {source} con {target}",
   "5f2e20c62a4fece3": "{via} está vinculado a {target} con acceso total, así que obtiene el código de emparejamiento. No hay que pegar ningún código.",
-  "fb71127e5746a6bc": "Desde Compartir y acceso allí, o t3 pair",
+  "0bab01ce0c8ad3e3": "Desde Compartir y acceso allí, o loopy pair",
   "1e3fee7084791773": "Vincular también {target} de vuelta a {source}",
   "ea34a190b0bd804c": "Los agentes de {target} podrán trabajar también en {source}.",
   "974f8c65e8b5f492": "¿Olvidar {label}? Los agentes de aquí dejan de trabajar allí, y su sesión en {label} también termina si responde.",
@@ -9733,8 +9733,8 @@
   "ae3971c4379c262f": "T3 Connect está activado, pero otros dispositivos no pueden llegar a este entorno.",
   "8fddf21c28c34154": "T3 Connect está activado. Aún no se ha comprobado la accesibilidad.",
   "b2cf3dccd52f02ec": "T3 Connect no está sincronizado. Este entorno solo está vinculado para publicar la actividad de agentes, así que otros dispositivos no pueden conectarse. Activa T3 Connect para repararlo.",
-  "bf1a82ceb6a864f5": "Este entorno se quitó de T3 Connect. Ejecuta `t3 connect link` en el host para volver a vincularlo.",
-  "d94329a3761ef519": "Ejecuta `t3 connect link` en el host y después reinicia Loopy allí.",
+  "bb04fed6dacc1de8": "Este entorno se quitó de T3 Connect. Ejecuta `loopy connect link` en el host para volver a vincularlo.",
+  "b19c6871688c7b3f": "Ejecuta `loopy connect link` en el host y después reinicia Loopy allí.",
   "0a3123a6ce981075": "Inicia sesión para enviar la actividad a las notificaciones móviles y a las Actividades en directo.",
   "c42a0de969f4133f": "Envía la actividad a las notificaciones móviles y a las Actividades en directo sin T3 Connect.",
   "5f8ca828eca1ce1a": "Publicar la actividad de agentes en los clientes móviles",
