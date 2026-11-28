@@ -6,6 +6,9 @@ name: Fork CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
@@ -63,4 +66,4 @@ jobs:
           fi
 
       - name: Check changed files
-        run: vp run check:changed origin/${{ github.base_ref || 'main' }}
+        run: vp run check:changed ${{ github.event_name == 'pull_request' && format('origin/{0}', github.base_ref) || 'HEAD^1' }}
