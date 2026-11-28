@@ -20,6 +20,7 @@ const SOURCE_ROOTS = [
   "apps/web/src",
   "apps/desktop/src",
   "apps/desktop/gnome-extension",
+  "apps/mobile/src",
   "apps/server/src",
   "packages",
 ];
