@@ -410,6 +410,11 @@ export const VoiceTranscriptionDestination = Schema.Union([
 ]);
 export type VoiceTranscriptionDestination = typeof VoiceTranscriptionDestination.Type;
 
+const WorkspaceTourProgress = Schema.Union([
+  Schema.Struct({ status: Schema.Literal("active"), step: Schema.String }),
+  Schema.Struct({ status: Schema.Literals(["completed", "skipped"]) }),
+]);
+
 export const ClientSettingsSchema = Schema.Struct({
   notificationMode: NotificationMode.pipe(
     Schema.withDecodingDefault(Effect.succeed("off" as const)),
@@ -509,6 +514,9 @@ export const ClientSettingsSchema = Schema.Struct({
   fontSmoothing: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   // Older installs also decode to null; onboarding must additionally require an empty workspace.
   onboardingCompletedAt: Schema.NullOr(Schema.String).pipe(
+    Schema.withDecodingDefault(Effect.succeed(null)),
+  ),
+  workspaceTour: Schema.NullOr(WorkspaceTourProgress).pipe(
     Schema.withDecodingDefault(Effect.succeed(null)),
   ),
   persistComposerContextStrip: Schema.Boolean.pipe(
@@ -2109,6 +2117,7 @@ export const ClientSettingsPatch = Schema.Struct({
   environmentIdentificationMode: Schema.optionalKey(EnvironmentIdentificationMode),
   glassOpacity: Schema.optionalKey(GlassOpacity),
   onboardingCompletedAt: Schema.optionalKey(Schema.NullOr(Schema.String)),
+  workspaceTour: Schema.optionalKey(Schema.NullOr(WorkspaceTourProgress)),
   fontSizeInterface: Schema.optionalKey(InterfaceFontSize),
   fontSizePrompt: Schema.optionalKey(PromptFontSize),
   fontSizeCode: Schema.optionalKey(CodeFontSize),

@@ -20,6 +20,13 @@ If T3 Code cannot read your saved settings, it shows **Could not read settings**
 Select **Retry** after storage becomes available. Setup does not replace
 unreadable settings with defaults.
 
+## Guided tour
+
+After first-time setup, Loopy starts a tour of the workspace controls.
+Use **Next** and **Back** to move between steps, or press **Esc** to skip the tour.
+To start it again, choose **Take the tour** from the command palette or go to
+**Settings → About**.
+
 ## Agents
 
 T3 Code lists the agents it found on the computer first, ready ones on top.

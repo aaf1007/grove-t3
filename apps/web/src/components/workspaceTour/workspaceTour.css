@@ -1,0 +1,24 @@
+html:has([data-workspace-tour-step="add-project"]) [data-tour-project-actions] {
+  opacity: 1;
+}
+
+[data-command-palette] > [data-workspace-tour-step] {
+  flex-shrink: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-tour-enter] {
+    animation: workspace-tour-enter 180ms var(--ease-drawer);
+  }
+}
+
+@keyframes workspace-tour-enter {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

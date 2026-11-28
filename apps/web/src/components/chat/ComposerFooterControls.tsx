@@ -60,6 +60,7 @@ export const ComposerFooterModeControls = memo(function ComposerFooterModeContro
               render={
                 <ComposerControl
                   ref={permissionsChipRef}
+                  data-tour="permissions"
                   data-composer-shortcut="composer.mode"
                   size={size}
                   // Mirrors the model trigger's trailing pe-1 so the gaps on both sides of the chip match.

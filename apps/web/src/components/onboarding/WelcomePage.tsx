@@ -193,7 +193,7 @@ export function WelcomePage({
     }
 
     holdPageRef.current = true;
-    const completion = completeOnboarding()
+    const completion = completeOnboarding({ startTour: true })
       .then(async () => {
         if (completionErrorToastIdRef.current !== null) {
           toastManager.close(completionErrorToastIdRef.current);

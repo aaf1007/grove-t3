@@ -100,6 +100,7 @@ export function SidebarThreadHeader({
         {hasProjects ? projectScope : null}
         <SidebarHeaderIconButton
           label={gt("New thread")}
+          data-tour="new-thread"
           tooltip={
             showNewThreadInProjectHint ? (
               <span className="flex flex-col gap-0.5">

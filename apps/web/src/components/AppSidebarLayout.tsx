@@ -404,6 +404,7 @@ function SidebarControl({ showSidebar }: { readonly showSidebar: boolean }) {
                   isSidebarVisible && stageBackdropVariant && "relative top-auto translate-y-0",
                 )}
                 aria-label={gt("Toggle main sidebar")}
+                data-tour="sidebar-toggle"
               />
             }
           />

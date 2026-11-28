@@ -46,6 +46,7 @@ export function ProjectsLayoutStatusDot(props: {
             <button
               type="button"
               aria-label={props.dismissLabel ?? props.label}
+              data-tour="status"
               onClick={props.onDismiss}
               className="inline-flex size-4 cursor-pointer items-center justify-center rounded-sm outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
             />
@@ -53,6 +54,7 @@ export function ProjectsLayoutStatusDot(props: {
             <span
               role="img"
               aria-label={props.label}
+              data-tour="status"
               className="inline-flex size-4 items-center justify-center"
             />
           )

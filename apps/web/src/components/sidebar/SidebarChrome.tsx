@@ -206,17 +206,19 @@ function SidebarUtilityItem({
   icon,
   label,
   onClick,
+  tour,
 }: {
   icon: ReactNode;
   label: string;
   onClick: () => void;
+  tour?: string;
 }) {
   return (
     <SidebarMenuItem className="shrink-0">
       <Tooltip>
         <TooltipTrigger
           render={
-            <SidebarMenuButton aria-label={label} onClick={onClick} size="icon">
+            <SidebarMenuButton aria-label={label} onClick={onClick} size="icon" data-tour={tour}>
               {icon}
             </SidebarMenuButton>
           }
@@ -286,6 +288,7 @@ const SidebarUtilityMenu = memo(function SidebarUtilityMenu() {
           <SidebarUtilityItem
             icon={<SettingsIcon />}
             label={gt("Settings")}
+            tour="settings"
             onClick={handleSettingsClick}
           />
           {pullRequestsSupported ? (
