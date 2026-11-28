@@ -130,6 +130,10 @@ The native lint task runs SwiftLint for Swift plus ktlint and detekt for Kotlin.
 
 ## EAS Builds
 
+Loopy has no Expo project or Apple team built in. Set `T3CODE_EAS_OWNER` and
+`T3CODE_EAS_PROJECT_ID` (from `eas init`) to build with EAS and receive OTA updates, and
+`T3CODE_APPLE_TEAM_ID` to sign for a paid Apple team. Without a project ID, OTA updates are off.
+
 Preview and production variants use Expo fingerprinting so OTA updates only reach binaries with matching native dependencies, config plugins, and patches. CI uses the `preview:dev` profile to reuse a compatible native build when possible.
 
 The development variant uses `appVersion` to avoid recalculating the native fingerprint for each Metro launch manifest. `MOBILE_VERSION_POLICY` can override either default. If you distribute a custom Release build with the development identity and publish OTA updates to it, set `MOBILE_VERSION_POLICY=fingerprint` for both its build and updates. Changing the runtime policy requires a native rebuild for OTA matching; an existing dev client can still load local Metro bundles.

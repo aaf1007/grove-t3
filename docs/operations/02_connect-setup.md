@@ -32,7 +32,7 @@ Create a Clerk JWT template named `t3-relay` with `{ "aud": "t3-code-relay" }`. 
 
 ### Desktop OAuth redirects
 
-Enable Clerk's Native API, add `t3code-dev://app/` and `t3code://app/` to the SSO redirect allowlist, and add `t3code-dev://app` and `t3code://app` to `allowed_origins` via `PATCH https://api.clerk.com/v1/instance` (preserving existing entries).
+Enable Clerk's Native API, add `loopy-dev://app/` and `loopy://app/` to the SSO redirect allowlist, and add `loopy-dev://app` and `loopy://app` to `allowed_origins` via `PATCH https://api.clerk.com/v1/instance` (preserving existing entries).
 
 ### Android native sign-in redirects
 
@@ -40,9 +40,9 @@ In Clerk **Native applications > Allowlist for mobile SSO redirect**, allow each
 
 | Variant     | Callback                                      |
 | ----------- | --------------------------------------------- |
-| Development | `clerk://com.t3tools.t3code.dev.callback`     |
-| Preview     | `clerk://com.t3tools.t3code.preview.callback` |
-| Production  | `clerk://com.t3tools.t3code.callback`         |
+| Development | `clerk://dev.buildloopy.app.dev.callback`     |
+| Preview     | `clerk://dev.buildloopy.app.preview.callback` |
+| Production  | `clerk://dev.buildloopy.app.callback`         |
 
 ### Restricting sign-ups
 
@@ -52,7 +52,7 @@ Use Clerk's allowlist or Restricted mode for new sign-ups (an enabled empty allo
 
 The relay sends Android push notifications directly via FCM HTTP v1 (no Expo Push account required):
 
-1. Register each Android package (`com.t3tools.t3code.{dev,preview}` / `com.t3tools.t3code`) in Firebase and download `google-services.json`.
+1. Register each Android package (`dev.buildloopy.app.{dev,preview}` / `dev.buildloopy.app`) in Firebase and download `google-services.json`.
 2. Pass `T3CODE_ANDROID_GOOGLE_SERVICES_FILE=/abs/path/google-services.json` when prebuilding/building locally or as an EAS file variable (available to fingerprint generation as well).
 3. Enable the FCM API and store the Firebase service-account JSON only in the relay's `FCM_SERVICE_ACCOUNT` secret (never in EAS app env or the repo). Set `APNS_ENABLED=false` for an Android-only relay stage.
 4. For local smoke/watch verification without deploying a relay, use `vp run push:android:smoke` and `vp run push:android:watch` from `infra/relay`.

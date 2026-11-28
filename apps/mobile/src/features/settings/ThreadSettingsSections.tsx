@@ -62,7 +62,7 @@ export function SettingsLabsRouteScreen() {
           capability="fastWorktreeCheckout"
           setting="fastWorktreeCheckout"
           description={gt(
-            "On a Mac, clone new worktrees from a checkout cached in the T3 home folder instead of writing every file. Uses Git’s normal checkout when it can’t. Turning it off deletes the cache.",
+            "On a Mac, clone new worktrees from a checkout cached in the Loopy home folder instead of writing every file. Uses Git’s normal checkout when it can’t. Turning it off deletes the cache.",
           )}
         />
         <AgentFeedbackSection />
@@ -280,7 +280,7 @@ const AGENT_FEEDBACK_CHOICES: ReadonlyArray<{
   {
     mode: "auto",
     label: msg("Automatic"),
-    description: msg("Agents also report T3 Code problems they hit on their own."),
+    description: msg("Agents also report Loopy problems they hit on their own."),
   },
 ];
 
