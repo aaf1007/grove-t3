@@ -1066,7 +1066,9 @@ export function resolveWindowsServerAsarIgnoreGlobs(arch: typeof BuildArch.Type)
   ];
 }
 
-export const WINDOWS_PACKAGED_PAYLOAD_FILE_LIMIT = 80;
+// Upstream cross-builds Windows on Linux, where no server compile cache is made.
+// A native Windows build adds about 40 cache files.
+export const WINDOWS_PACKAGED_PAYLOAD_FILE_LIMIT = 120;
 export const WINDOWS_SERVER_RESOURCE_SOURCE_DIR = "apps/desktop/prod-resources/windows-server";
 export const WINDOWS_SERVER_EXTRA_RESOURCES = [
   {

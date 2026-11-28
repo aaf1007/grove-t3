@@ -2,11 +2,12 @@ name: Loopy Release
 
 # Fork-only, so upstream merges never touch it. Upstream's release workflows
 # stay disabled here: they need Blacksmith runners and upstream accounts.
-# A `v*.*.*` tag builds macOS apps for arm64 and x64 and attaches them, with
-# the merged updater manifest, to a draft release. Tag builds are ad-hoc signed
-# unless the LOOPY_SIGNED_RELEASES repository variable is `true`, which makes
-# them signed and notarized. A manual run is an unsigned dry run whose output
-# stays in workflow artifacts.
+# A `v*.*.*` tag builds macOS (arm64, x64), Linux (AppImage and deb, x64 and
+# arm64) and Windows (x64 installer) apps and attaches them, with the updater
+# manifests, to a draft release. macOS tag builds are ad-hoc signed unless the
+# LOOPY_SIGNED_RELEASES repository variable is `true`, which makes them signed
+# and notarized. Linux and Windows builds are unsigned. A manual run is an
+# unsigned dry run whose output stays in workflow artifacts.
 # Runbook: docs/operations/06_loopy-release.md.
 
 on:
@@ -83,19 +84,47 @@ jobs:
           fi
 
   build:
-    name: Build macOS ${{ matrix.arch }}
+    name: Build ${{ matrix.label }}
     needs: preflight
-    # Both architectures build on Apple Silicon; x64 is cross-built, as upstream
-    # does. The Apple Speech helper needs the macOS 26 SDK.
-    runs-on: macos-26
-    timeout-minutes: 60
+    # Both Mac architectures build on Apple Silicon; x64 is cross-built, as
+    # upstream does. The Apple Speech helper needs the macOS 26 SDK. Linux and
+    # Windows build natively on their own architecture.
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
     strategy:
+      fail-fast: false
       matrix:
         include:
-          - arch: arm64
+          - label: macOS arm64
+            runner: macos-26
+            platform: mac
+            target: dmg
+            arch: arm64
             rust_target: aarch64-apple-darwin
-          - arch: x64
+          - label: macOS x64
+            runner: macos-26
+            platform: mac
+            target: dmg
+            arch: x64
             rust_target: x86_64-apple-darwin
+          - label: Linux x64
+            runner: ubuntu-24.04
+            platform: linux
+            target: AppImage
+            arch: x64
+            rust_target: x86_64-unknown-linux-gnu
+          - label: Linux arm64
+            runner: ubuntu-24.04-arm
+            platform: linux
+            target: AppImage
+            arch: arm64
+            rust_target: aarch64-unknown-linux-gnu
+          - label: Windows x64
+            runner: windows-2025
+            platform: win
+            target: nsis
+            arch: x64
+            rust_target: x86_64-pc-windows-msvc
     env:
       VERSION: ${{ needs.preflight.outputs.version }}
       SIGNED: ${{ needs.preflight.outputs.signed }}
@@ -114,11 +143,15 @@ jobs:
         with:
           install-args: --filter=t3... --filter=@t3tools/web... --filter=@t3tools/desktop... --filter=@t3tools/scripts...
           # Both jobs install the same store on the same runner type.
-          save-pnpm-store: ${{ matrix.arch == 'arm64' }}
+          save-pnpm-store: ${{ matrix.label == 'macOS arm64' }}
+
+      - name: Install Linux build tools
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev pkg-config imagemagick
 
       # The x64 build runs x64 Electron to generate the server's bytecode cache.
       - name: Ensure Rosetta
-        if: matrix.arch == 'x64'
+        if: matrix.platform == 'mac' && matrix.arch == 'x64'
         shell: bash
         run: |
           if ! /usr/bin/arch -x86_64 /usr/bin/true; then
@@ -146,8 +179,9 @@ jobs:
           APPLE_API_ISSUER: ${{ needs.preflight.outputs.signed == 'true' && secrets.APPLE_API_ISSUER || '' }}
         run: |
           set -euo pipefail
-          args=(--platform mac --target dmg --arch "${{ matrix.arch }}" --build-version "$VERSION" --verbose)
-          if [[ "$SIGNED" == "true" ]]; then
+          args=(--platform "${{ matrix.platform }}" --target "${{ matrix.target }}" --arch "${{ matrix.arch }}" --build-version "$VERSION" --verbose)
+          [[ "${{ matrix.platform }}" == "win" ]] && args+=(--keep-stage)
+          if [[ "$SIGNED" == "true" && "${{ matrix.platform }}" == "mac" ]]; then
             # electron-builder's notarization reads the API key from a file.
             key_path="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY_ID}.p8"
             (umask 077 && printf '%s' "$APPLE_API_KEY" > "$key_path")
@@ -155,6 +189,11 @@ jobs:
             args+=(--signed)
           fi
           vp run dist:desktop:artifact "${args[@]}"
+
+      - name: List Windows payload files
+        if: failure() && matrix.platform == 'win'
+        shell: bash
+        run: find "$RUNNER_TEMP" "$TEMP" -path '*-unpacked/*' -type f 2>/dev/null | sed 's|.*-unpacked/||' | sort | uniq -c | sort -rn | head -120
 
       # .env.example holds T3's public Clerk and relay ids, and upstream's
       # preview builds copy it in. Loopy must never ship them.
@@ -176,7 +215,7 @@ jobs:
           done
 
       - name: Verify signature and notarization
-        if: env.SIGNED == 'true'
+        if: env.SIGNED == 'true' && matrix.platform == 'mac'
         shell: bash
         env:
           APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
@@ -203,11 +242,11 @@ jobs:
           set -euo pipefail
           shopt -s nullglob
           mkdir -p release-publish
-          for file in release/*.dmg release/*.zip release/*.blockmap release/*.yml; do
+          for file in release/*.dmg release/*.zip release/*.AppImage release/*.deb release/*.exe release/*.blockmap release/*.yml; do
             [[ "$file" == */builder-debug.yml ]] && continue
             cp "$file" release-publish/
           done
-          if [[ "${{ matrix.arch }}" == "x64" ]]; then
+          if [[ "${{ matrix.platform }}" == "mac" && "${{ matrix.arch }}" == "x64" ]]; then
             for manifest in release-publish/*-mac.yml; do
               mv "$manifest" "${manifest%.yml}-x64.yml"
             done
@@ -217,7 +256,7 @@ jobs:
       - name: Upload build artifacts
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: desktop-mac-${{ matrix.arch }}
+          name: desktop-${{ matrix.platform }}-${{ matrix.arch }}
           path: release-publish/*
           if-no-files-found: error
           # Installers, zips and blockmaps are already compressed.
@@ -248,7 +287,7 @@ jobs:
       - name: Download desktop artifacts
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
-          pattern: desktop-mac-*
+          pattern: desktop-*
           merge-multiple: true
           path: release-assets
 
@@ -290,6 +329,9 @@ jobs:
           files: |
             release-assets/*.dmg
             release-assets/*.zip
+            release-assets/*.AppImage
+            release-assets/*.deb
+            release-assets/*.exe
             release-assets/*.blockmap
             release-assets/*.yml
           fail_on_unmatched_files: true
