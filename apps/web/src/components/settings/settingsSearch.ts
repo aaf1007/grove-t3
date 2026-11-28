@@ -502,6 +502,12 @@ export const SETTINGS_SEARCH_ITEMS = [
     searchTerms: [msg("animate animation drift move")],
   },
   {
+    id: "dither-speed",
+    title: msg("Dither speed"),
+    to: "/settings/appearance",
+    searchTerms: [msg("animation drift motion fast slow")],
+  },
+  {
     id: "word-wrap",
     title: msg("Word wrap"),
     to: "/settings/appearance",

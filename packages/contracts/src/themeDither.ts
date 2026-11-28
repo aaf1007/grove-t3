@@ -4,13 +4,15 @@ export const THEME_DITHER_PATTERNS = ["bayer", "dots", "noise", "lines"] as cons
 export const THEME_DITHER_SURFACES = ["canvas", "sidebar", "panels"] as const;
 export const MIN_THEME_DITHER_SCALE = 1;
 export const MAX_THEME_DITHER_SCALE = 4;
+export const MIN_THEME_DITHER_SPEED = 25;
+export const MAX_THEME_DITHER_SPEED = 300;
 
 export const ThemeDitherPattern = Schema.Literals(THEME_DITHER_PATTERNS);
 export type ThemeDitherPattern = typeof ThemeDitherPattern.Type;
 export const ThemeDitherSurface = Schema.Literals(THEME_DITHER_SURFACES);
 export type ThemeDitherSurface = typeof ThemeDitherSurface.Type;
 
-/** Dithered light across a theme's surfaces on web and desktop, brightest at the top. */
+/** Dithered light along the top of a theme's surfaces on web and desktop, clear below the middle. */
 export const ThemeDither = Schema.Struct({
   pattern: ThemeDitherPattern,
   /** Percent: how far and how densely the light reaches. Clients dim it to keep text contrast. */
@@ -26,6 +28,12 @@ export const ThemeDither = Schema.Struct({
   surfaces: Schema.optional(Schema.Array(ThemeDitherSurface)),
   /** Lets the light drift and pulse, repainted at a capped frame rate. */
   motion: Schema.optional(Schema.Boolean),
+  /** Percent of the default drift speed. */
+  speed: Schema.optional(
+    Schema.Int.check(
+      Schema.isBetween({ minimum: MIN_THEME_DITHER_SPEED, maximum: MAX_THEME_DITHER_SPEED }),
+    ),
+  ),
 });
 export type ThemeDither = typeof ThemeDither.Type;
 

@@ -541,7 +541,7 @@ export const ClientSettingsSchema = Schema.Struct({
   /** Sidebar layout: true groups threads by project, false is the Inbox. Loopy defaults to Projects. */
   boringSidebarEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   /** Desktop only: the OS draws the sidebar's background (macOS vibrancy, Windows 11 acrylic). */
-  sidebarTranslucent: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
+  sidebarTranslucent: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   /** Kept apart from `ditherOverride` so turning dither off and on keeps a custom dither. */
   ditherEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   ditherOverride: ThemeDitherOverride.pipe(
