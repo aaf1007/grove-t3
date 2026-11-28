@@ -16,6 +16,7 @@ import {
   IRIS_THEME,
   OTTER_THEME,
   BITMAP_THEME,
+  CARBON_THEME,
   OCEAN_THEME,
   THEME_APPEARANCE_MODE_STORAGE_KEY,
   THEME_FOLLOW_SYSTEM_STORAGE_KEY,
@@ -320,6 +321,7 @@ describe("index.html boot script", () => {
       IRIS_THEME,
       OTTER_THEME,
       BITMAP_THEME,
+      CARBON_THEME,
     ]) {
       expect(theme.appearance).toBe("light");
       for (const mode of ["light", "dark"] as const) {

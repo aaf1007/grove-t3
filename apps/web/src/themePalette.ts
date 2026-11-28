@@ -10,6 +10,7 @@ import { converter, parse } from "culori/fn";
 import {
   BITMAP_THEME,
   BUILT_IN_THEMES,
+  CARBON_THEME,
   EMBER_THEME,
   GROVE_THEME,
   IRIS_THEME,
@@ -40,7 +41,7 @@ import { setThemeDitherSource, themeDitherField } from "./themeDither";
 import { themeServerEnvironmentThemesAtom } from "./state/server";
 
 export { EMBER_THEME, GROVE_THEME, IRIS_THEME, OCEAN_THEME, T3_CHAT_THEME, THEME_COLOR_ROLES };
-export { BITMAP_THEME, OTTER_THEME };
+export { BITMAP_THEME, CARBON_THEME, OTTER_THEME };
 export type { ThemeAppearance, ThemeColorRole, ThemeColors, ThemeDefinition, ThemeVariants };
 
 const T3_CHAT_THEME_ID = "t3-chat" as const;

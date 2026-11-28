@@ -12,5 +12,7 @@
   "otter-light",
   "otter-dark",
   "bitmap-light",
-  "bitmap-dark"
+  "bitmap-dark",
+  "carbon-light",
+  "carbon-dark"
 ]
