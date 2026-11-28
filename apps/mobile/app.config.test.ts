@@ -18,6 +18,8 @@ afterEach(() => {
 async function loadConfig(variant: string | undefined, env: Record<string, string> = {}) {
   vi.resetModules();
   vi.stubEnv("APP_VARIANT", variant);
+  vi.stubEnv("EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY", undefined);
+  vi.stubEnv("T3CODE_EAS_PROJECT_ID", undefined);
   for (const [name, value] of Object.entries(env)) vi.stubEnv(name, value);
   return (await import("./app.config.ts")).default;
 }
