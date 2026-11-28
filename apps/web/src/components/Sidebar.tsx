@@ -3597,6 +3597,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
       <SidebarChromeHeader isElectron={isElectron} />
       <SidebarContent
         ref={sidebarContentRef}
+        data-tour="projects"
         className="min-h-full"
         fixedHeader={
           <SidebarGroup className="z-[1]">
@@ -3737,6 +3738,7 @@ export default function Sidebar({ routeReveal }: { routeReveal: SidebarRouteReve
                   <button
                     type="button"
                     onClick={openAddProjectCommandPalette}
+                    data-tour="add-project"
                     className="inline-flex cursor-pointer items-center gap-1.5 rounded-md border border-sidebar-border px-2.5 py-1 text-2xs font-medium text-sidebar-muted-foreground transition-colors hover:bg-sidebar-row-hover hover:text-sidebar-foreground"
                   >
                     <PlusIcon className="-mx-0.5 size-3" />

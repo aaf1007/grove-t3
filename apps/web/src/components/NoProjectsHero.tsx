@@ -39,7 +39,11 @@ export function NoProjectsHero() {
                   : gt("Add a project, or start without one.")}
               </EmptyDescription>
               <div className="mt-6 flex justify-center gap-2">
-                <Button size="sm" onClick={() => openCommandPalette({ open: "add-project" })}>
+                <Button
+                  size="sm"
+                  data-tour="add-project"
+                  onClick={() => openCommandPalette({ open: "add-project" })}
+                >
                   <PlusIcon className="size-4" />
                   <T>Add project</T>
                 </Button>

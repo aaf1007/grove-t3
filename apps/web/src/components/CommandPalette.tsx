@@ -1,6 +1,10 @@
 import { thrownErrorMessage } from "@t3tools/client-runtime/errors";
 import { decodeMsg, msg, T, useGT, useMessages, Var } from "gt-react";
 import { m, type MessageResolver } from "../i18n/messages";
+import {
+  WorkspaceTourPaletteContext,
+  useReplayWorkspaceTour,
+} from "./workspaceTour/workspaceTourState";
 import { ThreadContextDragGhost } from "./chat/ThreadContextDragGhost";
 import { threadPullRequestLinkMode } from "@t3tools/client-runtime/thread-pull-request-compatibility";
 import { visibleThreadPullRequests } from "@t3tools/shared/threadPullRequests";
@@ -62,6 +66,7 @@ import { useLocation, useNavigate } from "@tanstack/react-router";
 import {
   ArrowLeftIcon,
   BellDotIcon,
+  CompassIcon,
   BugIcon,
   ChartNoAxesColumnIcon,
   CheckIcon,
@@ -90,6 +95,7 @@ import { openThreadFind } from "./chat/threadFindStore";
 import { dispatchPreviewAction } from "./preview/previewActionBus";
 import { previewBridge } from "./preview/previewBridge";
 import {
+  useContext,
   useDeferredValue,
   useEffect,
   useId,
@@ -333,6 +339,7 @@ const NEW_THREAD_NO_PROJECT_VALUE = "new-thread-in:no-project";
 
 export function CommandPalette({ children }: { children: ReactNode }) {
   useCommandPaletteMount();
+  const tour = useContext(WorkspaceTourPaletteContext);
   const state = useCommandPaletteStore();
   const setOpen = (open: boolean) => dispatchCommandPalette({ _tag: "SetOpen", open });
   const openChildSearch = (mode: "files" | "content", context: CommandPaletteReturnContext) =>
@@ -343,8 +350,12 @@ export function CommandPalette({ children }: { children: ReactNode }) {
     <ComposerHandleContext value={composerHandleRef}>
       <ThreadContextDragGhost />
       <CommandDialog
-        open={state.open}
+        open={state.open || tour !== null}
         onOpenChange={(open, eventDetails) => {
+          if (tour !== null) {
+            if (!open && eventDetails.reason === "escape-key") tour.onSkip();
+            return;
+          }
           if (!open && eventDetails.reason === "escape-key" && state.mode !== "command") {
             eventDetails.cancel();
             dispatchCommandPalette({ _tag: "BackToCommand" });
@@ -353,11 +364,12 @@ export function CommandPalette({ children }: { children: ReactNode }) {
           setOpen(open);
         }}
       >
-        <div className="contents" inert={state.open}>
+        <div className="contents" inert={state.open || tour !== null}>
           {children}
         </div>
         <CommandPaletteDialog
-          mode={state.mode}
+          mode={tour ? "command" : state.mode}
+          tourCard={tour?.card}
           session={state.session}
           openIntent={state.openIntent}
           setOpen={setOpen}
@@ -370,6 +382,7 @@ export function CommandPalette({ children }: { children: ReactNode }) {
 }
 
 function CommandPaletteDialog(props: {
+  readonly tourCard?: ReactNode;
   readonly mode: SearchOverlayMode;
   readonly session: number;
   readonly openIntent: CommandPaletteOpenIntent | null;
@@ -392,11 +405,21 @@ function CommandPaletteDialog(props: {
             ? gt("Search project contents")
             : gt("Command palette")
       }
-      className={cn("overflow-hidden", props.mode === "content" && "h-105")}
+      className={cn(
+        "overflow-hidden",
+        props.tourCard && "max-h-full",
+        props.mode === "content" && "h-105",
+      )}
       data-command-palette="true"
       data-palette-mode={props.mode}
       data-testid="command-palette"
+      {...(props.tourCard
+        ? {
+            initialFocus: () => document.querySelector<HTMLElement>("[data-workspace-tour-step]"),
+          }
+        : {})}
       finalFocus={() => {
+        if (props.tourCard) return false;
         if (restoreWorkspaceFocusFromPalette()) return false;
         const returnFocus = getCommandPaletteReturnFocus();
         if (returnFocus === false) return false;
@@ -407,22 +430,28 @@ function CommandPaletteDialog(props: {
         return false;
       }}
       onBackdropPointerDown={() => {
-        props.setOpen(false);
+        if (!props.tourCard) props.setOpen(false);
       }}
     >
-      {props.mode === "files" ? (
-        <ProjectFilePicker setOpen={props.setOpen} />
-      ) : props.mode === "content" ? (
-        <ProjectContentSearchDialog onOpenChange={props.setOpen} />
-      ) : (
-        <OpenCommandPaletteDialog
-          key={props.session}
-          openIntent={props.openIntent}
-          setOpen={props.setOpen}
-          openChildSearch={props.openChildSearch}
-          initialContext={props.initialContext}
-        />
-      )}
+      <div
+        className={props.tourCard ? "min-h-0 overflow-hidden shrink" : "contents"}
+        inert={Boolean(props.tourCard)}
+      >
+        {props.mode === "files" ? (
+          <ProjectFilePicker setOpen={props.setOpen} />
+        ) : props.mode === "content" ? (
+          <ProjectContentSearchDialog onOpenChange={props.setOpen} />
+        ) : (
+          <OpenCommandPaletteDialog
+            key={props.session}
+            openIntent={props.openIntent}
+            setOpen={props.setOpen}
+            openChildSearch={props.openChildSearch}
+            initialContext={props.initialContext}
+          />
+        )}
+      </div>
+      {props.tourCard}
     </CommandDialogPopup>
   );
 }
@@ -439,6 +468,7 @@ function OpenCommandPaletteDialog(props: {
   const gt = useGT();
   const messages = useMessages();
   const navigate = useNavigate();
+  const replayWorkspaceTour = useReplayWorkspaceTour();
   const pathname = useLocation({ select: (location) => location.pathname });
   const { openChildSearch, setOpen } = props;
   // Keyed by palette session: the intent and restored search only seed this
@@ -1772,6 +1802,15 @@ function OpenCommandPaletteDialog(props: {
       },
     });
   }
+
+  actionItems.push({
+    kind: "action",
+    value: "action:workspace-tour",
+    title: gt("Take the tour"),
+    searchTerms: ["onboarding", "guide", "walkthrough"],
+    icon: <CompassIcon className={ITEM_ICON_CLASS} />,
+    run: replayWorkspaceTour,
+  });
 
   actionItems.push({
     kind: "action",

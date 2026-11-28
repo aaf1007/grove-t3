@@ -109,13 +109,18 @@ export function SidebarProjectsHeading(props: {
         <T context="sidebar heading">Projects</T>
       </span>
       <span
+        data-tour-project-actions=""
         className={cn(
           "flex items-center opacity-0 group-hover/projects-heading:opacity-100 focus-within:opacity-100 has-data-popup-open:opacity-100 pointer-coarse:opacity-100",
           props.filterActive && "opacity-100",
         )}
       >
         {props.filter}
-        <ProjectsHeadingIconButton label={gt("Add project")} onClick={props.onAddProject}>
+        <ProjectsHeadingIconButton
+          label={gt("Add project")}
+          data-tour="add-project"
+          onClick={props.onAddProject}
+        >
           <PlusIcon aria-hidden />
         </ProjectsHeadingIconButton>
       </span>

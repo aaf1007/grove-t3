@@ -249,7 +249,7 @@ function ConfiguredConnectOnboardingDialog() {
         if (!open && !isApplying) complete();
       }}
     >
-      <WizardPopup>
+      <WizardPopup onboardingStep={step}>
         <WizardHeader
           title={gt("Set up T3 Connect")}
           description={

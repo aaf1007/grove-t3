@@ -92,6 +92,7 @@ export const PanelLayoutControls = memo(function PanelLayoutControls({
     <div
       className="flex h-full shrink-0 items-center gap-1 [-webkit-app-region:no-drag]"
       data-panel-layout-controls
+      data-tour="panels"
     >
       {showThreadPanelControl ? threadPanelControl : null}
       {showTerminalControl ? (

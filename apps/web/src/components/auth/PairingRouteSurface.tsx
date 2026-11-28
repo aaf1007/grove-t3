@@ -20,7 +20,7 @@ import { m, type MessageResolver } from "../../i18n/messages";
 export function PairingPendingSurface() {
   const gt = useGT();
   return (
-    <StandalonePage>
+    <StandalonePage onboarding>
       <StandalonePageHeader
         title={gt("Pairing with this environment")}
         description={gt("Validating the pairing link and preparing your session.")}
@@ -88,7 +88,7 @@ export function PairingRouteSurface({
   }, [autoPairToken]);
 
   return (
-    <StandalonePage>
+    <StandalonePage onboarding>
       <StandalonePageHeader
         title={gt("Pair with this environment")}
         description={describeAuthGate(auth.bootstrapMethods, messages)}
@@ -222,7 +222,7 @@ export function HostedPairingRouteSurface() {
   }, []);
 
   return (
-    <StandalonePage>
+    <StandalonePage onboarding>
       <StandalonePageHeader
         title={
           status === "paired"

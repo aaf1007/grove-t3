@@ -1023,6 +1023,12 @@ export const SETTINGS_SEARCH_ITEMS = [
     desktopOnly: true,
   },
   {
+    id: "workspace-tour",
+    title: msg("Take the tour"),
+    to: "/settings/about",
+    searchTerms: [msg("guided tour getting started walkthrough")],
+  },
+  {
     id: "welcome-page",
     title: msg("Welcome page"),
     to: "/settings/about",

@@ -191,7 +191,11 @@ function FirstRunRecovery({
   const settingsReadFailed = reason === "settings";
   const gt = useGT();
   return (
-    <main className="flex h-dvh min-h-0 items-center justify-center bg-background px-6 text-foreground">
+    <main
+      data-onboarding-screen=""
+      className="flex h-dvh min-h-0 items-center justify-center bg-(--background) px-6 text-foreground"
+    >
+      <span data-onboarding-dither="" aria-hidden />
       <div className="flex max-w-sm flex-col items-center text-center">
         <h1 className="text-lg font-semibold">
           {settingsReadFailed ? gt("Could not read settings") : gt("Still connecting")}

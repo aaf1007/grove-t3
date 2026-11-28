@@ -2,6 +2,7 @@ import { thrownErrorMessage } from "@t3tools/client-runtime/errors";
 import { m as resolveMessage } from "~/i18n/messages";
 import { useAtomValue } from "@effect/atom-react";
 import { NotificationSettings } from "./NotificationSettings";
+import { useReplayWorkspaceTour } from "../workspaceTour/workspaceTourState";
 import { CheckIcon } from "lucide-react";
 import { msg, T, useGT, useMessages } from "gt-react";
 import { Link, useNavigate } from "@tanstack/react-router";
@@ -2521,6 +2522,7 @@ export function MaintenanceSettingsPanel() {
 
 export function AboutSettingsPanel() {
   const setting = useSearchableSetting();
+  const replayWorkspaceTour = useReplayWorkspaceTour();
   const gt = useGT();
   const primaryPolicy = usePrimaryManagedPolicy();
   // The Welcome page sets up this computer, so it needs one.
@@ -2572,6 +2574,15 @@ export function AboutSettingsPanel() {
             }
           />
         )}
+        <SettingsRow
+          {...setting("workspace-tour")}
+          description={gt("Walk through the main controls in your workspace.")}
+          control={
+            <Button size="sm" variant="outline" onClick={() => void replayWorkspaceTour()}>
+              <T>Take the tour</T>
+            </Button>
+          }
+        />
       </SettingsSection>
 
       <SettingsSection id="legal" title={gt("Legal")}>

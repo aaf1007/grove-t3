@@ -359,6 +359,7 @@ export const ProviderModelPicker = memo(function ProviderModelPicker(props: {
               .join(", ")}
             size={size}
             data-chat-provider-model-picker="true"
+            data-tour={props.footer ? "model permissions-in-picker" : "model"}
             data-composer-shortcut={props.triggerShortcuts}
             onClick={(event) => {
               if (!isMenuOpen || !docked) return;

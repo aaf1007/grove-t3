@@ -1,13 +1,31 @@
 import type { ReactNode } from "react";
 
 import { APP_BASE_NAME } from "../../branding";
+import { cn } from "../../lib/utils";
 import { LoopyMark } from "../LoopyMark";
 
-export function StandalonePage({ children }: { readonly children: ReactNode }) {
+export function StandalonePage({
+  children,
+  onboarding = false,
+}: {
+  readonly children: ReactNode;
+  readonly onboarding?: boolean;
+}) {
   return (
     // The page owns scrolling because root cannot scroll; safe centering keeps oversized cards top-aligned.
-    <div className="flex h-full items-center-safe justify-center overflow-y-auto scrollbar-gutter-both bg-background px-4 py-10 text-foreground sm:px-6">
-      <section className="dialog-glass w-full max-w-xl rounded-2xl border p-6">{children}</section>
+    <div
+      data-onboarding-screen={onboarding ? "" : undefined}
+      className="flex h-full items-center-safe justify-center overflow-y-auto scrollbar-gutter-both bg-background px-4 py-10 text-foreground sm:px-6"
+    >
+      {onboarding ? <span data-onboarding-dither="" aria-hidden /> : null}
+      <section
+        className={cn(
+          "w-full max-w-xl rounded-2xl border p-6",
+          onboarding ? "bg-card" : "dialog-glass",
+        )}
+      >
+        {children}
+      </section>
     </div>
   );
 }
