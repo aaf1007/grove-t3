@@ -28,6 +28,7 @@ import { SecretProviderId, SecretProviderSlug } from "./secretReference.ts";
 import { containsSecretReference, SettingsSecretValue } from "./settingsSecretValue.ts";
 import { EnvironmentMachineKind, ThreadEnvMode, WorktreeSubmodules } from "./environment.ts";
 import { KeybindingShortcut } from "./keybindings.ts";
+import { ThemeDitherOverride } from "./themeDither.ts";
 import {
   CustomModelSetting,
   DEFAULT_TEXT_GENERATION_MODEL,
@@ -541,6 +542,11 @@ export const ClientSettingsSchema = Schema.Struct({
   boringSidebarEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
   /** Desktop only: the OS draws the sidebar's background (macOS vibrancy, Windows 11 acrylic). */
   sidebarTranslucent: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(false))),
+  /** Kept apart from `ditherOverride` so turning dither off and on keeps a custom dither. */
+  ditherEnabled: Schema.Boolean.pipe(Schema.withDecodingDefault(Effect.succeed(true))),
+  ditherOverride: ThemeDitherOverride.pipe(
+    Schema.withDecodingDefault(Effect.succeed("theme" as const)),
+  ),
   toolCallVisibility: ToolCallVisibility.pipe(
     Schema.withDecodingDefault(Effect.succeed("showAll" as const)),
   ),
@@ -2127,6 +2133,8 @@ export const ClientSettingsPatch = Schema.Struct({
   showSkillsInSlashMenu: Schema.optionalKey(Schema.Boolean),
   boringSidebarEnabled: Schema.optionalKey(Schema.Boolean),
   sidebarTranslucent: Schema.optionalKey(Schema.Boolean),
+  ditherEnabled: Schema.optionalKey(Schema.Boolean),
+  ditherOverride: Schema.optionalKey(ThemeDitherOverride),
   toolCallVisibility: Schema.optionalKey(ToolCallVisibility),
   screenReaderAnnouncements: Schema.optionalKey(ScreenReaderAnnouncements),
   screenReaderWindowTitle: Schema.optionalKey(Schema.Boolean),

@@ -576,6 +576,36 @@ describe("theme files", () => {
   });
 });
 
+describe("Otter and Bitmap palettes", () => {
+  it("keeps text and controls readable in Otter and Bitmap, light and dark", () => {
+    const forkThemes = BUILT_IN_THEMES.filter((theme) => ["otter", "bitmap"].includes(theme.id));
+    expect(forkThemes.map((theme) => theme.id)).toEqual(["otter", "bitmap"]);
+    for (const theme of forkThemes) {
+      for (const mode of ["light", "dark"] as const) {
+        const colors = getThemeColorsForMode(theme, mode)!;
+        const pairs: ReadonlyArray<[string, string, number]> = [
+          [colors.text, colors.canvas, 7],
+          [colors.textMuted, colors.canvas, 4.5],
+          [colors.text, colors.surface, 7],
+          [colors.mutedForeground, colors.muted, 4.5],
+          [colors.placeholder, colors.surfaceRaised, 4.5],
+          [colors.sidebarForeground, colors.sidebar, 7],
+          [colors.sidebarMutedForeground, colors.sidebar, 4.5],
+          [colors.sidebarForeground, colors.sidebarRowSelected, 4.5],
+          [colors.accentForeground, colors.accent, 4.5],
+          [colors.messageActionForeground, colors.messageAction, 4.5],
+          [colors.messageForeground, colors.messageSurface, 4.5],
+          [colors.secondaryForeground, colors.secondary, 4.5],
+          [colors.errorForeground, colors.errorSurface, 4.5],
+        ];
+        for (const [foreground, background, minimum] of pairs) {
+          expect(contrastRatio(foreground, background)).toBeGreaterThanOrEqual(minimum);
+        }
+      }
+    }
+  });
+});
+
 describe("context chip colors", () => {
   it.each([
     ["#ffffff", 5],

@@ -8,5 +8,9 @@
   "ember-light",
   "ember-dark",
   "iris-light",
-  "iris-dark"
+  "iris-dark",
+  "otter-light",
+  "otter-dark",
+  "bitmap-light",
+  "bitmap-dark"
 ]

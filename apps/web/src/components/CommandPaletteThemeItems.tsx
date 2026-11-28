@@ -1,10 +1,11 @@
 import { BUILT_IN_THEMES } from "@t3tools/shared/themePalettes";
 import { msg, T, useGT, useMessages } from "gt-react";
-import { MonitorIcon, MoonIcon, PaletteIcon, SunIcon } from "lucide-react";
+import { GridIcon, MonitorIcon, MoonIcon, PaletteIcon, SunIcon } from "lucide-react";
 
 import { m } from "../i18n/messages";
 import { useCustomThemes } from "../hooks/useCustomThemes";
 import { useEnvironmentThemeDefinitions } from "../hooks/useEnvironmentTheme";
+import { updateClientSettings, useClientSettings } from "../hooks/useSettings";
 import { useTheme } from "../hooks/useTheme";
 import { getThemeDefinition } from "../themePalette";
 import {
@@ -66,6 +67,7 @@ export function useCommandPaletteThemeItems() {
     setThemeHalf,
   } = useTheme();
   const themeCards = useThemeCards();
+  const ditherOn = useClientSettings((settings) => settings.ditherEnabled);
   const gt = useGT();
   const messages = useMessages();
 
@@ -172,5 +174,16 @@ export function useCommandPaletteThemeItems() {
     },
   };
 
-  return { changeThemeItem, changeAppearanceItem, themeEditorItem };
+  const ditherItem: CommandPaletteActionItem = {
+    kind: "action",
+    value: "action:toggle-dither",
+    searchTerms: ["dither", "pixel", "pattern", "texture", "retro", "appearance"],
+    title: ditherOn ? gt("Turn off dither") : gt("Turn on dither"),
+    icon: <GridIcon className={ITEM_ICON_CLASS} />,
+    run: async () => {
+      await updateClientSettings({ ditherEnabled: !ditherOn });
+    },
+  };
+
+  return { changeThemeItem, changeAppearanceItem, themeEditorItem, ditherItem };
 }

@@ -1,4 +1,17 @@
-export const BUILT_IN_THEME_IDS = ["t3-chat", "grove", "ocean", "ember", "iris"] as const;
+import type { ThemeDither } from "@t3tools/contracts";
+import { BITMAP_THEME, OTTER_THEME } from "./loopyThemePalettes.ts";
+
+export { BITMAP_THEME, OTTER_THEME };
+
+export const BUILT_IN_THEME_IDS = [
+  "t3-chat",
+  "grove",
+  "ocean",
+  "ember",
+  "iris",
+  "otter",
+  "bitmap",
+] as const;
 
 export const MOBILE_DEFAULT_THEME_ID = "t3-code";
 
@@ -105,6 +118,7 @@ export type ThemeDefinition = Readonly<{
   managed?: boolean;
   /** Custom styles for web and desktop. */
   css?: string;
+  dither?: ThemeDither;
 }>;
 
 export const T3_CODE_LIGHT_THEME_COLORS: ThemeColors = {
@@ -916,6 +930,8 @@ export const BUILT_IN_THEMES: ReadonlyArray<ThemeDefinition> = [
   OCEAN_THEME,
   EMBER_THEME,
   IRIS_THEME,
+  OTTER_THEME,
+  BITMAP_THEME,
 ];
 
 export function getThemeColorsForAppearance(

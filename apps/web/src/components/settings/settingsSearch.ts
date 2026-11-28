@@ -461,6 +461,47 @@ export const SETTINGS_SEARCH_ITEMS = [
     translucentSidebarOnly: true,
   },
   {
+    id: "dither",
+    title: msg("Dither"),
+    to: "/settings/appearance",
+    searchTerms: [msg("pixel pattern texture retro bayer halftone noise scanlines")],
+  },
+  {
+    id: "dither-pattern",
+    title: msg("Pattern", { $context: "dither pattern setting" }),
+    to: "/settings/appearance",
+    searchTerms: [msg("dither bayer halftone dots noise scanlines")],
+  },
+  {
+    id: "dither-strength",
+    title: msg("Strength", { $context: "dither strength setting" }),
+    to: "/settings/appearance",
+    searchTerms: [msg("dither opacity intensity")],
+  },
+  {
+    id: "dither-scale",
+    title: msg("Pixel size"),
+    to: "/settings/appearance",
+    searchTerms: [msg("dither scale density")],
+  },
+  {
+    id: "dither-color",
+    title: msg("Dither color"),
+    to: "/settings/appearance",
+  },
+  {
+    id: "dither-surfaces",
+    title: msg("Surfaces", { $context: "where the dither shows" }),
+    to: "/settings/appearance",
+    searchTerms: [msg("dither canvas sidebar panels")],
+  },
+  {
+    id: "dither-motion",
+    title: msg("Dither motion"),
+    to: "/settings/appearance",
+    searchTerms: [msg("animate animation drift move")],
+  },
+  {
     id: "word-wrap",
     title: msg("Word wrap"),
     to: "/settings/appearance",

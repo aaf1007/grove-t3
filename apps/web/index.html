@@ -122,6 +122,34 @@
               chrome: "oklch(0.225975 0.031062 293.741)",
             },
           },
+          otter: {
+            light: {
+              background: "oklch(0.961961 0.020835 236.753)",
+              foreground: "oklch(0.199126 0.031389 258.984)",
+              accent: "oklch(0.431336 0.121248 256.766)",
+              chrome: "oklch(0.961961 0.020835 236.753)",
+            },
+            dark: {
+              background: "oklch(0.220379 0.042302 256.413)",
+              foreground: "oklch(0.948928 0.01507 235.38)",
+              accent: "oklch(0.895709 0.058824 233.634)",
+              chrome: "oklch(0.220379 0.042302 256.413)",
+            },
+          },
+          bitmap: {
+            light: {
+              background: "oklch(0.887702 0.01103 95.177)",
+              foreground: "oklch(0.200193 0 0)",
+              accent: "oklch(0.177638 0 0)",
+              chrome: "oklch(0.887702 0.01103 95.177)",
+            },
+            dark: {
+              background: "oklch(0.28908 0 0)",
+              foreground: "oklch(0.949328 0.002882 84.559)",
+              accent: "oklch(0.948457 0.010853 95.166)",
+              chrome: "oklch(0.28908 0 0)",
+            },
+          },
         };
         const BUILT_IN_THEME_MODES = Object.fromEntries(
           Object.entries(BUILT_IN_THEME_PALETTES).map(([id, palettes]) => [
@@ -138,6 +166,8 @@
           "ocean",
           "ember",
           "iris",
+          "otter",
+          "bitmap",
           "t3-chat-dark",
           "t3-grove",
           "t3-ocean",
