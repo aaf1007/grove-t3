@@ -297,7 +297,7 @@ export const CARBON_THEME: ThemeDefinition = {
     accentForeground: "oklch(1 0 0)",
     secondary: "oklch(0.935 0.005 260)",
     secondaryForeground: "oklch(0.28 0 0)",
-    muted: "oklch(0.95 0.004 260)",
+    muted: "oklch(0.94 0.004 260)",
     mutedForeground: "oklch(0.48 0.012 260)",
     placeholder: "oklch(0.52 0.012 260)",
     secondaryLabel: "oklch(0.48 0.012 260)",
