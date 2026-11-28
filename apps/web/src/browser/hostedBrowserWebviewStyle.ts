@@ -14,6 +14,7 @@ export interface HostedBrowserWebviewWrapperStyle {
   readonly pointerEvents: "auto" | "none";
   readonly borderRadius?: number;
   readonly visibility?: "hidden" | "visible";
+  readonly opacity?: number;
 }
 
 const HIDDEN_BROWSER_WEBVIEW_OFFSET = -100_000;
@@ -50,6 +51,7 @@ export function resolveHostedBrowserWebviewWrapperStyle(input: {
 
   if (renderingActive) {
     // Electron stops compositing offscreen guests; keep capture-active guests inside the viewport behind the app.
+    // Transparent, because the translucent sidebar would otherwise show the parked guest through it.
     return {
       left: 0,
       top: 0,
@@ -58,6 +60,7 @@ export function resolveHostedBrowserWebviewWrapperStyle(input: {
       zIndex: -1,
       pointerEvents: "none",
       visibility: "visible",
+      opacity: 0,
     };
   }
 
