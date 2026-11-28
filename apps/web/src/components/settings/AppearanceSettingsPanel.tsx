@@ -34,7 +34,7 @@ import {
 } from "./settingsLayout";
 import { useSearchableSetting } from "./settingsSearch";
 import { TranslucentSidebarRow } from "./SidebarLayoutSettings";
-import { DitherSettingsSection } from "./DitherSettings";
+import { DitherSettingsSection, useDitherSearchFallbacks } from "./DitherSettings";
 import { AdvancedSettings } from "./AdvancedSettings";
 import { PanelAnimationsPreview } from "./PanelAnimationsPreview";
 import { TypographySection } from "./TypographySettings";
@@ -128,6 +128,7 @@ export function AppearanceSettingsPanel() {
     : environmentStageVariant
       ? gt("Choose how Dev and Nightly environments are identified.")
       : gt("Show Dev or Nightly artwork in the sidebar header.");
+  const ditherSearchFallbacks = useDitherSearchFallbacks();
   const glassOpacityRatio =
     (settings.glassOpacity - MIN_GLASS_OPACITY) / (MAX_GLASS_OPACITY - MIN_GLASS_OPACITY);
   const glassOpacitySliderStyle = {
@@ -150,7 +151,7 @@ export function AppearanceSettingsPanel() {
   } as CSSProperties;
 
   return (
-    <SettingsPageContainer>
+    <SettingsPageContainer searchTargetFallbacks={ditherSearchFallbacks}>
       <SettingsSection id="appearance" title={gt("Colors & themes")} variant="plain" hideTitle>
         <div id={searchableSetting("theme").id}>
           <ThemeLibrary

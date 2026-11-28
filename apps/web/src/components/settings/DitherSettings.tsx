@@ -56,22 +56,48 @@ function sliderStyle(value: number, min: number, max: number): CSSProperties {
   } as CSSProperties;
 }
 
+function useShownDither() {
+  const settings = useScopedSettings();
+  const { theme, themeHalves, resolvedTheme } = useTheme();
+  const definition = getThemeDefinition(resolveThemeHalf(theme, themeHalves, resolvedTheme));
+  return {
+    definition,
+    resolvedTheme,
+    enabled: settings.ditherEnabled,
+    override: settings.ditherOverride,
+    shown: effectiveThemeDither(definition?.dither, settings.ditherOverride),
+  };
+}
+
+const DITHER_DETAIL_ROWS = [
+  "dither-pattern",
+  "dither-strength",
+  "dither-scale",
+  "dither-color",
+  "dither-surfaces",
+  "dither-motion",
+] as const;
+
+/** Points search at the nearest dither row still on screen when a row is hidden. */
+export function useDitherSearchFallbacks(): Readonly<Record<string, string | undefined>> {
+  const { enabled, shown } = useShownDither();
+  if (!enabled) {
+    return Object.fromEntries([...DITHER_DETAIL_ROWS, "dither-speed"].map((id) => [id, "dither"]));
+  }
+  return { "dither-speed": shown.motion ? undefined : "dither-motion" };
+}
+
 export function DitherSettingsSection() {
   const searchableSetting = useSearchableSetting();
   const gt = useGT();
   const m = useMessages();
-  const settings = useScopedSettings();
   const updateSettings = useUpdateScopedSettings();
-  const { theme, themeHalves, resolvedTheme } = useTheme();
   const customThemes = useCustomThemes();
-  const definition = getThemeDefinition(resolveThemeHalf(theme, themeHalves, resolvedTheme));
+  const { definition, resolvedTheme, enabled, override, shown } = useShownDither();
   const colors =
     (definition && getThemeColorsForMode(definition, resolvedTheme)) ??
     getStandardPaintedThemeColors(resolvedTheme);
   const themeDither = definition?.dither;
-  const override = settings.ditherOverride;
-  const enabled = settings.ditherEnabled;
-  const shown = effectiveThemeDither(themeDither, override);
   const customTheme = customThemes.find((candidate) => candidate.id === definition?.id) ?? null;
 
   const update = (patch: Partial<ResolvedThemeDither>) =>

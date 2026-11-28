@@ -362,6 +362,7 @@ let imageUrls: ReadonlyArray<string> = [];
 let paintKey = "";
 let paintGeneration = 0;
 let motionTimer: ReturnType<typeof setTimeout> | null = null;
+let motionTime = STILL_TIME;
 let listening = false;
 
 function applyCss(css: string) {
@@ -480,13 +481,17 @@ function render(): void {
   paintedColors = colors;
   stopMotion();
   if (!animate) {
+    motionTime = STILL_TIME;
     void paint(dither, colors, STILL_TIME);
     return;
   }
-  const started = performance.now();
+  // Carried across repaints, so changing the speed or colors keeps the light where it is.
+  let last = performance.now();
   const frame = () => {
-    const elapsed = (performance.now() - started) / 1000;
-    void paint(dither, colors, STILL_TIME + (elapsed * dither.speed) / 100);
+    const now = performance.now();
+    motionTime += ((now - last) / 1000) * (dither.speed / 100);
+    last = now;
+    void paint(dither, colors, motionTime);
     motionTimer = setTimeout(frame, 1000 / DITHER_MOTION_FPS);
   };
   frame();
