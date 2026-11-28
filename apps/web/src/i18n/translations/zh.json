@@ -454,13 +454,13 @@
   "9cf0001d0c442fe2": "T3 Connect 无法访问 {host} 的隧道",
   "04ee2bcc0e87f46e": "{host} 上的 Loopy 未接受此设备",
   "3c42b11c76ab8480": "{host} 上的 Loopy 没有响应",
-  "5d11910833c27d35": "请在 {host} 上查看“设置 > 共享与访问”，或运行 `t3 connect status`。",
+  "c7c55fd470e24ea6": "请在 {host} 上查看“设置 > 共享与访问”，或运行 `loopy connect status`。",
   "f67753ec91ea05cf": "请将此设备连接到互联网。Loopy 会自动重新连接。",
   "4bc4ac654fbacefb": "请稍等。Loopy 会自动重试。",
   "1142047325fb17b4": "如果一直没有进展，请在此设备上重新加载或重启 Loopy。",
   "570aaeb32dc600a7": "在已连接到 {host} 的设备上，打开“设置 > 共享与访问”，批准显示 {code} 的设备。",
   "08a2d57d02f30799": "在已连接到 {host} 的设备上，打开“设置 > 共享与访问”，批准此设备。",
-  "9cc57bb41f513f35": "或在 {host} 上运行 `t3 auth connect-device approve {code}`。",
+  "8f5c9b32594fa0dc": "或在 {host} 上运行 `loopy auth connect-device approve {code}`。",
   "428f3e9585b5138f": "请更新 {host} 上的 Loopy。",
   "3c35e0980e06bfa6": "请在此设备和 {host} 上开启自动日期与时间，然后重试。",
   "0f441d0e53f2e965": "请确认此设备与主机登录了同一个 T3 Connect 账户。",
@@ -2496,8 +2496,8 @@
   "b25472ef70df9b5d": "全部更新",
   "febf4ec3cdcdf372": "已复制更新命令",
   "bee440d0da53841c": "已复制重启命令",
-  "9e17a8beb64d6130": "在 {serverLabel} 上运行 `{command}`，然后使用你常用的选项重启 t3。",
-  "218253b96de09d5d": "在 {serverLabel} 上停止 t3，然后使用相同的子命令和选项通过 `{command}` 重新启动。这不会更新已安装的 t3 命令。",
+  "3d101301109ccaff": "在 {serverLabel} 上运行 `{command}`，然后使用你常用的选项重启 loopy。",
+  "ca4a8c881149181b": "在 {serverLabel} 上停止 loopy，然后使用相同的子命令和选项通过 `{command}` 重新启动。这不会更新已安装的 loopy 命令。",
   "3cb4fcae1546e2eb": "无法复制更新命令",
   "54332a48746c5595": "要更新运行 {serverLabel} 的 Loopy 桌面应用吗？它将在那台机器上关闭并重新启动。",
   "a1581c125ff5ba06": "复制更新命令",
@@ -3221,13 +3221,13 @@
   ],
   "c54cc9c75db9dc58": "请只批准你刚刚发起的登录。",
   "e9f4b93c4ec30453": "登录码",
-  "4f69730ef78c7962": [
+  "8207b4aef427185c": [
     "可从“在其他应用中使用 Loopy（MCP）”、“设置 → 共享与访问”获取，或在本机运行",
     " ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3 auth pairing create"
+      "c": "loopy auth pairing create"
     },
     "。"
   ],
@@ -5158,7 +5158,7 @@
   "c246e33dafd359cc": "添加",
   "b0c1beb79a87d97b": "授权请求",
   "0311d7ed2b7eb2f6": "此连接链接不完整",
-  "09e69d04f7e588eb": "链接缺少授权请求。请在终端中重新运行 `t3 connect`，并打开新输出的 URL。",
+  "efd90058703a59ac": "链接缺少授权请求。请在终端中重新运行 `loopy connect`，并打开新输出的 URL。",
   "55ee748307f0cd6a": "浏览器授权",
   "1ccae6b48df9cf15": "正在连接你的终端",
   "b3e7da67bc047933": "正在跳转，为你的 CLI 授权 T3 Connect…",
@@ -6272,7 +6272,7 @@
     "。"
   ],
   "9d9b9624c7bd95df": "其他文件夹",
-  "1eb8f3d4695033fb": [
+  "e4d96d273c9c5635": [
     "已添加到 ",
     {
       "i": 1,
@@ -6284,16 +6284,16 @@
     {
       "t": "code",
       "i": 2,
-      "c": "t3"
+      "c": "loopy"
     },
     "。"
   ],
-  "ad72bb102aa39c31": [
+  "363b4b0fa291feee": [
     "在任意终端中使用 ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3"
+      "c": "loopy"
     },
     "。会向",
     " ",
@@ -7425,7 +7425,7 @@
   "8a333daf9b7fd03f": "连接到 {environment}",
   "7662025844bf543f": "添加环境",
   "65b1d784a5e84254": "使用其他地址（例如 Tailscale 名称）再次配对此机器。该地址将加入现有线路，不会重复添加机器。",
-  "e1cb1c8599e84e26": "在 {environment} 的设置 → 共享与访问中或使用 `t3 auth pairing create` 创建配对码，然后在此输入。",
+  "afd320f4f5277688": "在 {environment} 的设置 → 共享与访问中或使用 `loopy auth pairing create` 创建配对码，然后在此输入。",
   "1bea4864d46d70d0": "将其他环境与此客户端配对。",
   "9b24ef052b321e57": "输入后端主机和配对码。",
   "3e20f17f71edf0ad": "使用本地 SSH 配置、认证代理和隧道连接后端。",
@@ -7690,7 +7690,7 @@
   "f818040c75078d53": "重置分支命名为默认值",
   "2c82cf0bf586ddd8": "工作树分支命名",
   "bff8a0d14cb10f17": "分支前缀",
-  "4e33e869882b8ef3": "例如，t3 或 t3/ 会生成 t3/add-search。留空则不添加前缀。",
+  "dcec878dcb97527a": "例如，loopy 或 loopy/ 会生成 loopy/add-search。留空则不添加前缀。",
   "fc32aa5738bccb9a": "重置分支前缀为默认值",
   "452b86cb8c4e0432": "无前缀",
   "abcdead6f7529103": "分支命名指令",
@@ -8999,7 +8999,7 @@
   "ca4e4015b89ed9a8": "无法将 {target} 反向关联到 {source}",
   "64ac3d1579ca9f5b": "将 {source} 关联到 {target}",
   "5f2e20c62a4fece3": "{via} 以完全访问权限链接到 {target}，因此由它获取配对码。无需粘贴配对码。",
-  "fb71127e5746a6bc": "从远端“共享与访问”页面或 t3 pair 获取",
+  "0bab01ce0c8ad3e3": "从远端“共享与访问”页面或 loopy pair 获取",
   "1e3fee7084791773": "同时将 {target} 反向关联到 {source}",
   "ea34a190b0bd804c": "之后 {target} 上的智能体也能在 {source} 上工作。",
   "974f8c65e8b5f492": "忘记 {label}？此处的代理将不再在那里工作；如果 {label} 有响应，它们在那里的会话也会结束。",
@@ -9752,8 +9752,8 @@
   "ae3971c4379c262f": "T3 Connect 已开启，但其他设备无法访问此环境。",
   "8fddf21c28c34154": "T3 Connect 已开启，尚未检查能否访问。",
   "b2cf3dccd52f02ec": "T3 Connect 状态不同步。此环境的关联仅用于发布智能体活动，其他设备无法连接。请开启 T3 Connect 修复。",
-  "bf1a82ceb6a864f5": "此环境已从 T3 Connect 移除。请在主机上运行 `t3 connect link` 重新关联。",
-  "d94329a3761ef519": "请在主机上运行 `t3 connect link`，然后在那里重启 Loopy。",
+  "bb04fed6dacc1de8": "此环境已从 T3 Connect 移除。请在主机上运行 `loopy connect link` 重新关联。",
+  "b19c6871688c7b3f": "请在主机上运行 `loopy connect link`，然后在那里重启 Loopy。",
   "0a3123a6ce981075": "登录后即可向手机通知和实时活动发送活动信息。",
   "c42a0de969f4133f": "无需 T3 Connect，即可将活动发送到手机通知和实时活动。",
   "5f8ca828eca1ce1a": "向移动客户端发布智能体活动",

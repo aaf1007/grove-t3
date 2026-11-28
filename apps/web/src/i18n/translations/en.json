@@ -454,13 +454,13 @@
   "9cf0001d0c442fe2": "T3 Connect could not reach {host}'s tunnel",
   "04ee2bcc0e87f46e": "Loopy on {host} did not accept this device",
   "3c42b11c76ab8480": "Loopy on {host} did not answer",
-  "5d11910833c27d35": "On {host}, check Settings > Sharing & access or run `t3 connect status`.",
+  "c7c55fd470e24ea6": "On {host}, check Settings > Sharing & access or run `loopy connect status`.",
   "f67753ec91ea05cf": "Connect this device to the internet. Loopy reconnects on its own.",
   "4bc4ac654fbacefb": "Wait a moment. Loopy retries on its own.",
   "1142047325fb17b4": "If it keeps waiting, reload or restart Loopy on this device.",
   "570aaeb32dc600a7": "On a device already connected to {host}, open Settings > Sharing & access and approve the device showing {code}.",
   "08a2d57d02f30799": "On a device already connected to {host}, open Settings > Sharing & access and approve this device.",
-  "9cc57bb41f513f35": "Or run `t3 auth connect-device approve {code}` on {host}.",
+  "8f5c9b32594fa0dc": "Or run `loopy auth connect-device approve {code}` on {host}.",
   "428f3e9585b5138f": "Update Loopy on {host}.",
   "3c35e0980e06bfa6": "Turn on automatic date and time on this device and on {host}, then retry.",
   "0f441d0e53f2e965": "Check that this device is signed in to the same T3 Connect account as the host.",
@@ -2492,8 +2492,8 @@
   "b25472ef70df9b5d": "Update all",
   "febf4ec3cdcdf372": "Update command copied",
   "bee440d0da53841c": "Relaunch command copied",
-  "9e17a8beb64d6130": "Run `{command}` on {serverLabel}, then restart t3 with your usual options.",
-  "218253b96de09d5d": "Stop t3 on {serverLabel}, then relaunch with `{command}` using the same subcommand and options. This does not update an installed t3 command.",
+  "3d101301109ccaff": "Run `{command}` on {serverLabel}, then restart loopy with your usual options.",
+  "ca4a8c881149181b": "Stop loopy on {serverLabel}, then relaunch with `{command}` using the same subcommand and options. This does not update an installed loopy command.",
   "3cb4fcae1546e2eb": "Could not copy update command",
   "54332a48746c5595": "Update the Loopy desktop app that runs the {serverLabel}? It will close and relaunch on that machine.",
   "a1581c125ff5ba06": "Copy update command",
@@ -3217,13 +3217,13 @@
   ],
   "c54cc9c75db9dc58": "Only approve a sign-in you just started.",
   "e9f4b93c4ec30453": "Sign-in code",
-  "4f69730ef78c7962": [
+  "8207b4aef427185c": [
     "Get one from Use Loopy in another app (MCP), Settings → Sharing & access, or",
     " ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3 auth pairing create"
+      "c": "loopy auth pairing create"
     },
     " on this machine."
   ],
@@ -5153,7 +5153,7 @@
   "c246e33dafd359cc": "Add",
   "b0c1beb79a87d97b": "Authorization request",
   "0311d7ed2b7eb2f6": "This connect link is incomplete",
-  "09e69d04f7e588eb": "The link is missing its authorization request. Re-run `t3 connect` in your terminal and open the freshly printed URL.",
+  "efd90058703a59ac": "The link is missing its authorization request. Re-run `loopy connect` in your terminal and open the freshly printed URL.",
   "55ee748307f0cd6a": "Browser authorization",
   "1ccae6b48df9cf15": "Connecting your terminal",
   "b3e7da67bc047933": "Redirecting to authorize T3 Connect for your CLI…",
@@ -6267,7 +6267,7 @@
     "in this terminal."
   ],
   "9d9b9624c7bd95df": "Other folders",
-  "1eb8f3d4695033fb": [
+  "e4d96d273c9c5635": [
     "Added to ",
     {
       "i": 1,
@@ -6279,16 +6279,16 @@
     {
       "t": "code",
       "i": 2,
-      "c": "t3"
+      "c": "loopy"
     },
     "."
   ],
-  "ad72bb102aa39c31": [
+  "363b4b0fa291feee": [
     "Use ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3"
+      "c": "loopy"
     },
     " from any terminal. Adds one line to",
     " ",
@@ -7417,7 +7417,7 @@
   "8a333daf9b7fd03f": "Connect to {environment}",
   "7662025844bf543f": "Add Environment",
   "65b1d784a5e84254": "Pair this machine again over another address, such as its Tailscale name. It joins the existing routes instead of adding a second machine.",
-  "e1cb1c8599e84e26": "Create a pairing code on {environment}, in its Settings → Sharing & access or with `t3 auth pairing create`, and enter it here.",
+  "afd320f4f5277688": "Create a pairing code on {environment}, in its Settings → Sharing & access or with `loopy auth pairing create`, and enter it here.",
   "1bea4864d46d70d0": "Pair another environment to this client.",
   "9b24ef052b321e57": "Enter a backend host and pairing code.",
   "3e20f17f71edf0ad": "Use local SSH config, agent, and tunnels for the backend.",
@@ -7682,7 +7682,7 @@
   "f818040c75078d53": "Reset branch naming to default",
   "2c82cf0bf586ddd8": "Worktree branch naming",
   "bff8a0d14cb10f17": "Branch prefix",
-  "4e33e869882b8ef3": "For example, t3 or t3/ produces t3/add-search. Leave empty for no prefix.",
+  "dcec878dcb97527a": "For example, loopy or loopy/ produces loopy/add-search. Leave empty for no prefix.",
   "fc32aa5738bccb9a": "Reset branch prefix to default",
   "452b86cb8c4e0432": "No prefix",
   "abcdead6f7529103": "Branch naming instructions",
@@ -8991,7 +8991,7 @@
   "ca4e4015b89ed9a8": "Could not link {target} back to {source}",
   "64ac3d1579ca9f5b": "Link {source} to {target}",
   "5f2e20c62a4fece3": "{via} links to {target} at full access, so it gets the pairing code. No code to paste.",
-  "fb71127e5746a6bc": "From Sharing & access there, or t3 pair",
+  "0bab01ce0c8ad3e3": "From Sharing & access there, or loopy pair",
   "1e3fee7084791773": "Also link {target} back to {source}",
   "ea34a190b0bd804c": "Agents on {target} can then work on {source} too.",
   "974f8c65e8b5f492": "Forget {label}? Agents here stop working there, and their session on {label} ends too if it answers.",
@@ -9745,8 +9745,8 @@
   "ae3971c4379c262f": "T3 Connect is on, but other devices cannot reach this environment.",
   "8fddf21c28c34154": "T3 Connect is on. Reachability has not been checked yet.",
   "b2cf3dccd52f02ec": "T3 Connect is out of sync. This environment is linked only to publish agent activity, so other devices cannot connect. Turn T3 Connect on to repair it.",
-  "bf1a82ceb6a864f5": "This environment was removed from T3 Connect. Run `t3 connect link` on the host to link it again.",
-  "d94329a3761ef519": "Run `t3 connect link` on the host, then restart Loopy there.",
+  "bb04fed6dacc1de8": "This environment was removed from T3 Connect. Run `loopy connect link` on the host to link it again.",
+  "b19c6871688c7b3f": "Run `loopy connect link` on the host, then restart Loopy there.",
   "0a3123a6ce981075": "Sign in to send activity to mobile notifications and Live Activities.",
   "c42a0de969f4133f": "Send activity to mobile notifications and Live Activities without T3 Connect.",
   "5f8ca828eca1ce1a": "Publish agent activity to mobile clients",

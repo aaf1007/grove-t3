@@ -454,13 +454,13 @@
   "9cf0001d0c442fe2": "T3 Connect kunde inte nå tunneln för {host}",
   "04ee2bcc0e87f46e": "Loopy på {host} godtog inte den här enheten",
   "3c42b11c76ab8480": "Loopy på {host} svarade inte",
-  "5d11910833c27d35": "Öppna Inställningar > Delning och åtkomst på {host} eller kör `t3 connect status`.",
+  "c7c55fd470e24ea6": "Öppna Inställningar > Delning och åtkomst på {host} eller kör `loopy connect status`.",
   "f67753ec91ea05cf": "Anslut den här enheten till internet. Loopy återansluter av sig själv.",
   "4bc4ac654fbacefb": "Vänta en stund. Loopy försöker igen av sig själv.",
   "1142047325fb17b4": "Om den fortsätter att vänta, läs in igen eller starta om Loopy på den här enheten.",
   "570aaeb32dc600a7": "Öppna Inställningar > Delning och åtkomst på en enhet som redan är ansluten till {host} och godkänn enheten som visar {code}.",
   "08a2d57d02f30799": "Öppna Inställningar > Delning och åtkomst på en enhet som redan är ansluten till {host} och godkänn den här enheten.",
-  "9cc57bb41f513f35": "Eller kör `t3 auth connect-device approve {code}` på {host}.",
+  "8f5c9b32594fa0dc": "Eller kör `loopy auth connect-device approve {code}` på {host}.",
   "428f3e9585b5138f": "Uppdatera Loopy på {host}.",
   "3c35e0980e06bfa6": "Aktivera automatiskt datum och tid på den här enheten och på {host} och försök sedan igen.",
   "0f441d0e53f2e965": "Kontrollera att den här enheten är inloggad på samma T3 Connect-konto som värden.",
@@ -2492,8 +2492,8 @@
   "b25472ef70df9b5d": "Uppdatera alla",
   "febf4ec3cdcdf372": "Uppdateringskommandot kopierades",
   "bee440d0da53841c": "Omstartskommandot kopierades",
-  "9e17a8beb64d6130": "Kör `{command}` på {serverLabel} och starta sedan om t3 med dina vanliga alternativ.",
-  "218253b96de09d5d": "Stoppa t3 på {serverLabel} och starta sedan om med `{command}` med samma underkommando och alternativ. Det här uppdaterar inte ett installerat t3-kommando.",
+  "3d101301109ccaff": "Kör `{command}` på {serverLabel} och starta sedan om loopy med dina vanliga alternativ.",
+  "ca4a8c881149181b": "Stoppa loopy på {serverLabel} och starta sedan om med `{command}` med samma underkommando och alternativ. Det här uppdaterar inte ett installerat t3-kommando.",
   "3cb4fcae1546e2eb": "Kunde inte kopiera uppdateringskommandot",
   "54332a48746c5595": "Uppdatera Loopy-skrivbordsappen som kör {serverLabel}? Den stängs och startas om på den datorn.",
   "a1581c125ff5ba06": "Kopiera uppdateringskommando",
@@ -3217,13 +3217,13 @@
   ],
   "c54cc9c75db9dc58": "Godkänn bara en inloggning som du själv precis har startat.",
   "e9f4b93c4ec30453": "Inloggningskod",
-  "4f69730ef78c7962": [
+  "8207b4aef427185c": [
     "Hämta en från Använd Loopy i en annan app (MCP), Inställningar → Delning och åtkomst eller",
     " ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3 auth pairing create"
+      "c": "loopy auth pairing create"
     },
     " på den här datorn."
   ],
@@ -5152,7 +5152,7 @@
   "c246e33dafd359cc": "Lägg till",
   "b0c1beb79a87d97b": "Auktoriseringsbegäran",
   "0311d7ed2b7eb2f6": "Den här anslutningslänken är ofullständig",
-  "09e69d04f7e588eb": "Länken saknar sin auktoriseringsbegäran. Kör `t3 connect` igen i terminalen och öppna den nyutskrivna URL:en.",
+  "efd90058703a59ac": "Länken saknar sin auktoriseringsbegäran. Kör `loopy connect` igen i terminalen och öppna den nyutskrivna URL:en.",
   "55ee748307f0cd6a": "Auktorisering i webbläsaren",
   "1ccae6b48df9cf15": "Ansluter din terminal",
   "b3e7da67bc047933": "Omdirigerar för att auktorisera T3 Connect för ditt CLI…",
@@ -6266,7 +6266,7 @@
     "i den här terminalen."
   ],
   "9d9b9624c7bd95df": "Andra mappar",
-  "1eb8f3d4695033fb": [
+  "e4d96d273c9c5635": [
     "Tillagd i ",
     {
       "i": 1,
@@ -6278,16 +6278,16 @@
     {
       "t": "code",
       "i": 2,
-      "c": "t3"
+      "c": "loopy"
     },
     "."
   ],
-  "ad72bb102aa39c31": [
+  "363b4b0fa291feee": [
     "Använd ",
     {
       "t": "code",
       "i": 1,
-      "c": "t3"
+      "c": "loopy"
     },
     " från valfri terminal. Lägger till en rad i",
     " ",
@@ -7416,7 +7416,7 @@
   "8a333daf9b7fd03f": "Anslut till {environment}",
   "7662025844bf543f": "Lägg till miljö",
   "65b1d784a5e84254": "Parkoppla den här datorn igen via en annan adress, till exempel dess Tailscale-namn. Den ansluter till de befintliga rutterna i stället för att lägga till en andra dator.",
-  "e1cb1c8599e84e26": "Skapa en parkopplingskod på {environment}, i dess Inställningar → Delning och åtkomst eller med `t3 auth pairing create`, och ange den här.",
+  "afd320f4f5277688": "Skapa en parkopplingskod på {environment}, i dess Inställningar → Delning och åtkomst eller med `loopy auth pairing create`, och ange den här.",
   "1bea4864d46d70d0": "Parkoppla en annan miljö med den här klienten.",
   "9b24ef052b321e57": "Ange en backend-värd och en parkopplingskod.",
   "3e20f17f71edf0ad": "Använd lokal SSH-konfiguration, agent och tunnlar för backenden.",
@@ -7681,7 +7681,7 @@
   "f818040c75078d53": "Återställ namngivning av grenar till standard",
   "2c82cf0bf586ddd8": "Namngivning av worktree-grenar",
   "bff8a0d14cb10f17": "Grenprefix",
-  "4e33e869882b8ef3": "Till exempel ger t3 eller t3/ resultatet t3/add-search. Lämna tomt för inget prefix.",
+  "dcec878dcb97527a": "Till exempel ger loopy eller loopy/ resultatet loopy/add-search. Lämna tomt för inget prefix.",
   "fc32aa5738bccb9a": "Återställ grenprefix till standard",
   "452b86cb8c4e0432": "Inget prefix",
   "abcdead6f7529103": "Instruktioner för grennamngivning",
@@ -8989,7 +8989,7 @@
   "ca4e4015b89ed9a8": "Kunde inte länka {target} tillbaka till {source}",
   "64ac3d1579ca9f5b": "Länka {source} till {target}",
   "5f2e20c62a4fece3": "{via} är länkad till {target} med full åtkomst och hämtar därför parkopplingskoden. Ingen kod att klistra in.",
-  "fb71127e5746a6bc": "Från Delning och åtkomst där, eller t3 pair",
+  "0bab01ce0c8ad3e3": "Från Delning och åtkomst där, eller loopy pair",
   "1e3fee7084791773": "Länka även {target} tillbaka till {source}",
   "ea34a190b0bd804c": "Agenter på {target} kan då också arbeta på {source}.",
   "974f8c65e8b5f492": "Glöm {label}? Agenter här slutar arbeta där, och deras session på {label} avslutas också om den svarar.",
@@ -9743,8 +9743,8 @@
   "ae3971c4379c262f": "T3 Connect är på, men andra enheter kan inte nå den här miljön.",
   "8fddf21c28c34154": "T3 Connect är på. Nåbarheten har inte kontrollerats än.",
   "b2cf3dccd52f02ec": "T3 Connect är inte synkroniserat. Miljön är bara länkad för att publicera agentaktivitet, så andra enheter kan inte ansluta. Slå på T3 Connect för att reparera det.",
-  "bf1a82ceb6a864f5": "Miljön togs bort från T3 Connect. Kör `t3 connect link` på värden för att länka den igen.",
-  "d94329a3761ef519": "Kör `t3 connect link` på värden och starta sedan om Loopy där.",
+  "bb04fed6dacc1de8": "Miljön togs bort från T3 Connect. Kör `loopy connect link` på värden för att länka den igen.",
+  "b19c6871688c7b3f": "Kör `loopy connect link` på värden och starta sedan om Loopy där.",
   "0a3123a6ce981075": "Logga in för att skicka aktivitet till mobilaviseringar och liveaktiviteter.",
   "c42a0de969f4133f": "Skicka aktivitet till mobilaviseringar och liveaktiviteter utan T3 Connect.",
   "5f8ca828eca1ce1a": "Publicera agentaktivitet till mobilklienter",
