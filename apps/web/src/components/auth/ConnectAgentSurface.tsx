@@ -352,7 +352,7 @@ export function McpConsent({
             <p className="text-xs text-muted-foreground">
               <T>
                 Get one from Use Loopy in another app (MCP), Settings → Sharing & access, or{" "}
-                <code>t3 auth pairing create</code> on this machine.
+                <code>loopy auth pairing create</code> on this machine.
               </T>
             </p>
           </div>

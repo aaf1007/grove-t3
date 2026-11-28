@@ -524,7 +524,7 @@ it.effect(
         for (const subject of ["", "acme payments roadmap", "mcp__other__t3_thread_read"]) {
           const error = yield* Effect.flip(feedback.submit({ ...input, subject }, fromThread));
           expect(error.message).toBe(
-            "Set subject to the exact T3 tool name, the t3 command, or `general`.",
+            "Set subject to the exact Loopy tool name, the t3 command, or `general`.",
           );
         }
         const refused = (report: Partial<typeof input>, caller: Feedback.FeedbackCaller) =>

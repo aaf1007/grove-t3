@@ -773,13 +773,13 @@ function ConfiguredCloudLinkRow({
         <SettingsRow
           title={setting("t3-connect").title}
           description={gt(
-            "This environment was removed from T3 Connect. Run `t3 connect link` on the host to link it again.",
+            "This environment was removed from T3 Connect. Run `loopy connect link` on the host to link it again.",
           )}
         />
       ) : (
         <SettingsRow
           title={setting("t3-connect").title}
-          description={gt("Run `t3 connect link` on the host, then restart Loopy there.")}
+          description={gt("Run `loopy connect link` on the host, then restart Loopy there.")}
         />
       )}
       {signedOut && showSwitch ? null : (
