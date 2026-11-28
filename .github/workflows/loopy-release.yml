@@ -145,6 +145,10 @@ jobs:
           # Both jobs install the same store on the same runner type.
           save-pnpm-store: ${{ matrix.label == 'macOS arm64' }}
 
+      - name: Install Linux build tools
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y libsecret-1-dev pkg-config imagemagick
+
       # The x64 build runs x64 Electron to generate the server's bytecode cache.
       - name: Ensure Rosetta
         if: matrix.platform == 'mac' && matrix.arch == 'x64'
@@ -184,6 +188,11 @@ jobs:
             args+=(--signed)
           fi
           vp run dist:desktop:artifact "${args[@]}"
+
+      - name: List Windows payload files
+        if: failure() && matrix.platform == 'win'
+        shell: bash
+        run: find "$RUNNER_TEMP" "$TEMP" -path '*-unpacked/*' -type f 2>/dev/null | sed 's|.*-unpacked/||' | sort | uniq -c | sort -rn | head -120
 
       # .env.example holds T3's public Clerk and relay ids, and upstream's
       # preview builds copy it in. Loopy must never ship them.
