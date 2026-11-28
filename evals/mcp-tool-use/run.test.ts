@@ -704,8 +704,10 @@ it("rebuilds the template from this checkout and sends a child T3's task prompt"
     "You are Claude Code.",
     `Main prompt.\n - Primary working directory: /home/user/app\n\n${t3SystemAppend("claude-sonnet-5-5")}`,
   ]);
+  assert.include(system[1], "## Loopy orchestration");
+  assert.notInclude(system[1], "## T3 Code orchestration");
   // The eval offers the device tools, so Claude's append carries the device block.
-  assert.include(t3SystemAppend("claude-sonnet-5-5"), "## T3 Code devices");
+  assert.include(t3SystemAppend("claude-sonnet-5-5"), "## Loopy devices");
   assert.equal(base.environment.cwd, "/home/user/app");
   assert.include(system[2], "model named Sonnet 5.5. The exact model ID is claude-sonnet-5-5.");
   const deferred = system[2]?.split("Load them first:\n")[1]?.split("\n\n")[0]?.split("\n") ?? [];
@@ -1746,7 +1748,7 @@ it.effect("fails preview calls with T3's errors when browser access is off or a 
         is_error: true,
         content: off,
       });
-    assert.notInclude(t3SystemAppend("claude-sonnet-5-5", true, false), "## T3 Code browser");
+    assert.notInclude(t3SystemAppend("claude-sonnet-5-5", true, false), "## Loopy browser");
     const unsupported = "br-guard-preview-open-unsupported";
     assert.deepInclude(yield* answer(unsupported, "preview_open"), {
       is_error: true,
