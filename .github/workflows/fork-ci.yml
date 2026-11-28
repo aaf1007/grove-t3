@@ -6,14 +6,17 @@ name: Fork CI
 
 on:
   pull_request:
+  push:
+    branches:
+      - main
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: fork-ci-${{ github.event.pull_request.number || github.ref }}
-  cancel-in-progress: true
+  group: fork-ci-${{ github.event.pull_request.number || github.sha }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   check_changed:
@@ -63,4 +66,15 @@ jobs:
           fi
 
       - name: Check changed files
-        run: vp run check:changed origin/${{ github.base_ref || 'main' }}
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.base_ref }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          # A push checks everything it introduced; a new branch (all-zero before) falls back to the first parent.
+          case "$EVENT_NAME" in
+            pull_request) base="origin/$BASE_REF" ;;
+            push) base="$PUSH_BEFORE"; [ "${base#*[!0]}" = "$base" ] && base=HEAD^1 ;;
+            *) base=origin/main ;;
+          esac
+          vp run check:changed "$base"
