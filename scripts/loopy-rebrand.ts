@@ -85,7 +85,7 @@ const BARE_NAME =
 const COMMAND =
   /\bt3(?= (?:pair\b|auth\b|connect(?: link\b| status\b|`)|or t3\/ produces\b))|(?<=or )t3(?=\/ produces)|\bt3(?=\/add-search\b)|(?<=\b(?:restart|Stop|installed) )t3(?= (?:with|on|command)\b)/g;
 // Bare `t3` left in a translation once the English no longer has it.
-const LOCALE_COMMAND = /\bt3\b(?![@.\w-])/g;
+const LOCALE_COMMAND = /\bt3\b(?![@.\w])/g;
 // Characters of a test string on each side of the name that must match app copy.
 const CONTEXT = 12;
 const rebrand = (text: string) =>
@@ -174,7 +174,7 @@ function rebrandTokens(
           match,
         ),
     );
-    result += text.slice(cursor, start) + (kept ? token : rebrand(token));
+    result += text.slice(cursor, start) + (kept ? token : rebrandCatalogText(token));
     cursor = end;
   }
   return result + text.slice(cursor);

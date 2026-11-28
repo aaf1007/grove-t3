@@ -2493,7 +2493,7 @@
   "febf4ec3cdcdf372": "Uppdateringskommandot kopierades",
   "bee440d0da53841c": "Omstartskommandot kopierades",
   "3d101301109ccaff": "Kör `{command}` på {serverLabel} och starta sedan om loopy med dina vanliga alternativ.",
-  "ca4a8c881149181b": "Stoppa loopy på {serverLabel} och starta sedan om med `{command}` med samma underkommando och alternativ. Det här uppdaterar inte ett installerat t3-kommando.",
+  "ca4a8c881149181b": "Stoppa loopy på {serverLabel} och starta sedan om med `{command}` med samma underkommando och alternativ. Det här uppdaterar inte ett installerat loopy-kommando.",
   "3cb4fcae1546e2eb": "Kunde inte kopiera uppdateringskommandot",
   "54332a48746c5595": "Uppdatera Loopy-skrivbordsappen som kör {serverLabel}? Den stängs och startas om på den datorn.",
   "a1581c125ff5ba06": "Kopiera uppdateringskommando",

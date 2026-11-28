@@ -2493,7 +2493,7 @@
   "febf4ec3cdcdf372": "Update-Befehl kopiert",
   "bee440d0da53841c": "Neustart-Befehl kopiert",
   "3d101301109ccaff": "Führe `{command}` auf {serverLabel} aus und starte loopy dann mit deinen üblichen Optionen neu.",
-  "ca4a8c881149181b": "Stoppe loopy auf {serverLabel} und starte es dann mit `{command}` und demselben Unterbefehl und denselben Optionen neu. Ein installierter t3-Befehl wird dadurch nicht aktualisiert.",
+  "ca4a8c881149181b": "Stoppe loopy auf {serverLabel} und starte es dann mit `{command}` und demselben Unterbefehl und denselben Optionen neu. Ein installierter loopy-Befehl wird dadurch nicht aktualisiert.",
   "3cb4fcae1546e2eb": "Update-Befehl konnte nicht kopiert werden",
   "54332a48746c5595": "Die Loopy-Desktop-App aktualisieren, auf der {serverLabel} läuft? Sie wird auf diesem Rechner geschlossen und neu gestartet.",
   "a1581c125ff5ba06": "Update-Befehl kopieren",
