@@ -12,8 +12,8 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <script>
       (() => {
-        const LIGHT_BACKGROUND = "#ffffff";
-        const DARK_BACKGROUND = "#000000";
+        const LIGHT_BACKGROUND = "#fafafa";
+        const DARK_BACKGROUND = "#060606";
         const CUSTOM_THEMES_STORAGE_KEY = "t3code:themes:v1";
         const ENVIRONMENT_THEMES_STORAGE_KEY = "t3code:environment-themes:v1";
         const THEME_FOLLOW_SYSTEM_STORAGE_KEY = "t3code:theme-follow-system";
@@ -21,14 +21,14 @@
         const THEME_HALVES_STORAGE_KEY = "t3code:theme-halves:v1";
         const SPLASH_COLORS = {
           light: {
-            background: "#ffffff",
-            foreground: "#262626",
-            accent: "#4f46e5",
+            background: LIGHT_BACKGROUND,
+            foreground: "#0a0a0a",
+            accent: "#646464",
           },
           dark: {
-            background: "#000000",
-            foreground: "#f5f5f5",
-            accent: "#818cf8",
+            background: DARK_BACKGROUND,
+            foreground: "#ededed",
+            accent: "#a3a3a3",
           },
         };
         // These are the runtime defaults used to complete a custom palette
@@ -447,15 +447,15 @@
       }
 
       body {
-        background: #ffffff;
-        color: #262626;
+        background: #fafafa;
+        color: #0a0a0a;
         font-family:
           -apple-system, BlinkMacSystemFont, "Inter Variable", "Segoe UI", system-ui, sans-serif;
       }
 
       html.dark body {
-        background: #000000;
-        color: #f5f5f5;
+        background: #060606;
+        color: #ededed;
       }
 
       #boot-shell {
@@ -467,6 +467,51 @@
         justify-content: center;
         background: inherit;
         color: inherit;
+        isolation: isolate;
+      }
+
+      [data-onboarding-dither] {
+        position: absolute;
+        inset: 0 0 auto;
+        z-index: -1;
+        height: min(30rem, 100%);
+        overflow: hidden;
+        pointer-events: none;
+        opacity: 0.15;
+        color: #0a0a0a;
+        mask-image:
+          linear-gradient(to bottom, transparent, black 24%, black 60%, transparent),
+          radial-gradient(ellipse at center, transparent 24%, black 78%);
+        mask-composite: intersect;
+      }
+
+      html.dark [data-onboarding-dither] {
+        color: #ededed;
+      }
+
+      /* Use a still frame from themeDither so even the boot shell can show it before React loads. */
+      [data-onboarding-dither]::before {
+        position: absolute;
+        inset: 0 -5rem;
+        content: "";
+        background-color: currentColor;
+        mask: url("/onboarding-dither.png") center / 100% 100% no-repeat;
+        image-rendering: pixelated;
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        [data-onboarding-dither]::before {
+          animation: onboarding-dither-enter 2.4s cubic-bezier(0.18, 0.64, 0.28, 1);
+        }
+      }
+
+      @keyframes onboarding-dither-enter {
+        from {
+          transform: translate3d(-4.5rem, 1.5rem, 0) scale(1.04);
+        }
+        to {
+          transform: none;
+        }
       }
 
       html[data-theme-selected="true"] #boot-shell {
@@ -731,6 +776,7 @@
   <body>
     <div id="root">
       <div id="boot-shell">
+        <span data-onboarding-dither aria-hidden="true"></span>
         <div id="boot-shell-card" aria-label="Loopy splash screen">
           <img id="boot-shell-logo" src="/apple-touch-icon.png" alt="Loopy" />
         </div>

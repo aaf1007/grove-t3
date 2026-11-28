@@ -10,12 +10,21 @@ import { ScrollArea } from "./scroll-area";
 export function WizardPopup({
   children,
   size = "default",
+  onboardingStep,
   ...props
 }: Omit<ComponentProps<typeof DialogPopup>, "className" | "style"> & {
   readonly size?: "default" | "wide";
+  readonly onboardingStep?: string | number | undefined;
 }) {
   return (
-    <DialogPopup {...props} className={size === "wide" ? "max-w-3xl" : "max-w-xl"}>
+    <DialogPopup
+      {...props}
+      data-onboarding-dialog={onboardingStep === undefined ? undefined : ""}
+      className={size === "wide" ? "max-w-3xl" : "max-w-xl"}
+    >
+      {onboardingStep === undefined ? null : (
+        <span key={onboardingStep} data-onboarding-dither="" aria-hidden />
+      )}
       <ScrollArea className="*:data-[slot=scroll-area-scrollbar]:data-[orientation=vertical]:my-4">
         <div className="flex min-h-0 flex-col">{children}</div>
       </ScrollArea>

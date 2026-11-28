@@ -153,6 +153,7 @@ interface AddProviderInstanceDialogProps {
   readonly onCreated?: (instanceId: ProviderInstanceId, driver: ProviderDriverKind) => void;
   /** Opens with "Show more" expanded, so the ACP Registry search is in view. */
   readonly showMoreProviders?: boolean;
+  readonly onboarding?: boolean;
 }
 
 export function AddProviderInstanceDialog({
@@ -162,6 +163,7 @@ export function AddProviderInstanceDialog({
   onOpenChange,
   onCreated,
   showMoreProviders: initialShowMoreProviders = false,
+  onboarding = false,
 }: AddProviderInstanceDialogProps) {
   const gt = useGT();
   const m = useMessages();
@@ -445,6 +447,7 @@ export function AddProviderInstanceDialog({
     return (
       <AddManagedCodexAccountDialog
         environmentId={environmentId}
+        onboarding={onboarding}
         onClose={() => onOpenChange(false)}
         onAccountCreated={(instanceId) => onCreated?.(instanceId, ProviderDriverKind.make("codex"))}
       />
@@ -453,7 +456,7 @@ export function AddProviderInstanceDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <WizardPopup size="wide">
+      <WizardPopup size="wide" onboardingStep={onboarding ? wizardStep : undefined}>
         <WizardHeader
           title={gt("Add provider")}
           description={

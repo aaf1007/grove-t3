@@ -1,0 +1,48 @@
+html:root:has(#root [data-onboarding-screen]),
+[data-onboarding-dialog] {
+  --background: #fafafa;
+  --app-chrome-background: var(--background);
+  --foreground: #0a0a0a;
+  --muted-foreground: #5c5c5c;
+  --placeholder: var(--muted-foreground);
+  --secondary-label: var(--muted-foreground);
+  --icon-muted: var(--muted-foreground);
+  --card: #fff;
+  --card-foreground: var(--foreground);
+  --popover: var(--card);
+  --popover-foreground: var(--foreground);
+  --muted: #f0f0f0;
+  --secondary: #eaeaea;
+  --secondary-foreground: var(--foreground);
+  --accent: var(--secondary);
+  --accent-foreground: var(--foreground);
+  --border: #e4e4e4;
+  --input: #c8c8c8;
+  --ring: #646464;
+  --primary: #0a0a0a;
+  --primary-foreground: #fafafa;
+
+  @variant dark {
+    --background: #060606;
+    --foreground: #ededed;
+    --muted-foreground: #a3a3a3;
+    --card: #101010;
+    --muted: #181818;
+    --secondary: #242424;
+    --border: #303030;
+    --input: #474747;
+    --ring: #a3a3a3;
+    --primary: #ededed;
+    --primary-foreground: #060606;
+  }
+}
+
+[data-onboarding-dialog] {
+  background: var(--popover);
+}
+
+[data-onboarding-screen],
+[data-onboarding-dialog] {
+  position: relative;
+  isolation: isolate;
+}

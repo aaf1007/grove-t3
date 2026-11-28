@@ -230,10 +230,12 @@ export function CodexSetupSection(props: CodexSetupSectionProps) {
 
 export function AddManagedCodexAccountDialog({
   environmentId,
+  onboarding = false,
   onClose,
   onAccountCreated,
 }: {
   readonly environmentId: EnvironmentId;
+  readonly onboarding?: boolean;
   readonly onClose: () => void;
   readonly onAccountCreated?:
     | ((instanceId: ProviderInstanceId, displayName: string) => void)
@@ -243,6 +245,7 @@ export function AddManagedCodexAccountDialog({
   return (
     <AddCodexAccountDialog
       environmentId={environmentId}
+      onboarding={onboarding}
       onClose={onClose}
       onAccountCreated={onAccountCreated}
       renderSetup={(instanceId, provider) => (

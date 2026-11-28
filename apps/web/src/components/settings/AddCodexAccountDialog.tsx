@@ -26,11 +26,13 @@ const CODEX_DRIVER_KIND = ProviderDriverKind.make("codex");
 
 export function AddCodexAccountDialog({
   environmentId,
+  onboarding = false,
   onClose,
   renderSetup,
   onAccountCreated,
 }: {
   readonly environmentId: EnvironmentId;
+  readonly onboarding?: boolean;
   readonly onClose: () => void;
   // Told when the account is created; the dialog then runs its own sign-in.
   readonly onAccountCreated?:
@@ -92,7 +94,7 @@ export function AddCodexAccountDialog({
         if (!open && connected) onClose();
       }}
     >
-      <WizardPopup size="wide">
+      <WizardPopup size="wide" onboardingStep={onboarding ? (instanceId ? 1 : 0) : undefined}>
         <WizardHeader
           title={instanceId ? displayName : gt("Add ChatGPT account")}
           description={gt(
