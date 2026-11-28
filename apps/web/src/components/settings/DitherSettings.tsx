@@ -2,7 +2,9 @@ import type { CSSProperties } from "react";
 import { msg, useGT, useMessages } from "gt-react";
 import {
   MAX_THEME_DITHER_SCALE,
+  MAX_THEME_DITHER_SPEED,
   MIN_THEME_DITHER_SCALE,
+  MIN_THEME_DITHER_SPEED,
   THEME_DITHER_PATTERNS,
   THEME_DITHER_SURFACES,
   type ThemeDitherPattern,
@@ -54,22 +56,48 @@ function sliderStyle(value: number, min: number, max: number): CSSProperties {
   } as CSSProperties;
 }
 
+function useShownDither() {
+  const settings = useScopedSettings();
+  const { theme, themeHalves, resolvedTheme } = useTheme();
+  const definition = getThemeDefinition(resolveThemeHalf(theme, themeHalves, resolvedTheme));
+  return {
+    definition,
+    resolvedTheme,
+    enabled: settings.ditherEnabled,
+    override: settings.ditherOverride,
+    shown: effectiveThemeDither(definition?.dither, settings.ditherOverride),
+  };
+}
+
+const DITHER_DETAIL_ROWS = [
+  "dither-pattern",
+  "dither-strength",
+  "dither-scale",
+  "dither-color",
+  "dither-surfaces",
+  "dither-motion",
+] as const;
+
+/** Points search at the nearest dither row still on screen when a row is hidden. */
+export function useDitherSearchFallbacks(): Readonly<Record<string, string | undefined>> {
+  const { enabled, shown } = useShownDither();
+  if (!enabled) {
+    return Object.fromEntries([...DITHER_DETAIL_ROWS, "dither-speed"].map((id) => [id, "dither"]));
+  }
+  return { "dither-speed": shown.motion ? undefined : "dither-motion" };
+}
+
 export function DitherSettingsSection() {
   const searchableSetting = useSearchableSetting();
   const gt = useGT();
   const m = useMessages();
-  const settings = useScopedSettings();
   const updateSettings = useUpdateScopedSettings();
-  const { theme, themeHalves, resolvedTheme } = useTheme();
   const customThemes = useCustomThemes();
-  const definition = getThemeDefinition(resolveThemeHalf(theme, themeHalves, resolvedTheme));
+  const { definition, resolvedTheme, enabled, override, shown } = useShownDither();
   const colors =
     (definition && getThemeColorsForMode(definition, resolvedTheme)) ??
     getStandardPaintedThemeColors(resolvedTheme);
   const themeDither = definition?.dither;
-  const override = settings.ditherOverride;
-  const enabled = settings.ditherEnabled;
-  const shown = effectiveThemeDither(themeDither, override);
   const customTheme = customThemes.find((candidate) => candidate.id === definition?.id) ?? null;
 
   const update = (patch: Partial<ResolvedThemeDither>) =>
@@ -283,6 +311,38 @@ export function DitherSettingsSection() {
               />
             }
           />
+          {shown.motion ? (
+            <SettingsRow
+              {...searchableSetting("dither-speed")}
+              devicePreference
+              description={gt("Set how fast the light drifts.")}
+              control={
+                <div className="flex w-full items-center gap-3 sm:w-52">
+                  <output
+                    className="min-w-12 rounded-md bg-muted px-2 py-1 text-center font-mono text-xs font-medium tabular-nums text-foreground"
+                    htmlFor="dither-speed-slider"
+                  >
+                    {shown.speed / 100}×
+                  </output>
+                  <input
+                    aria-label={gt("Dither speed")}
+                    className="settings-slider min-w-0 flex-1"
+                    id="dither-speed-slider"
+                    max={MAX_THEME_DITHER_SPEED}
+                    min={MIN_THEME_DITHER_SPEED}
+                    onChange={(event) => {
+                      const speed = Number(event.currentTarget.value);
+                      if (Number.isInteger(speed)) update({ speed });
+                    }}
+                    step={25}
+                    style={sliderStyle(shown.speed, MIN_THEME_DITHER_SPEED, MAX_THEME_DITHER_SPEED)}
+                    type="range"
+                    value={shown.speed}
+                  />
+                </div>
+              }
+            />
+          ) : null}
         </>
       ) : null}
     </SettingsSection>

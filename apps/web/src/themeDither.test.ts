@@ -150,14 +150,13 @@ describe("theme dither", () => {
     expect(css).not.toContain("sidebar-inner");
   });
 
-  it("pools light at the top and lets a dimmer glow reach the bottom", () => {
+  it("pools light at the top and leaves the lower half clear", () => {
     const [columns, rows] = [120, 80];
     const lit = (cells: Uint32Array, from: number, to: number) =>
       cells.slice(from * columns, to * columns).filter(Boolean).length;
     const cells = ditherCells(DEFAULT_THEME_DITHER, columns, rows, 1, 2.5);
     expect(lit(cells, 0, rows / 4)).toBeGreaterThan(columns);
-    expect(lit(cells, (rows * 3) / 4, rows)).toBeGreaterThan(0);
-    expect(lit(cells, 0, rows / 4)).toBeGreaterThan(2 * lit(cells, (rows * 3) / 4, rows));
+    expect(lit(cells, (rows * 3) / 5, rows)).toBe(0);
     const brighter = ditherCells({ ...DEFAULT_THEME_DITHER, strength: 100 }, columns, rows, 1, 2.5);
     expect(lit(brighter, 0, rows)).toBeGreaterThan(lit(cells, 0, rows));
     expect(ditherCells(DEFAULT_THEME_DITHER, columns, rows, 1, 2.5)).toEqual(cells);

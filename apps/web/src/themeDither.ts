@@ -17,6 +17,7 @@ export type ResolvedThemeDither = Readonly<{
   color: string | null;
   surfaces: ReadonlyArray<ThemeDitherSurface>;
   motion: boolean;
+  speed: number;
 }>;
 
 export const DEFAULT_THEME_DITHER: ResolvedThemeDither = {
@@ -26,6 +27,7 @@ export const DEFAULT_THEME_DITHER: ResolvedThemeDither = {
   color: null,
   surfaces: ["canvas"],
   motion: false,
+  speed: 100,
 };
 
 /** A lit cell's opacity over its surface, before the contrast cap lowers it. */
@@ -50,6 +52,7 @@ export function resolveThemeDither(dither: ThemeDither): ResolvedThemeDither {
     color: dither.color ?? null,
     surfaces: dither.surfaces ? [...new Set(dither.surfaces)] : DEFAULT_THEME_DITHER.surfaces,
     motion: dither.motion ?? DEFAULT_THEME_DITHER.motion,
+    speed: dither.speed ?? DEFAULT_THEME_DITHER.speed,
   };
 }
 
@@ -61,6 +64,7 @@ export function toThemeDither(dither: ResolvedThemeDither): ThemeDither {
     ...(dither.color ? { color: dither.color } : {}),
     surfaces: dither.surfaces,
     motion: dither.motion,
+    speed: dither.speed,
   };
 }
 
@@ -270,22 +274,25 @@ type Glow = Readonly<{
   period: number;
   phase: number;
   peak: number;
-  fromBottom: boolean;
 }>;
 
-// Two pools of light hanging from the top that swell, fade, and slide past each other,
-// and a dimmer one rising from the bottom so the light reaches across the window.
+// Pools of light hanging from the top edge that swell, fade, and slide past each other.
 const GLOWS: ReadonlyArray<Glow> = [
-  { x: 0.24, width: 0.46, depth: 0.85, period: 10, phase: 0, peak: 1, fromBottom: false },
-  { x: 0.8, width: 0.42, depth: 0.8, period: 10, phase: Math.PI / 2, peak: 1, fromBottom: false },
-  { x: 0.55, width: 0.55, depth: 0.5, period: 14, phase: 0, peak: 0.65, fromBottom: true },
+  { x: 0.15, width: 0.32, depth: 0.62, period: 10, phase: 0, peak: 0.85 },
+  { x: 0.5, width: 0.3, depth: 0.4, period: 13, phase: Math.PI / 3, peak: 0.55 },
+  { x: 0.85, width: 0.34, depth: 0.7, period: 11, phase: Math.PI / 2, peak: 1 },
 ];
 const TAU = Math.PI * 2;
 /** The moment a still dither shows: every glow lit, the first near full. */
 const STILL_TIME = 2.5;
+/** The light is gone by this far down the window, so the middle stays clear for text. */
+const FIELD_FLOOR = 0.5;
+/** How far above the floor the light starts thinning out. */
+const FIELD_FADE = 0.3;
 
 /** Light density at `u`, `v` (0 to 1 across and down the window) at `time` seconds, 0 to 1. */
 function ditherField(u: number, v: number, time: number): number {
+  if (v >= FIELD_FLOOR) return 0;
   // A slow, gentle warp keeps the glows' edges from reading as perfect ellipses.
   const wu = u + 0.035 * Math.sin(v * 9 + time * 0.6);
   const wv = v + 0.035 * Math.sin(u * 7 - time * 0.4);
@@ -296,11 +303,12 @@ function ditherField(u: number, v: number, time: number): number {
       glow.width * (1 + 0.2 * Math.sin((TAU * time) / (glow.period * 1.3) + glow.phase + 1));
     const level = glow.peak * (0.6 + 0.4 * Math.sin((TAU * time) / glow.period + glow.phase));
     const dx = (wu - x) / width;
-    const dy = ((glow.fromBottom ? 1 - wv : wv) + 0.08) / glow.depth;
+    const dy = (wv + 0.05) / glow.depth;
     // Screen blend, so overlapping glows brighten together instead of meeting at a seam.
     value = 1 - (1 - value) * (1 - level * Math.exp(-2.6 * (dx * dx + dy * dy)));
   }
-  return value;
+  const fade = Math.min(1, (FIELD_FLOOR - v) / FIELD_FADE);
+  return value * fade * fade * (3 - 2 * fade);
 }
 
 /** Lights each cell whose field density clears the pattern's threshold. Packed RGBA, row-major. */
@@ -354,6 +362,7 @@ let imageUrls: ReadonlyArray<string> = [];
 let paintKey = "";
 let paintGeneration = 0;
 let motionTimer: ReturnType<typeof setTimeout> | null = null;
+let motionTime = STILL_TIME;
 let listening = false;
 
 function applyCss(css: string) {
@@ -472,12 +481,17 @@ function render(): void {
   paintedColors = colors;
   stopMotion();
   if (!animate) {
+    motionTime = STILL_TIME;
     void paint(dither, colors, STILL_TIME);
     return;
   }
-  const started = performance.now();
+  // Carried across repaints, so changing the speed or colors keeps the light where it is.
+  let last = performance.now();
   const frame = () => {
-    void paint(dither, colors, STILL_TIME + (performance.now() - started) / 1000);
+    const now = performance.now();
+    motionTime += ((now - last) / 1000) * (dither.speed / 100);
+    last = now;
+    void paint(dither, colors, motionTime);
     motionTimer = setTimeout(frame, 1000 / DITHER_MOTION_FPS);
   };
   frame();
