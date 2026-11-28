@@ -180,6 +180,7 @@ jobs:
         run: |
           set -euo pipefail
           args=(--platform "${{ matrix.platform }}" --target "${{ matrix.target }}" --arch "${{ matrix.arch }}" --build-version "$VERSION" --verbose)
+          [[ "${{ matrix.platform }}" == "win" ]] && args+=(--keep-stage)
           if [[ "$SIGNED" == "true" && "${{ matrix.platform }}" == "mac" ]]; then
             # electron-builder's notarization reads the API key from a file.
             key_path="$RUNNER_TEMP/AuthKey_${APPLE_API_KEY_ID}.p8"
